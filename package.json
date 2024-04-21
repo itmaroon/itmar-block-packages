@@ -9,9 +9,21 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Web Creator ITmaroon",
-  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/itmaroon/itmar-block-packages.git"
+  },
+  "keywords": [
+    "WordPress",
+    "Plugin",
+    "Block",
+    "Gutenberg"
+  ],
+  "license": "MIT",
   "dependencies": {
+    "@wordpress/icons": "^9.47.0",
     "lodash": "^4.17.21",
+    "react-select": "^5.8.0",
     "styled-components": "^6.1.8"
   },
   "devDependencies": {

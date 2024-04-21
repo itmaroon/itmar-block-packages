@@ -3,6 +3,18 @@ const capitalizeFirstLetter = (string) => {
   return string.charAt(0).toUpperCase() + string.slice(1);
 };
 
+//角丸のパラメータを返す
+export const radius_prm = (radius) => {
+  const ret_radius_prm =
+    radius && Object.keys(radius).length === 1
+      ? radius.value
+      : `${(radius && radius.topLeft) || ""} ${
+          (radius && radius.topRight) || ""
+        } ${(radius && radius.bottomRight) || ""} ${
+          (radius && radius.bottomLeft) || ""
+        }`;
+  return ret_radius_prm;
+};
 //スペースのパラメータを返す
 export const space_prm = (space) => {
   const ret_space_prm = space
@@ -10,17 +22,83 @@ export const space_prm = (space) => {
     : "";
   return ret_space_prm;
 };
+//positionのオブジェクトを返します
+export const position_prm = (pos, type) => {
+  if (pos) {
+    const resetVertBase = pos.vertBase === "top" ? "bottom" : "top";
+    const resetHorBase = pos.horBase === "left" ? "right" : "left";
+    const ret_pos_prm =
+      pos && (type === "absolute" || type === "fixed" || type === "sticky")
+        ? `
+    ${pos.vertBase}: ${pos.vertValue}; 
+    ${pos.horBase}: ${pos.horValue};
+    ${resetVertBase}: auto;
+    ${resetHorBase}: auto;
+    ${
+      type === "fixed" || type === "sticky"
+        ? "margin-block-start:0;z-index: 50;"
+        : "z-index: auto;"
+    }
+  `
+        : "";
+    return ret_pos_prm;
+  }
+  return null;
+};
 //ブロック幅を返す
 export const max_width_prm = (width, free_val) => {
   const ret_width_prm =
     width === "wideSize"
-      ? " width: 100%; max-width: var(--wp--style--global--wide-size);"
+      ? "width: 100%; max-width: var(--wp--style--global--wide-size);"
       : width === "contentSize"
-      ? " width: 100%; max-width: var(--wp--style--global--content-size);"
+      ? "width: 100%; max-width: var(--wp--style--global--content-size);"
       : width === "free"
-      ? ` width: 100%; max-width: ${free_val}px; `
+      ? `width: 100%; max-width: ${free_val}px;`
+      : width === "full"
+      ? "width: 100%; max-width: 100%;"
       : " width: fit-content;";
   return ret_width_prm;
+};
+
+export const width_prm = (width, free_val) => {
+  const ret_width_prm =
+    width === "wideSize"
+      ? " width: var(--wp--style--global--wide-size);"
+      : width === "contentSize"
+      ? " width: var(--wp--style--global--content-size);"
+      : width === "free"
+      ? ` width: ${free_val}px; `
+      : " width: fit-content;";
+  return ret_width_prm;
+};
+
+export const height_prm = (height) => {
+  const ret_height_prm =
+    height === "fit" ? " height: fit-content;" : "height: 100%;";
+  return ret_height_prm;
+};
+//配置を返す
+export const align_prm = (align) => {
+  const ret_align_prm =
+    align === "center"
+      ? "margin-left: auto; margin-right: auto;"
+      : align === "right"
+      ? "margin-left: auto; margin-right: 0"
+      : "margin-right: auto; margin-left: 0";
+
+  return ret_align_prm;
+};
+
+//スタイルオブジェクト変換関数
+export const convertToScss = (styleObject) => {
+  let scss = "";
+  for (const prop in styleObject) {
+    if (styleObject.hasOwnProperty(prop)) {
+      const scssProp = prop.replace(/([A-Z])/g, "-$1").toLowerCase();
+      scss += `${scssProp}: ${styleObject[prop]};\n`;
+    }
+  }
+  return scss;
 };
 
 export const borderProperty = (borderObj) => {
@@ -80,19 +158,6 @@ export const radiusProperty = (radiusObj) => {
   return ret_val;
 };
 
-//角丸のパラメータを返す
-export const radius_prm = (radius) => {
-  const ret_radius_prm =
-    radius && Object.keys(radius).length === 1
-      ? radius.value
-      : `${(radius && radius.topLeft) || ""} ${
-          (radius && radius.topRight) || ""
-        } ${(radius && radius.bottomRight) || ""} ${
-          (radius && radius.bottomLeft) || ""
-        }`;
-  return ret_radius_prm;
-};
-
 //マージンの設定
 export const marginProperty = (marginObj) => {
   const ret_prop = `${marginObj.top} ${marginObj.right} ${marginObj.bottom} ${marginObj.left}`;
@@ -107,38 +172,3 @@ export function paddingProperty(paddingObj) {
   const ret_val = { padding: ret_prop };
   return ret_val;
 }
-
-export const width_prm = (width, free_val) => {
-  const ret_width_prm =
-    width === "wideSize"
-      ? " width: var(--wp--style--global--wide-size);"
-      : width === "contentSize"
-      ? " width: var(--wp--style--global--content-size);"
-      : width === "free"
-      ? ` width: ${free_val}px; `
-      : " width: fit-content;";
-  return ret_width_prm;
-};
-//配置を返す
-export const align_prm = (align) => {
-  const ret_align_prm =
-    align === "center"
-      ? "margin-left: auto; margin-right: auto;"
-      : align === "right"
-      ? "margin-left: auto; margin-right: 0"
-      : "margin-right: auto; margin-left: 0";
-
-  return ret_align_prm;
-};
-
-//スタイルオブジェクト変換関数
-export const convertToScss = (styleObject) => {
-  let scss = "";
-  for (const prop in styleObject) {
-    if (styleObject.hasOwnProperty(prop)) {
-      const scssProp = prop.replace(/([A-Z])/g, "-$1").toLowerCase();
-      scss += `${scssProp}: ${styleObject[prop]};\n`;
-    }
-  }
-  return scss;
-};

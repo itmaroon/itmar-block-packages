@@ -2,6 +2,51 @@ import { MediaUpload, MediaUploadCheck } from "@wordpress/block-editor";
 import { __ } from "@wordpress/i18n";
 import { Button, PanelBody } from "@wordpress/components";
 
+export function SingleImageSelect(props) {
+  const { attributes } = props;
+  const { mediaID, media } = attributes;
+
+  //URL の配列から画像を生成
+  const getImage = (image) => {
+    //メディアオブジェクトの配列をループ処理
+    return (
+      <figure>
+        <img src={image.url} className="image" alt="アップロード画像" />
+      </figure>
+    );
+  };
+
+  //メディアライブラリを開くボタンをレンダリングする関数
+  const getImageButton = (open) => {
+    if (media) {
+      return (
+        <div onClick={open} className="block-container">
+          {getImage(media)}
+        </div>
+      );
+    } else {
+      return (
+        <div className="button-container">
+          <Button onClick={open} className="button button-large">
+            {__("Sel", "itmar_mv_blocks")}
+          </Button>
+        </div>
+      );
+    }
+  };
+
+  return (
+    <MediaUploadCheck>
+      <MediaUpload
+        onSelect={(media) => props.onSelectChange(media)}
+        allowedTypes={["image"]}
+        value={mediaID}
+        render={({ open }) => getImageButton(open)}
+      />
+    </MediaUploadCheck>
+  );
+}
+
 export function MultiImageSelect(props) {
   const { attributes, label } = props;
   const { mediaID, media } = attributes;
