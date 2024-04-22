@@ -19,7 +19,6 @@ const is_mobile=useIsIframeMobile();
 ブロックの背景色を返します。ユーザー設定で指定されていれば、その色を返し、指定されていないか、カスタムプロパティ（--wpで始まるプロパティ）であれば、getComputedStyleで実際にレンダリングされた色を取得します。
 #### 引数
 - `blockRef`  
-
 ブロックへの参照。useRefで取得
 - `style`
 ブロックに設定されているスタイル。useBlockPropsで取得
