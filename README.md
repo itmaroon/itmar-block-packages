@@ -184,7 +184,7 @@ WordPressのブロックエディタのサイドバーにbox-shadowを設定す�
 />
 ```
 
-![ShadowStyleのスクリーンショット](https://github.com/itmaroon/itmar-block-packages/blob/master/img/shadow.png =300x300)
+<img src="./img/shadow.png" alt="ShadowStyleのスクリーンショット" width="500" height="500">
   
   
 ### ShadowElm
