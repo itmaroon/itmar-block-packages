@@ -5,6 +5,6 @@ module.exports = {
   ...defaultConfig,
   output: {
     ...defaultConfig.output,
-    libraryTarget: "umd",
+    libraryTarget: "commonjs2",
   },
 };
