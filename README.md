@@ -13,6 +13,13 @@ import {関数名又はコンポーネント名} from "itmar-block-packages"
 
 npm i @wordpress/scripts@^27.6.0 --save-dev
 
+## 更新履歴
+= 1.3.0 =  
+- WordPressのデータをRest APIを通して取得する関数等に、次の関数とReactコンポーネントを追加した
+ - restTaxonomies
+ - TermChoiceControl
+- edit.scssおよびstyle.scssを配置し、これをトランスパイルして、複数のプラグインから共通のスタイルとして使用できるようにした
+
 
 # 各コンポーネント・関数の機能
 ## カスタムフック
@@ -350,27 +357,114 @@ WordPressのブロックエディタのサイドバーにTypographyを設定す�
 
 ## WordPressのデータをRest APIを通して取得する関数等
 ### fetchPagesOptions
-固定ページのid,title,linkを返します。
+固定ページの情報を取得して配列で返します。
+#### 引数
+- `homeUrl` string  
+サイトのホームURL  
+
+#### 戻り値
+次のようなキーを持つオブジェクトの配列を返します。  
+`value` 固定ページのid。ただし、サイトのホームについては-1をかえす。  
+`slug` 固定ページのスラッグ  
+`link` 固定ページのURL
+`label` 固定ページの名称  
+
 ### fetchArchiveOptions
-投稿タイプのアーカイブのurlを返します。
+カスタム投稿タイプ（ビルトインを含む）の情報を取得して配列で返します。
+#### 引数
+- `homeUrl` string  
+サイトのホームURL  
+
+#### 戻り値
+次のようなキーを持つオブジェクトの配列を返します。  
+`value` 0から始まる通し番号  
+`slug` ポストタイプのスラッグ  
+`link` アーカイブページのURL
+`label` ポストタイプの名称 
+
+### restTaxonomies
+投稿タイプに登録されているタクソノミー（カテゴリ、タグを含む）の情報およびそのタームの情報をを取得して配列で返します。
+#### 引数
+- `post_type` string  
+投稿タイプのスラッグ  
+
+#### 戻り値
+次のようなキーを持つオブジェクトの配列を返します。  
+`slug` タクソノミーのスラッグ 
+`name` タクソノミーの名称  
+`rest_base` タクソノミーのREST_APIの名称
+`terms` ターム情報オブジェクトの配列 
+
 ### PageSelectControl
-固定ページのタイトルを表示し、そのリンクを返すセレクトコントロールを表示させます。
+固定ページを選択できるコンボボックス表示し、固定ページの情報を返します。
+#### プロプス  
+- `selectedSlug` string  
+選択済みの固定ページのスラッグ 
+- `label` string
+コンボボックスのラベル  
+- `homeUrl` string  
+サイトのホームURL
+- `onChange` func
+コンボボックスの内容が変化したとき発生するコールバック関数。引数には`fetchPagesOptions`の戻り値が入る。 
+
 ```
 <PageSelectControl
-	attributes={attributes}
-	setAttributes={setAttributes}
-	label={__("Select a fixed page to link to", "text-domain")}
-	homeUrl={block_collections.home_url}
+	selectedSlug={selectedSlug}
+	label={__("Select Post Type", "post-blocks")}
+	homeUrl={post_blocks.home_url}
+	onChange={(postInfo) => {
+		setAttributes({ selectedSlug: postInfo.slug });
+	}}
 />
 ```
+
 ### ArchiveSelectControl
-投稿タイプ名を表示し、そのアーカイブのURLを返すセレクトコントロールを表示させます。
+投稿タイプ名を選択できるコンボボックス表示し、投稿タイプの情報を返します。
+#### プロプス  
+- `selectedSlug` string  
+選択済みの投稿タイプのスラッグ 
+- `label` string
+コンボボックスのラベル  
+- `homeUrl` string  
+サイトのホームURL
+- `onChange` func
+コンボボックスの内容が変化したとき発生するコールバック関数。引数には`fetchArchiveOptions`の戻り値が入る。 
+
 ```
 <ArchiveSelectControl
-	attributes={attributes}
-	setAttributes={setAttributes}
-	label={__("Select archive page to link to", "text-domain")}
-	homeUrl={block_collections.home_url}
+	selectedSlug={selectedSlug}
+	label={__("Select Post Type", "post-blocks")}
+	homeUrl={post_blocks.home_url}
+	onChange={(postInfo) => {
+		setAttributes({ selectedSlug: postInfo.slug });
+	}}
+/>
+```
+
+### TermChoiceControl
+投稿タイプに紐づけられている全てのタクソノミー（カテゴリ、タグを含む。）に登録されたタームを選択できるチェックボックス表示し、コールバック関数に選択されたタームの情報を返します。
+#### プロプス  
+- `selectedSlug` string  
+選択済みの投稿タイプのスラッグ 
+- `choiceTerms` array  
+選択済みのタームの情報。配列の要素は次の形式のオブジェクトであること。  
+{ taxonomy: タクソノミーのスラッグ, term: タームのスラッグ }    
+- `type` string 
+選択するデータのタイプ。将来の拡張のためにセットしている。現時点では"taxonomy"とセットすること。
+- `label` string  
+
+- `onChange` func
+チェックボックスの内容が変化したとき発生するコールバック関数。引数には{ taxonomy: タクソノミーのスラッグ, term: タームのスラッグ }という形式のオブジェクトを要素とする配列が入る。 
+
+```
+<TermChoiceControl
+	selectedSlug={selectedSlug}
+	choiceTerms={choiceTerms}
+	type="taxonomy"
+	label={__("Choice Taxsonomy", "post-blocks")}
+	onChange={(newChoiceTerms) =>
+		setAttributes({ choiceTerms: newChoiceTerms })
+	}
 />
 ```
 
