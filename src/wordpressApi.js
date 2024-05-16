@@ -1,6 +1,12 @@
 import { useState, useEffect } from "@wordpress/element";
-import { ComboboxControl, CheckboxControl } from "@wordpress/components";
+import {
+  ComboboxControl,
+  CheckboxControl,
+  ToggleControl,
+} from "@wordpress/components";
 import apiFetch from "@wordpress/api-fetch";
+
+//const _ = require("lodash");
 
 export const fetchData = async (rest_api) => {
   try {
@@ -44,9 +50,9 @@ const SelectControl = (props) => {
   );
 };
 
-//タームの選択コントロールのレンダリング関数
+//選択コントロールのレンダリング関数
 const ChoiceControl = (props) => {
-  const { selectedSlug, choiceTerms, type, label, fetchFunction } = props;
+  const { selectedSlug, choiceItems, type, fetchFunction } = props;
   const [choices, setChoices] = useState([]);
 
   useEffect(() => {
@@ -61,29 +67,55 @@ const ChoiceControl = (props) => {
     fetchData();
   }, [selectedSlug, fetchFunction]);
 
-  const handleTermChange = (checked, target) => {
+  //選択肢が変わったときに選択されている項目の配列内容を更新するハンドラ
+  const handleChoiceChange = (checked, target) => {
     if (checked) {
       // targetが重複していない場合のみ追加
-      if (
-        !choiceTerms.some(
-          (term) =>
-            term.taxonomy === target.taxonomy && term.term === target.term
-        )
-      ) {
-        return [...choiceTerms, target];
+      if (!choiceItems.some((item) => _.isEqual(item, target))) {
+        return [...choiceItems, target];
       }
     } else {
       // targetを配列から削除
-      return choiceTerms.filter(
-        (term) => term.taxonomy !== target.taxonomy || term.term !== target.term
-      );
+      return choiceItems.filter((item) => !_.isEqual(item, target));
     }
-    return choiceTerms;
+    return choiceItems;
   };
 
+  //階層化されたカスタムフィールドのフィールド名を表示する関数
+  const dispCustumFields = (obj, prefix = "", onChange) => {
+    return Object.entries(obj).map(([key, value]) => {
+      const fieldName = prefix ? `${prefix}.${key}` : key;
+      const fieldLabel = key;
+      if (typeof value === "object" && value !== null) {
+        return (
+          <div className="group_area">
+            <div className="group_label">{fieldLabel}</div>
+            <div key={fieldName} className="field_group">
+              {dispCustumFields(value, fieldName, onChange)}
+            </div>
+          </div>
+        );
+      } else {
+        if (key === "_acf_changed") return; //_acf_changedは対象外
+        return (
+          <ToggleControl
+            key={fieldName}
+            className="field_choice"
+            label={fieldLabel}
+            checked={choiceItems.some(
+              (choiceField) => choiceField === fieldName
+            )}
+            onChange={(checked) => {
+              const newChoiceFields = handleChoiceChange(checked, fieldName);
+              props.onChange(newChoiceFields);
+            }}
+          />
+        );
+      }
+    });
+  };
   return (
-    <div className="tax_section">
-      <div>{label}</div>
+    <div className={`${type}_section`}>
       {type === "taxonomy" &&
         choices.map((choice, index) => {
           return (
@@ -95,19 +127,103 @@ const ChoiceControl = (props) => {
                     className="term_check"
                     key={index}
                     label={term.name}
-                    checked={choiceTerms.some(
-                      (choiceTerm) =>
+                    checked={choiceItems.some((choiceTerm) => {
+                      return (
                         choiceTerm.taxonomy === choice.slug &&
-                        choiceTerm.term === term.slug
-                    )}
+                        choiceTerm.term.id === term.id
+                      );
+                    })}
                     onChange={(checked) => {
-                      const target = { taxonomy: choice.slug, term: term.slug };
-                      const newChoiceTerms = handleTermChange(checked, target);
+                      const target = {
+                        taxonomy: choice.slug,
+                        term: { id: term.id, slug: term.slug },
+                      };
+                      const newChoiceTerms = handleChoiceChange(
+                        checked,
+                        target
+                      );
                       props.onChange(newChoiceTerms);
                     }}
                   />
                 );
               })}
+            </div>
+          );
+        })}
+      {type === "field" &&
+        choices.map((choice, index) => {
+          return (
+            <div key={index} className="field_section">
+              {choice.title && (
+                <ToggleControl
+                  className="field_choice"
+                  label="タイトル"
+                  checked={choiceItems.some(
+                    (choiceField) => choiceField === "title"
+                  )}
+                  onChange={(checked) => {
+                    const newChoiceFields = handleChoiceChange(
+                      checked,
+                      "title"
+                    );
+                    props.onChange(newChoiceFields);
+                  }}
+                />
+              )}
+              {choice.date && (
+                <ToggleControl
+                  className="field_choice"
+                  label="日付"
+                  checked={choiceItems.some(
+                    (choiceField) => choiceField === "date"
+                  )}
+                  onChange={(checked) => {
+                    const newChoiceFields = handleChoiceChange(checked, "date");
+                    props.onChange(newChoiceFields);
+                  }}
+                />
+              )}
+              {choice.excerpt && (
+                <ToggleControl
+                  className="field_choice"
+                  label="抜粋"
+                  checked={choiceItems.some(
+                    (choiceField) => choiceField === "excerpt"
+                  )}
+                  onChange={(checked) => {
+                    const newChoiceFields = handleChoiceChange(
+                      checked,
+                      "excerpt"
+                    );
+                    props.onChange(newChoiceFields);
+                  }}
+                />
+              )}
+              {choice.featured_media && (
+                <ToggleControl
+                  className="field_choice"
+                  label="アイキャッチ画像"
+                  checked={choiceItems.some(
+                    (choiceField) => choiceField === "featured_media"
+                  )}
+                  onChange={(checked) => {
+                    const newChoiceFields = handleChoiceChange(
+                      checked,
+                      "featured_media"
+                    );
+                    props.onChange(newChoiceFields);
+                  }}
+                />
+              )}
+              {(choice.meta || choice.acf.length > 0) && (
+                <>
+                  <div className="custom_field_label">カスタムフィールド</div>
+                  <div className="custom_field_area">
+                    {choice.meta && dispCustumFields(choice.meta)}
+                    {choice.acf && dispCustumFields(choice.acf)}
+                  </div>
+                </>
+              )}
             </div>
           );
         })}
@@ -151,6 +267,7 @@ export const fetchArchiveOptions = async (home_url) => {
       acc.push({
         value: idCounter++,
         slug: postType.slug,
+        rest_base: postType.rest_base,
         link: `${home_url}/${postType.slug}`,
         label: postType.name,
       });
@@ -159,6 +276,7 @@ export const fetchArchiveOptions = async (home_url) => {
       acc.push({
         value: idCounter++,
         slug: postType.slug,
+        rest_base: postType.rest_base,
         link: `${home_url}/${postType.has_archive}`,
         label: postType.name,
       });
@@ -196,12 +314,24 @@ export const restTaxonomies = async (post_type) => {
 };
 
 //フィールド情報取得RestAPI関数
-// export const restFieldes = async (post_type) => {
-//   const response = await apiFetch({
-//     path: `/wp/v2/types/${post_type}?context=edit`,
-//   });
-//   return response;
-// };
+export const restFieldes = async (rest_base) => {
+  //投稿データに以下のフィールドが含まれているかを調べる
+  const selectedFields = [
+    "title",
+    "date",
+    "excerpt",
+    "featured_media",
+    "meta",
+    "acf",
+  ];
+  const fieldsParam = selectedFields.join(",");
+  //最新の投稿データから１件分のデータを抽出
+  const response = await apiFetch({
+    path: `/wp/v2/${rest_base}?_fields=${fieldsParam}&per_page=1&order=desc`,
+  });
+
+  return response;
+};
 
 export const PageSelectControl = (props) => (
   <SelectControl {...props} fetchOptions={fetchPagesOptions} />
@@ -215,6 +345,6 @@ export const TermChoiceControl = (props) => (
   <ChoiceControl {...props} fetchFunction={restTaxonomies} />
 );
 
-// export const FieldChoiceControl = (props) => (
-//   <ChoiceControl {...props} fetchFunction={restFieldes} />
-// );
+export const FieldChoiceControl = (props) => (
+  <ChoiceControl {...props} fetchFunction={restFieldes} />
+);

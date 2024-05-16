@@ -1,6 +1,3 @@
-import "./editor.scss";
-import "./style.scss";
-
 //カスタムフック（一般）
 export {
   useIsIframeMobile,
@@ -20,7 +17,7 @@ export {
   PageSelectControl,
   ArchiveSelectControl,
   TermChoiceControl,
-  //FieldChoiceControl,
+  FieldChoiceControl,
 } from "./wordpressApi";
 
 //styled-componet用のcssプロパティ生成関数

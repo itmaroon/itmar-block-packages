@@ -14,6 +14,9 @@ import {関数名又はコンポーネント名} from "itmar-block-packages"
 npm i @wordpress/scripts@^27.6.0 --save-dev
 
 ## 更新履歴
+= 1.3.1 =  
+- edit.scssおよびstyle.scssの共通スタイルについては機能しないことが判明したので削除した。
+
 = 1.3.0 =  
 - WordPressのデータをRest APIを通して取得する関数等に、次の関数とReactコンポーネントを追加した
  - restTaxonomies
