@@ -54,8 +54,8 @@ const SelectControl = (props) => {
 const ChoiceControl = (props) => {
   const { selectedSlug, choiceItems, type, fetchFunction } = props;
   const [choices, setChoices] = useState([]);
-
   useEffect(() => {
+    if (!selectedSlug) return; //ポストタイプのスラッグが選択されていないときは処理終了
     const fetchData = async () => {
       try {
         const fetchChoices = await fetchFunction(selectedSlug);
@@ -287,6 +287,8 @@ export const fetchArchiveOptions = async (home_url) => {
 
 //タクソノミー取得RestAPI関数
 export const restTaxonomies = async (post_type) => {
+  if (!post_type) return;
+
   const response = await apiFetch({
     path: `/wp/v2/types/${post_type}?context=edit`,
   });
