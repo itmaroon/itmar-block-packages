@@ -14,6 +14,9 @@ import {関数名又はコンポーネント名} from "itmar-block-packages"
 npm i @wordpress/scripts@^27.6.0 --save-dev
 
 ## 更新履歴
+= 1.3.2 =  
+- BlockPlaceコンポーネントのインナーブロックの方向で縦方向又は横方向を選択したとき反転の設定ができるようにした。
+
 = 1.3.1 =  
 - edit.scssおよびstyle.scssの共通スタイルについては機能しないことが判明したので削除した。
 
@@ -534,6 +537,9 @@ WordPressのブロックエディタのサイドバーにブロックの配置�
 	isSubmenu={is_submenu}
 	onDirectionChange={(position) => {
 		setAttributes({direction: position });
+	}}
+	onReverseChange={(checked) => {
+		setAttributes({reverse: checked });	
 	}}
 	onFlexChange={(position) => {
 		setAttributes({inner_align: position });
