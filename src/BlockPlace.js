@@ -44,7 +44,7 @@ const vert_around = <Icon icon={justifySpaceBetween} className="rotate-icon" />;
 
 export default function BlockPlace(props) {
   const { attributes, clientId, blockRef, isMobile, isSubmenu } = props;
-  const { positionType, heightValue, default_pos, mobile_pos } = attributes;
+  const { positionType, default_pos, mobile_pos } = attributes;
 
   //モバイルかデスクトップか
   const sel_pos = isMobile ? mobile_pos : default_pos;
@@ -407,25 +407,29 @@ export default function BlockPlace(props) {
 
         {sel_pos.width_val === "free" && (
           <RangeControl
-            value={sel_pos.free_val}
+            value={sel_pos.free_width}
             label={__("Max width", "block-collections")}
             max={1800}
             min={300}
             step={10}
             onChange={(newValue) => {
-              props.onFreevalChange(newValue);
+              props.onFreeWidthChange(newValue);
             }}
             withInputField={true}
           />
         )}
 
-        <p>{__("Block Height", "block-collections")}</p>
+        {isMobile ? (
+          <p>{__("Block Height(Mobile)", "block-collections")}</p>
+        ) : (
+          <p>{__("Block Height(DeskTop)", "block-collections")}</p>
+        )}
         <ToolbarGroup>
           <ToolbarItem>
             {(itemProps) => (
               <Button
                 {...itemProps}
-                isPressed={heightValue === "full"}
+                isPressed={sel_pos.height_val === "full"}
                 onClick={() => props.onHeightChange("full")}
                 text="full"
               />
@@ -435,13 +439,36 @@ export default function BlockPlace(props) {
             {(itemProps) => (
               <Button
                 {...itemProps}
-                isPressed={heightValue === "fit"}
+                isPressed={sel_pos.height_val === "fit"}
                 onClick={() => props.onHeightChange("fit")}
                 text="fit"
               />
             )}
           </ToolbarItem>
+          <ToolbarItem>
+            {(itemProps) => (
+              <Button
+                {...itemProps}
+                isPressed={sel_pos.height_val === "free"}
+                onClick={() => props.onHeightChange("free")}
+                text="free"
+              />
+            )}
+          </ToolbarItem>
         </ToolbarGroup>
+        {sel_pos.height_val === "free" && (
+          <RangeControl
+            value={sel_pos.free_height}
+            label={__("Height", "block-collections")}
+            max={1800}
+            min={300}
+            step={10}
+            onChange={(newValue) => {
+              props.onFreeHeightChange(newValue);
+            }}
+            withInputField={true}
+          />
+        )}
 
         {sel_pos.direction === "grid" && (
           <>

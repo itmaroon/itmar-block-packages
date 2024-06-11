@@ -72,9 +72,13 @@ export const width_prm = (width, free_val) => {
   return ret_width_prm;
 };
 
-export const height_prm = (height) => {
+export const height_prm = (height, free_val) => {
   const ret_height_prm =
-    height === "fit" ? " height: fit-content;" : "height: 100%;";
+    height === "fit"
+      ? " height: fit-content;"
+      : height === "free"
+      ? ` height: ${free_val}px; `
+      : "height: 100%;";
   return ret_height_prm;
 };
 //配置を返す

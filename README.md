@@ -14,6 +14,9 @@ import {関数名又はコンポーネント名} from "itmar-block-packages"
 npm i @wordpress/scripts@^27.6.0 --save-dev
 
 ## 更新履歴
+= 1.3.4 =  
+- BlockPlaceコンポーネントの高さにフリーサイズを追加し、デスクトップとモバイルでそれぞれ設定を可能うにした。それに伴ってcssPropertesのheight_prmのシグニチャーを変更。
+
 = 1.3.2 =  
 - BlockPlaceコンポーネントのインナーブロックの方向で縦方向又は横方向を選択したとき反転の設定ができるようにした。
 
@@ -126,10 +129,13 @@ px値
 ### height_prm
 heightのCSSを返します。
 #### 引数
-- `height` string  
-fitの文字列
+- `height` string
+fit, full, freeの文字列
+- `free_val` number  
+px値  
 #### 戻り値
 - fitのとき`height: fit-content;`
+- freeのとき`height: ${free_val}px;`
 - その他の文字列`height: 100%;`
   
 
@@ -551,13 +557,16 @@ WordPressのブロックエディタのサイドバーにブロックの配置�
 		setAttributes({outer_vertical: position });
 	}}
 	onWidthChange={(position) => {
-		setAttributes({outer_vertical: position });
+		setAttributes({width_val: position });
 	}}
 	onHeightChange={(value) => {
-		setAttributes({ heightValue: value });
+		setAttributes({ height_val: value });
 	}}
-	onFreevalChange={(value) => {
-		setAttributes({free_val: position });
+	onFreeWidthChange={(value) => {
+		setAttributes({free_width: position });
+	}}
+	onFreeHeightChange={(value) => {
+		setAttributes({free_height: position });
 	}}
 	onGridChange={(value) => {
 		setAttributes({grid_info: position });
