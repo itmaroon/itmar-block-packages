@@ -1,4 +1,5 @@
 import { useState, useEffect } from "@wordpress/element";
+import { __ } from "@wordpress/i18n";
 import {
   ComboboxControl,
   CheckboxControl,
@@ -52,7 +53,14 @@ const SelectControl = (props) => {
 
 //選択コントロールのレンダリング関数
 const ChoiceControl = (props) => {
-  const { selectedSlug, choiceItems, type, fetchFunction } = props;
+  const {
+    selectedSlug,
+    choiceItems,
+    type,
+    blockMap,
+    textDomain,
+    fetchFunction,
+  } = props;
   const [choices, setChoices] = useState([]);
   useEffect(() => {
     if (!selectedSlug) return; //ポストタイプのスラッグが選択されていないときは処理終了
@@ -85,7 +93,7 @@ const ChoiceControl = (props) => {
   const dispCustumFields = (obj, prefix = "", onChange) => {
     return Object.entries(obj).map(([key, value]) => {
       const fieldName = prefix ? `${prefix}.${key}` : key;
-      const fieldLabel = key;
+      const fieldLabel = key.replace(/^(meta_|acf_)/, "");
       if (typeof value === "object" && value !== null) {
         return (
           <div className="group_area">
@@ -96,20 +104,36 @@ const ChoiceControl = (props) => {
           </div>
         );
       } else {
-        if (key === "_acf_changed") return; //_acf_changedは対象外
+        if (key === "meta__acf_changed" || key === "meta_footnotes") return; //_acf_changedは対象外
+        //フィールドを表示するブロックの選択肢
+        const options = [
+          { value: "itmar/design-title", label: "itmar/design-title" },
+          { value: "core/paragraph", label: "core/paragraph" },
+          { value: "core/image", label: "core/image" },
+        ];
         return (
-          <ToggleControl
-            key={fieldName}
-            className="field_choice"
-            label={fieldLabel}
-            checked={choiceItems.some(
-              (choiceField) => choiceField === fieldName
-            )}
-            onChange={(checked) => {
-              const newChoiceFields = handleChoiceChange(checked, fieldName);
-              props.onChange(newChoiceFields);
-            }}
-          />
+          <div className="itmar_custom_field_set">
+            <ToggleControl
+              key={fieldName}
+              className="field_choice"
+              label={fieldLabel}
+              checked={choiceItems.some(
+                (choiceField) => choiceField === fieldName
+              )}
+              onChange={(checked) => {
+                const newChoiceFields = handleChoiceChange(checked, fieldName);
+                props.onChange(newChoiceFields);
+              }}
+            />
+            <ComboboxControl
+              options={options}
+              value={blockMap[fieldLabel] || "itmar/design-title"}
+              onChange={(newValue) => {
+                const newBlockMap = { ...blockMap, [fieldLabel]: newValue };
+                props.onBlockMapChange(newBlockMap);
+              }}
+            />
+          </div>
         );
       }
     });
@@ -157,7 +181,7 @@ const ChoiceControl = (props) => {
               {choice.title && (
                 <ToggleControl
                   className="field_choice"
-                  label="タイトル"
+                  label={__("Title", textDomain)}
                   checked={choiceItems.some(
                     (choiceField) => choiceField === "title"
                   )}
@@ -217,10 +241,28 @@ const ChoiceControl = (props) => {
               )}
               {(choice.meta || choice.acf.length > 0) && (
                 <>
-                  <div className="custom_field_label">カスタムフィールド</div>
+                  <div className="custom_field_label">
+                    {__("Custom Field", textDomain)}
+                  </div>
                   <div className="custom_field_area">
-                    {choice.meta && dispCustumFields(choice.meta)}
-                    {choice.acf && dispCustumFields(choice.acf)}
+                    <div className="custom_field_area">
+                      {dispCustumFields({
+                        ...Object.entries(choice.meta).reduce(
+                          (acc, [key, value]) => ({
+                            ...acc,
+                            [`meta_${key}`]: value,
+                          }),
+                          {}
+                        ),
+                        ...Object.entries(choice.acf).reduce(
+                          (acc, [key, value]) => ({
+                            ...acc,
+                            [`acf_${key}`]: value,
+                          }),
+                          {}
+                        ),
+                      })}
+                    </div>
                   </div>
                 </>
               )}

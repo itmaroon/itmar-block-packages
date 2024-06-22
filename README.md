@@ -14,6 +14,9 @@ import {関数名又はコンポーネント名} from "itmar-block-packages"
 npm i @wordpress/scripts@^27.6.0 --save-dev
 
 ## 更新履歴
+= 1.3.8 =  
+- WordPressのデータをRest APIを通して取得する関数等のFieldChoiceControlの機能として、choiceFieldsに登録されるフィールド名がmetaによるカスタムフィールドかacfによるカスタムフィールドかを峻別できるようにフィールド名にmeta_又はacf_という接頭辞を付加するようにした。
+
 = 1.3.4 =  
 - BlockPlaceコンポーネントの高さにフリーサイズを追加し、デスクトップとモバイルでそれぞれ設定を可能うにした。それに伴ってcssPropertesのheight_prmのシグニチャーを変更。
 
