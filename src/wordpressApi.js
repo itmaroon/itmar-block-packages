@@ -90,11 +90,14 @@ const ChoiceControl = (props) => {
   };
 
   //階層化されたカスタムフィールドのフィールド名を表示する関数
+  let groupLabel = "";
   const dispCustumFields = (obj, prefix = "", onChange) => {
     return Object.entries(obj).map(([key, value]) => {
       const fieldName = prefix ? `${prefix}.${key}` : key;
       const fieldLabel = key.replace(/^(meta_|acf_)/, "");
+
       if (typeof value === "object" && value !== null) {
+        groupLabel = `${fieldLabel}.`;
         return (
           <div className="group_area">
             <div className="group_label">{fieldLabel}</div>
@@ -127,9 +130,12 @@ const ChoiceControl = (props) => {
             />
             <ComboboxControl
               options={options}
-              value={blockMap[fieldLabel] || "itmar/design-title"}
+              value={
+                blockMap[`${groupLabel}${fieldLabel}`] || "itmar/design-title"
+              }
               onChange={(newValue) => {
-                const newBlockMap = { ...blockMap, [fieldLabel]: newValue };
+                const fieldKey = `${groupLabel}${fieldLabel}`;
+                const newBlockMap = { ...blockMap, [fieldKey]: newValue };
                 props.onBlockMapChange(newBlockMap);
               }}
             />
