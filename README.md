@@ -494,12 +494,18 @@ WordPressのブロックエディタのサイドバーにFont awesomのアイコ
 		icon_size: "24px",
 		icon_color: "var(--wp--preset--color--content)",
 		icon_space: "5px",
+    	icon_family: "Font Awesome 6 Free",
+
 	}
+	setPosition={true}
 	onChange={(newValue) => {
 		setAttributes({icon_style: newValue})
 	}}
 />
 ```
+
+iconStyleオブジェクトを再設定します。
+setPositionプロプスをtrueにするとicon_posとicon_spaceの各オブジェクトを設定するコントロールが表示されます。
 
 <img src="./img/iconControl.png" alt="IconSelectControlのスクリーンショット" width="100" height="200">
 

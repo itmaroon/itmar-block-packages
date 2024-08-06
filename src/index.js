@@ -69,3 +69,14 @@ export { default as BlockEditWrapper } from "./BlockEditWrapper";
 
 //色コードの変換関数
 export { hslToRgb16, rgb16ToHsl, HexToRGB } from "./hslToRgb";
+
+//日付関連の関数、コントロール
+export {
+  generateDateArray,
+  generateMonthCalendar,
+  PeriodCtrl,
+  getPeriodQuery,
+} from "./DateElm";
+
+//インナーブロック関連の関数
+export { flattenBlocks } from "./blockStore";
