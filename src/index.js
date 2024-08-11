@@ -76,6 +76,9 @@ export {
   generateMonthCalendar,
   PeriodCtrl,
   getPeriodQuery,
+  getTodayYearMonth,
+  getTodayYear,
+  getTodayMonth,
 } from "./DateElm";
 
 //インナーブロック関連の関数

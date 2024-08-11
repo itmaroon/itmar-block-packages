@@ -178,3 +178,19 @@ export const getPeriodQuery = (dateString) => {
     before: endDate.toISOString(),
   };
 };
+
+//本日の日付から'YYYY/MM'形式の日付文字列を生成する
+export const getTodayYearMonth = () => {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, "0");
+  return `${year}/${month}`;
+};
+export const getTodayYear = () => {
+  const today = new Date();
+  return today.getFullYear();
+};
+export const getTodayMonth = () => {
+  const today = new Date();
+  return today.getMonth() + 1;
+};
