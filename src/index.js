@@ -79,6 +79,8 @@ export {
   getTodayYearMonth,
   getTodayYear,
   getTodayMonth,
+  generateGridAreas,
+  JapaneseHolidays,
 } from "./DateElm";
 
 //インナーブロック関連の関数

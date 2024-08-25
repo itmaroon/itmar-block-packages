@@ -5,6 +5,12 @@ import {
   PanelRow,
   __experimentalNumberControl as NumberControl,
 } from "@wordpress/components";
+
+import { useRef, useEffect, useState } from "@wordpress/element";
+
+//Google Calender APIから祝日データを取得するためのID
+const CALENDAR_ID = "japanese__ja@holiday.calendar.google.com";
+
 //期間の設定から選択できる月の情報オブジェクトを配列にする関数
 export const generateDateArray = (dateObj, isMonth) => {
   const { startYear, startMonth, endYear, endMonth } = dateObj;
@@ -39,7 +45,7 @@ export const generateDateArray = (dateObj, isMonth) => {
 };
 
 //与えられた月から日付と曜日を要素とする配列を生成する
-export const generateMonthCalendar = (dateString) => {
+export const generateMonthCalendar = (dateString, holidays = null) => {
   const [year, month] = dateString.split("/").map(Number);
   const date = new Date(year, month - 1, 1);
   const lastDay = new Date(year, month, 0).getDate();
@@ -48,10 +54,25 @@ export const generateMonthCalendar = (dateString) => {
 
   for (let day = 1; day <= lastDay; day++) {
     date.setDate(day);
-    calendar.push({
-      date: day,
-      weekday: date.getDay(),
+    //祝日の情報
+    const holidayItem = holidays?.find((item) => {
+      // 日付文字列から最後の2桁を抽出
+      const lastTwoDigits = parseInt(item.date.slice(-2), 10);
+      // 抽出した2桁を比較
+      return lastTwoDigits === day;
     });
+    //日付情報オブジェクト
+    const dayObj = holidayItem
+      ? {
+          date: day,
+          weekday: date.getDay(),
+          holiday: holidayItem.name,
+        }
+      : {
+          date: day,
+          weekday: date.getDay(),
+        };
+    calendar.push(dayObj);
   }
 
   return calendar;
@@ -186,11 +207,148 @@ export const getTodayYearMonth = () => {
   const month = String(today.getMonth() + 1).padStart(2, "0");
   return `${year}/${month}`;
 };
+//本日の日付から年を返す
 export const getTodayYear = () => {
   const today = new Date();
   return today.getFullYear();
 };
+//本日の日付から月を返す
 export const getTodayMonth = () => {
   const today = new Date();
   return today.getMonth() + 1;
+};
+
+/* ------------------------------
+カレンダー用グリッドAreasの生成関数
+------------------------------ */
+const week = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
+export const generateGridAreas = (firstDayOfMonth, totalDays, isMonday) => {
+  let areas = [];
+  let currentDay = 1;
+  //月曜日を先頭に持ってくる場合の係数
+  const mondayFirstDay = firstDayOfMonth - 1 < 0 ? 6 : firstDayOfMonth - 1;
+  //先頭曜日の選択
+  const modifyFirstDay = isMonday ? mondayFirstDay : firstDayOfMonth;
+
+  //曜日ラベル
+  let weekLabels = [];
+  let week_index;
+  for (let i = 0; i < 7; i++) {
+    week_index = isMonday ? i + 1 : i; //月曜日を先頭に持ってくる場合の補正
+    if (week_index > 6) week_index = 0;
+    weekLabels.push(week[week_index]);
+  }
+  areas.push(weekLabels.join(" "));
+
+  for (let i = 0; i < 6; i++) {
+    // 6週分のループ
+    let week = [];
+    for (let j = 0; j < 7; j++) {
+      // 1週間の7日分のループ
+      if ((i === 0 && j < modifyFirstDay) || currentDay > totalDays) {
+        week.push(`empty${i}`);
+      } else {
+        week.push(`day${currentDay}`);
+        currentDay++;
+      }
+    }
+    if (i == 5) {
+      //最後の週
+      week[5] = "day_clear";
+      week[6] = "day_clear";
+    }
+    areas.push(week.join(" "));
+  }
+  return areas.map((week) => `"${week}"`).join("\n");
+};
+
+export const JapaneseHolidays = async (apiKey, targetMonth) => {
+  //Google API Client Libraryをプロジェクトに追加する(非同期で読み込み)
+  const loadGoogleAPI = () => {
+    return new Promise((resolve, reject) => {
+      //window.gapi の存在を直接チェック
+      if (window.gapi) {
+        resolve();
+        return;
+      }
+
+      const script = document.createElement("script");
+      script.src = "https://apis.google.com/js/api.js";
+      script.async = true;
+      script.defer = true;
+      //スクリプトがロードされたときのイベントハンドラ
+      script.onload = () => {
+        // gapiがロードされるまでチェックを繰り返す
+        const checkGapi = () => {
+          if (window.gapi) {
+            resolve();
+          } else {
+            setTimeout(checkGapi, 20); // Check again after 20ms
+          }
+        };
+        checkGapi();
+      };
+
+      script.onerror = () =>
+        reject(new Error("Failed to load Google API script"));
+
+      // Check if the script is already in the document
+      if (
+        !document.querySelector(
+          'script[src="https://apis.google.com/js/api.js"]'
+        )
+      ) {
+        document.body.appendChild(script);
+      }
+    });
+  };
+  //APIキーを使用してクライアントを初期化する
+  const initClient = async () => {
+    if (!window.gapi) {
+      throw new Error("Google API not loaded");
+    }
+
+    // Check if gapi.client is already available
+    if (!window.gapi.client) {
+      // If not, load the client module
+      await new Promise((resolve) => window.gapi.load("client", resolve));
+    }
+
+    if (window.gapi.client.calendar) {
+      return;
+    }
+    await window.gapi.client.init({
+      apiKey: apiKey,
+      discoveryDocs: [
+        "https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest",
+      ],
+    });
+  };
+  //祝日データの取得
+  const fetchHolidays = async () => {
+    const periodObj = getPeriodQuery(targetMonth);
+
+    const response = await window.gapi.client.calendar.events.list({
+      calendarId: CALENDAR_ID,
+      timeMin: periodObj.after,
+      timeMax: periodObj.before,
+      singleEvents: true,
+      orderBy: "startTime",
+    });
+
+    const events = response.result.items;
+    return events.map((event) => ({
+      date: event.start.date,
+      name: event.summary,
+    }));
+  };
+
+  try {
+    await loadGoogleAPI();
+    await initClient();
+    return await fetchHolidays();
+  } catch (error) {
+    console.error("エラーが発生しました:", error);
+    throw error;
+  }
 };
