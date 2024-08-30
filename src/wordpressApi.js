@@ -93,7 +93,8 @@ const ChoiceControl = (props) => {
   let groupLabel = "";
   const dispCustumFields = (obj, prefix = "", onChange) => {
     return Object.entries(obj).map(([key, value]) => {
-      const fieldName = prefix ? `${prefix}.${key}` : key;
+      const fieldName = prefix ? `${prefix}.${key}` : key; //prefixはグループ名
+
       const fieldLabel = key.replace(/^(meta_|acf_)/, "");
 
       if (typeof value === "object" && value !== null) {
@@ -108,6 +109,7 @@ const ChoiceControl = (props) => {
         );
       } else {
         if (key === "meta__acf_changed" || key === "meta_footnotes") return; //_acf_changedは対象外
+
         //フィールドを表示するブロックの選択肢
         const options = [
           { value: "itmar/design-title", label: "itmar/design-title" },
@@ -131,10 +133,13 @@ const ChoiceControl = (props) => {
             <ComboboxControl
               options={options}
               value={
-                blockMap[`${groupLabel}${fieldLabel}`] || "itmar/design-title"
+                blockMap[`${prefix ? groupLabel : ""}${fieldLabel}`] ||
+                "itmar/design-title"
               }
               onChange={(newValue) => {
-                const fieldKey = `${groupLabel}${fieldLabel}`;
+                const fieldKey = prefix
+                  ? `${groupLabel}${fieldLabel}`
+                  : `${fieldLabel}`;
                 const newBlockMap = { ...blockMap, [fieldKey]: newValue };
                 props.onBlockMapChange(newBlockMap);
               }}
