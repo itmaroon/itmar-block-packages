@@ -1,4 +1,5 @@
 import { useRef, useEffect, useState } from "@wordpress/element";
+import { useSelect, useDispatch } from "@wordpress/data";
 import isEqual from "lodash/isEqual";
 
 //useRefで参照したDOM要素の大きさを取得するカスタムフック
@@ -140,4 +141,106 @@ export function useFontawesomeIframe() {
       };
     }
   }, []);
+}
+
+//ネストしたブロックを平坦化
+const getFlattenBlocks = (blocks) => {
+  return blocks.reduce((acc, block) => {
+    acc.push(block);
+    if (block.innerBlocks && block.innerBlocks.length > 0) {
+      acc.push(...getFlattenBlocks(block.innerBlocks));
+    }
+    return acc;
+  }, []);
+};
+
+//指定されたブロック名とクラス名を含むブロックの属性が更新されたときその更新内容をかえすフック
+export function useBlockAttributeChanges(
+  clientId,
+  blockName,
+  className,
+  innerFlattenedBlocks = {},
+  excludeAttributes = {}
+) {
+  const [latestChange, setLatestChange] = useState(null);
+  const prevBlocksRef = useRef({});
+
+  //属性変更関数を取得
+  const { updateBlockAttributes } = useDispatch("core/block-editor");
+  //インナーブロックを平坦化する関数
+  const flattenedBlocks = useSelect(
+    (select) => {
+      const { getBlock } = select("core/block-editor");
+      const rootBlock = getBlock(clientId);
+      return rootBlock ? getFlattenBlocks([rootBlock]) : [];
+    },
+    [clientId]
+  );
+
+  useEffect(() => {
+    //平坦化されたブロックを調査
+    flattenedBlocks.forEach((block) => {
+      if (
+        block.name === blockName &&
+        block.attributes.className?.includes(className)
+      ) {
+        const prevAttributes =
+          prevBlocksRef.current[block.clientId]?.attributes || {};
+
+        //既に先に記録された属性があることをチェック
+        if (Object.keys(prevAttributes).length > 0) {
+          // 除外する属性を取り除いた属性オブジェクトを作成
+          const filteredCurrentAttributes = Object.keys(
+            block.attributes
+          ).reduce((acc, key) => {
+            if (!excludeAttributes.hasOwnProperty(key)) {
+              acc[key] = block.attributes[key];
+            }
+            return acc;
+          }, {});
+
+          const filteredPrevAttributes = Object.keys(prevAttributes).reduce(
+            (acc, key) => {
+              if (!excludeAttributes.hasOwnProperty(key)) {
+                acc[key] = prevAttributes[key];
+              }
+              return acc;
+            },
+            {}
+          );
+          //属性の変化を比較
+          if (
+            JSON.stringify(filteredCurrentAttributes) !==
+            JSON.stringify(filteredPrevAttributes)
+          ) {
+            setLatestChange({
+              clientId: block.clientId,
+              attributes: filteredCurrentAttributes,
+            });
+          }
+        }
+
+        // 現在のブロック状態を保存（除外属性も含めて保存）
+        prevBlocksRef.current[block.clientId] = { ...block };
+      }
+    });
+  }, [flattenedBlocks, blockName, className]);
+
+  //innerFlattenedBlocks内の同一種のブロックに対して属性をセットする
+  useEffect(() => {
+    if (latestChange && Object.keys(innerFlattenedBlocks).length > 0) {
+      const targetBolcks = innerFlattenedBlocks.filter(
+        (block) =>
+          block.name === blockName &&
+          block.attributes.className.includes(className)
+      );
+      targetBolcks.forEach((targetBlock) => {
+        updateBlockAttributes(targetBlock.clientId, latestChange.attributes);
+      });
+
+      //console.log(JSON.stringify(changeTitleAttr.attributes));
+    }
+  }, [latestChange]);
+
+  return latestChange;
 }

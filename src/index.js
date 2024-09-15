@@ -6,6 +6,7 @@ export {
   useIsMobile,
   useDeepCompareEffect,
   useFontawesomeIframe,
+  useBlockAttributeChanges,
 } from "./customFooks";
 
 //WordPressデータを取得するためのRestAPI
