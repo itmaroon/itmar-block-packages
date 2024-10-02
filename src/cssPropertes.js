@@ -82,15 +82,23 @@ export const height_prm = (height, free_val) => {
   return ret_height_prm;
 };
 //配置を返す
-export const align_prm = (align) => {
+export const align_prm = (align, camelFLg = false) => {
+  //css用
   const ret_align_prm =
     align === "center"
       ? "margin-left: auto; margin-right: auto;"
       : align === "right"
       ? "margin-left: auto; margin-right: 0"
       : "margin-right: auto; margin-left: 0";
+  //インナースタイル用
+  const camel_align_prm =
+    align === "center"
+      ? { marginLeft: "auto", marginRight: "auto" }
+      : align === "right"
+      ? { marginLeft: "auto" }
+      : {};
 
-  return ret_align_prm;
+  return camelFLg ? camel_align_prm : ret_align_prm;
 };
 
 //スタイルオブジェクト変換関数

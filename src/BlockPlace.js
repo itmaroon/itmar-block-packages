@@ -89,7 +89,10 @@ export default function BlockPlace(props) {
         computedStyle.display === "flex" ||
         computedStyle.display === "inline-flex"
       ) {
-        if (computedStyle.flexDirection === "row") {
+        if (
+          computedStyle.flexDirection === "row" ||
+          computedStyle.flexDirection === "row-reverse"
+        ) {
           setDirection("row");
         } else {
           setDirection("column");
@@ -316,10 +319,22 @@ export default function BlockPlace(props) {
                 {(itemProps) => (
                   <Button
                     {...itemProps}
-                    isPressed={sel_pos.outer_vertical === "self-start"}
-                    onClick={() => props.onVerticalChange("self-start")}
+                    isPressed={
+                      direction === "row"
+                        ? sel_pos.outer_vertical === "self-start"
+                        : sel_pos.outer_align === "left"
+                    }
+                    onClick={
+                      direction === "row"
+                        ? () => props.onVerticalChange("self-start")
+                        : () => props.onAlignChange("left")
+                    }
                     icon={direction === "row" ? upper : justifyLeft}
-                    label={__("upper alignment", "block-collections")}
+                    label={
+                      direction === "row"
+                        ? __("upper alignment", "block-collections")
+                        : __("left alignment", "block-collections")
+                    }
                   />
                 )}
               </ToolbarItem>
@@ -327,8 +342,16 @@ export default function BlockPlace(props) {
                 {(itemProps) => (
                   <Button
                     {...itemProps}
-                    isPressed={sel_pos.outer_vertical === "center"}
-                    onClick={() => props.onVerticalChange("center")}
+                    isPressed={
+                      direction === "row"
+                        ? sel_pos.outer_vertical === "center"
+                        : sel_pos.outer_align === "center"
+                    }
+                    onClick={
+                      direction === "row"
+                        ? () => props.onVerticalChange("center")
+                        : () => props.onAlignChange("center")
+                    }
                     icon={direction === "row" ? middle : justifyCenter}
                     label={__("center alignment", "block-collections")}
                   />
@@ -338,10 +361,22 @@ export default function BlockPlace(props) {
                 {(itemProps) => (
                   <Button
                     {...itemProps}
-                    isPressed={sel_pos.outer_vertical === "self-end"}
-                    onClick={() => props.onVerticalChange("self-end")}
+                    isPressed={
+                      direction === "row"
+                        ? sel_pos.outer_vertical === "self-end"
+                        : sel_pos.outer_align === "right"
+                    }
+                    onClick={
+                      direction === "row"
+                        ? () => props.onVerticalChange("self-end")
+                        : () => props.onAlignChange("right")
+                    }
                     icon={direction === "row" ? lower : justifyRight}
-                    label={__("lower alignment", "block-collections")}
+                    label={
+                      direction === "row"
+                        ? __("lower alignment", "block-collections")
+                        : __("right alignment", "block-collections")
+                    }
                   />
                 )}
               </ToolbarItem>

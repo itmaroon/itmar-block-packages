@@ -159,10 +159,10 @@ export function useBlockAttributeChanges(
   clientId,
   blockName,
   className,
-  innerFlattenedBlocks = {},
   excludeAttributes = {}
 ) {
-  const [latestChange, setLatestChange] = useState(null);
+  const [latestAttributes, setLatestAttributes] = useState(null);
+  //const [idleFlg, setIdleFlg] = useState(null);
   const prevBlocksRef = useRef({});
 
   //属性変更関数を取得
@@ -177,70 +177,74 @@ export function useBlockAttributeChanges(
     [clientId]
   );
 
+  const targetBlocks = flattenedBlocks.filter(
+    (block) =>
+      block.name === blockName &&
+      block.attributes.className?.includes(className)
+  );
+
   useEffect(() => {
     //平坦化されたブロックを調査
-    flattenedBlocks.forEach((block) => {
-      if (
-        block.name === blockName &&
-        block.attributes.className?.includes(className)
-      ) {
-        const prevAttributes =
-          prevBlocksRef.current[block.clientId]?.attributes || {};
-
-        //既に先に記録された属性があることをチェック
-        if (Object.keys(prevAttributes).length > 0) {
-          // 除外する属性を取り除いた属性オブジェクトを作成
-          const filteredCurrentAttributes = Object.keys(
-            block.attributes
-          ).reduce((acc, key) => {
+    for (const block of targetBlocks) {
+      const prevAttributes =
+        prevBlocksRef.current[block.clientId]?.attributes || {};
+      //既に先に記録された属性があることをチェック
+      if (Object.keys(prevAttributes).length > 0) {
+        // 除外する属性を取り除いた属性オブジェクトを作成
+        const filteredCurrentAttributes = Object.keys(block.attributes).reduce(
+          (acc, key) => {
             if (!excludeAttributes.hasOwnProperty(key)) {
               acc[key] = block.attributes[key];
             }
             return acc;
-          }, {});
+          },
+          {}
+        );
 
-          const filteredPrevAttributes = Object.keys(prevAttributes).reduce(
-            (acc, key) => {
-              if (!excludeAttributes.hasOwnProperty(key)) {
-                acc[key] = prevAttributes[key];
-              }
-              return acc;
-            },
-            {}
-          );
-          //属性の変化を比較
-          if (
-            JSON.stringify(filteredCurrentAttributes) !==
-            JSON.stringify(filteredPrevAttributes)
-          ) {
-            setLatestChange({
-              clientId: block.clientId,
-              attributes: filteredCurrentAttributes,
-            });
-          }
+        const filteredPrevAttributes = Object.keys(prevAttributes).reduce(
+          (acc, key) => {
+            if (!excludeAttributes.hasOwnProperty(key)) {
+              acc[key] = prevAttributes[key];
+            }
+            return acc;
+          },
+          {}
+        );
+
+        //属性の変化を比較
+        if (
+          JSON.stringify(filteredCurrentAttributes) !==
+          JSON.stringify(filteredPrevAttributes)
+        ) {
+          //確認ダイアログが出ている状態か否かで状態変数を変化させる
+          // if (block.attributes.isIdle) {
+          //   setIdleFlg(true);
+          // } else {
+          //   setIdleFlg(false);
+          // }
+          //呼び出し元に返すための更新後の属性オブジェクトを格納
+          setLatestAttributes(JSON.stringify(filteredCurrentAttributes));
         }
-
-        // 現在のブロック状態を保存（除外属性も含めて保存）
-        prevBlocksRef.current[block.clientId] = { ...block };
       }
-    });
-  }, [flattenedBlocks, blockName, className]);
-
-  //innerFlattenedBlocks内の同一種のブロックに対して属性をセットする
-  useEffect(() => {
-    if (latestChange && Object.keys(innerFlattenedBlocks).length > 0) {
-      const targetBolcks = innerFlattenedBlocks.filter(
-        (block) =>
-          block.name === blockName &&
-          block.attributes.className.includes(className)
-      );
-      targetBolcks.forEach((targetBlock) => {
-        updateBlockAttributes(targetBlock.clientId, latestChange.attributes);
-      });
-
-      //console.log(JSON.stringify(changeTitleAttr.attributes));
+      // 現在のブロック状態を保存（除外属性も含めて保存）
+      prevBlocksRef.current[block.clientId] = { ...block };
     }
-  }, [latestChange]);
+  }, [targetBlocks, blockName, className]);
 
-  return latestChange;
+  //innerFlattenedBlocks内の同一種のブロックに対して属性をセットする;
+  useEffect(() => {
+    //確認ダイアログが処理されたことを確認してからこちらの処理を進める
+    if (latestAttributes) {
+      // const latestAttrObj = JSON.parse(latestAttributes);
+      // const setObj = {
+      //   ...latestAttrObj,
+      //   className: `auto_attr_change ${latestAttrObj.className}`,
+      // };
+      targetBlocks.forEach((block) => {
+        updateBlockAttributes(block.clientId, JSON.parse(latestAttributes));
+      });
+    }
+  }, [latestAttributes]);
+
+  return JSON.parse(latestAttributes);
 }

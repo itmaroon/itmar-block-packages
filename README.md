@@ -144,13 +144,20 @@ px値
 
 ### align_prm
 marginによる横方向の配置のためのCSSを返します。
+また、camelFlgを設定することで、インナースタイル用のオブジェクトを返します。
 #### 引数
-- `align` string  
+- `align` string
+- `camelFLg` boolean  
 center,rightの文字列
 #### 戻り値
+camelFLgがfalse又は設定されていないとき
 - centerのとき`margin-left: auto; margin-right: auto;`
 - rightのとき`margin-left: auto; margin-right: 0`
 - その他の文字列`margin-right: auto; margin-left: 0`
+camelFLgがtrueのとき
+- centerのとき` { marginLeft: "auto", marginRight: "auto" }`
+- rightのとき` { marginLeft: "auto" }`
+- その他の文字列`{}`
   
 
 ### convertToScss
