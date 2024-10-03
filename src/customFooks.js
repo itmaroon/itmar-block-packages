@@ -159,6 +159,7 @@ export function useBlockAttributeChanges(
   clientId,
   blockName,
   className,
+  modFlg = false,
   excludeAttributes = {}
 ) {
   const [latestAttributes, setLatestAttributes] = useState(null);
@@ -234,7 +235,7 @@ export function useBlockAttributeChanges(
   //innerFlattenedBlocks内の同一種のブロックに対して属性をセットする;
   useEffect(() => {
     //確認ダイアログが処理されたことを確認してからこちらの処理を進める
-    if (latestAttributes) {
+    if (latestAttributes && modFlg) {
       // const latestAttrObj = JSON.parse(latestAttributes);
       // const setObj = {
       //   ...latestAttrObj,

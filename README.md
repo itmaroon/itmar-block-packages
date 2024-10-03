@@ -16,6 +16,7 @@ npm i @wordpress/scripts@^27.6.0 --save-dev
 ## 更新履歴
 = 1.3.8 =  
 - WordPressのデータをRest APIを通して取得する関数等のFieldChoiceControlの機能として、choiceFieldsに登録されるフィールド名がmetaによるカスタムフィールドかacfによるカスタムフィールドかを峻別できるようにフィールド名にmeta_又はacf_という接頭辞を付加するようにした。
+- カスタムフックとしてuseBlockAttributeChangesを追加。このフックはitmar/design-group内のブロックで、指定のブロック名とクラス名のブロックの属性に変化があったとき、その変化の内容を通知する機能をもつ。同一のブロック名とクラス名をもつブロックに対して、変化した属性を自動的に設定する機能もある。
 
 = 1.3.4 =  
 - BlockPlaceコンポーネントの高さにフリーサイズを追加し、デスクトップとモバイルでそれぞれ設定を可能うにした。それに伴ってcssPropertesのheight_prmのシグニチャーを変更。
@@ -78,11 +79,46 @@ const is_mobile=useIsMobile();
 useDeepCompareEffect(() => {
 ・・・
 },
-[attributes]
+[attributes])
 
 ```
 ### useFontawesomeIframe
 iframeにfontawesomeを読み込むカスタムフック
+
+### useBlockAttributeChanges
+特定のブロックの属性が変更されたとき、その変更内容を返すカスタムフック。引数に指定されたブロック名のブロックで指定されたクラス名をもつブロックの属性の変更内容を返す。第3引数のフラグにtrueを指定すると同じブロック名で同じクラス名をもつブロックの属性を変更されたブロックの属性で自動的に更新する。ただし、変更内容については、指定された属性名の属性を変更及び比較の対象からはずすことができる。  
+
+#### 引数
+- `clientId` string  
+変更されたことを監視する範囲となるitmar/design-groupブロックのclientId
+- `blockName` string  
+変更の監視対象となるブロック名
+- `className` string  
+変更の監視対象となるブロックが有するクラス名
+- `modFlg` boolean  
+同種ブロックを更新するかどうかのフラグ。デフォルトはfalse
+- `excludeAttributes` object  
+自動更新の対象から除外する属性をオブジェクトで指定する。オブジェクトは属性名をキーとし、値を適宜のデフォルト値とする。ここで指定された属性は更新チェックの対象からも除外される。使わないときは指定しない。
+```
+//clientIdで指定されたブロックの属性変更の内容を返す
+const changedAttributes = useBlockAttributeChanges(
+	clientId,
+	"itmar/design-checkbox",
+	"itmar_filter_checkbox",	
+);
+
+//clientIdで指定されたブロックの属性変更の内容でitmar/design-checkboxという名前のブロックで
+//itmar_filter_checkboxというクラス名をもつブロックの属性を自動更新する。
+//ただし、labelContentという属性とinputValueという属性については更新対象から除外する
+useBlockAttributeChanges(
+	clientId,
+	"itmar/design-checkbox",
+	"itmar_filter_checkbox",
+	true,
+	{ labelContent: "", inputValue: false },
+);
+
+```
 
 ## styled-componet用のcssプロパティ生成関数
 styled-componetのcssヘルパー関数内で使用するcssのパラメーターやプロパティを返します。
