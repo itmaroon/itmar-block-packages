@@ -7,6 +7,7 @@ export {
   useDeepCompareEffect,
   useFontawesomeIframe,
   useBlockAttributeChanges,
+  useDuplicateBlockRemove,
 } from "./customFooks";
 
 //WordPressデータを取得するためのRestAPI
@@ -53,7 +54,7 @@ export { default as DraggableBox, useDraggingMove } from "./DraggableBox";
 export { default as AnimationBlock, anime_comp } from "./AnimationBlock";
 
 //ブロックの配置を設定するコントロール
-export { default as BlockPlace } from "./BlockPlace";
+export { default as BlockPlace, BlockWidth, BlockHeight } from "./BlockPlace";
 export { default as GridControls } from "./GridControls";
 
 //DOM要素の表示を反転させるコントロール

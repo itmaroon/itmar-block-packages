@@ -1,6 +1,7 @@
 import { useRef, useEffect, useState } from "@wordpress/element";
 import { useSelect, useDispatch } from "@wordpress/data";
 import isEqual from "lodash/isEqual";
+import { __ } from "@wordpress/i18n";
 
 //useRefで参照したDOM要素の大きさを取得するカスタムフック
 export function useElementWidth() {
@@ -248,4 +249,64 @@ export function useBlockAttributeChanges(
   }, [latestAttributes]);
 
   return JSON.parse(latestAttributes);
+}
+
+//インナーブロックが挿入されたとき、指定されたブロック名が存在れば、挿入されたブロックを削除するフック
+export function useDuplicateBlockRemove(clientId, blockNames) {
+  const { removeBlock } = useDispatch("core/block-editor");
+  const { createNotice } = useDispatch("core/notices");
+
+  // clientIdに対応するインナーブロックを取得
+  const innerBlocks = useSelect(
+    (select) => select("core/block-editor").getBlocks(clientId),
+    [clientId]
+  );
+
+  // 前回の innerBlocks を保存するための ref
+  const prevInnerBlocksRef = useRef(innerBlocks);
+
+  useEffect(() => {
+    const prevInnerBlocks = prevInnerBlocksRef.current;
+    //先に保存したインナーブロックの中に対象となるブロックが存在しなければ何もしない
+    const result = prevInnerBlocks.some((block) =>
+      blockNames.includes(block.name)
+    );
+
+    if (result) {
+      // ブロックが挿入されているか確認（前回と比較）
+      if (innerBlocks.length > prevInnerBlocks.length) {
+        // 新しく挿入されたブロックを特定
+        const newlyInsertedBlock = innerBlocks.find(
+          (block) =>
+            !prevInnerBlocks.some(
+              (prevBlock) => prevBlock.clientId === block.clientId
+            )
+        );
+
+        // 新しいブロックが blockNames に含まれている場合、削除
+        if (
+          newlyInsertedBlock &&
+          blockNames.includes(newlyInsertedBlock.name)
+        ) {
+          removeBlock(newlyInsertedBlock.clientId);
+
+          // 通知を作成
+          createNotice(
+            "error", // 通知のタイプ（エラー）
+            __(
+              "A new block cannot be inserted because a block has already been placed.",
+              "block-collections"
+            ), // メッセージ
+            {
+              type: "snackbar", // 通知のスタイル
+              isDismissible: true, // 通知を閉じることができるか
+            }
+          );
+        }
+      }
+    }
+
+    // 現在の innerBlocks を次回用に保存
+    prevInnerBlocksRef.current = innerBlocks;
+  }, [innerBlocks, blockNames, removeBlock, createNotice]);
 }

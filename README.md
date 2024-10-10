@@ -14,6 +14,13 @@ import {関数名又はコンポーネント名} from "itmar-block-packages"
 npm i @wordpress/scripts@^27.6.0 --save-dev
 
 ## 更新履歴
+= 1.3.10 =  
+- useDuplicateBlockRemoveの不具合を修正。
+- ブロックの幅、高さを設定するためのコンポーネントとしてBlockWidth、BlockHeightを追加
+
+= 1.3.9 =  
+- カスタムフックとしてuseDuplicateBlockRemoveを追加。このフックはインナーブロックが挿入されたとき、指定されたブロック名が存在れば、挿入されたブロックを削除する。
+
 = 1.3.8 =  
 - WordPressのデータをRest APIを通して取得する関数等のFieldChoiceControlの機能として、choiceFieldsに登録されるフィールド名がmetaによるカスタムフィールドかacfによるカスタムフィールドかを峻別できるようにフィールド名にmeta_又はacf_という接頭辞を付加するようにした。
 - カスタムフックとしてuseBlockAttributeChangesを追加。このフックはitmar/design-group内のブロックで、指定のブロック名とクラス名のブロックの属性に変化があったとき、その変化の内容を通知する機能をもつ。同一のブロック名とクラス名をもつブロックに対して、変化した属性を自動的に設定する機能もある。
@@ -117,6 +124,20 @@ useBlockAttributeChanges(
 	true,
 	{ labelContent: "", inputValue: false },
 );
+
+```
+
+### useDuplicateBlockRemove
+インナーブロックが挿入されたとき、指定されたブロック名が存在れば、挿入したブロックを削除する。ユーザーに重複したブロックを挿入させたくないときや特定のブロックが存在するとき、ブロックを挿入させないようにするときに活用する。  
+
+#### 引数
+- `clientId` string  
+インナーブロックの監視する対象となるブロックのclientId
+- `blockNames` array  
+存在をチェックするブロック名。文字列を配列で指定する。
+
+```
+useDuplicateBlockRemove(clientId, ["itmar/pickup-posts"]);
 
 ```
 
@@ -634,6 +655,75 @@ WordPressのブロックエディタのサイドバーにブロックの配置�
 
 
 <img src="./img/blockplace.png" alt="BlockPlaceのスクリーンショット" width="100" height="300">
+
+### BlockWidth
+ブロックコンポーネントの幅を設定する
+#### 引数
+- `attributes` object  
+ブロックの属性オブジェクト
+- `isMobile` boolean  
+スクリーン幅が767px以下かどうかのフラグ
+- `isSubmenu` boolean  
+trueの場合はmax-widthを合わせて設定する
+- `onWidthChange` function
+widthの種別を設定するためのコールバック関数。返ってくる引数はfit,full,wideSize,contentSize,free
+- `onFreeWidthChange` function
+widthの種別がfreeのとき幅を設定するためのコールバック関数。返ってくる引数は数字
+
+```
+<BlockWidth
+	attributes={attributes}
+	isMobile={isMobile}
+	isSubmenu={isFront}
+	onWidthChange={(value) => {
+		setAttributes(
+			!isMobile
+				? { default_val: { ...default_val, width_val: value } }
+				: { mobile_val: { ...mobile_val, width_val: value } },
+		);
+	}}
+	onFreeWidthChange={(value) => {
+		setAttributes(
+			!isMobile
+				? { default_val: { ...default_val, free_width: value } }
+				: { mobile_val: { ...mobile_val, free_width: value } },
+		);
+	}}
+/>
+```
+
+### BlockHeight
+ブロックコンポーネントの高さを設定する
+#### 引数
+- `attributes` object  
+ブロックの属性オブジェクト
+- `isMobile` boolean  
+スクリーン幅が767px以下かどうかのフラグ
+- `onHeightChange` function
+heightの種別を設定するためのコールバック関数。返ってくる引数はfit,full,free
+- `onFreeHeightChange` function
+heightの種別がfreeのとき幅を設定するためのコールバック関数。返ってくる引数は数字
+
+```
+<BlockHeight
+	attributes={attributes}
+	isMobile={isMobile}
+	onHeightChange={(value) => {
+		setAttributes(
+			!isMobile
+				? { default_val: { ...default_val, height_val: value } }
+				: { mobile_val: { ...mobile_val, height_val: value } },
+		);
+	}}
+	onFreeHeightChange={(value) => {
+		setAttributes(
+			!isMobile
+				? { default_val: { ...default_val, free_height: value } }
+				: { mobile_val: { ...mobile_val, free_height: value } },
+		);
+	}}
+/>
+```
 
 ## 色コードを変換する関数
 ### hslToRgb16

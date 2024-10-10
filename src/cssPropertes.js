@@ -55,7 +55,7 @@ export const max_width_prm = (width, free_val) => {
       : width === "free"
       ? `width: 100%; max-width: ${free_val}px;`
       : width === "full"
-      ? "width: 100%; max-width: 100%;"
+      ? "width: fit-content; max-width: 100%;"
       : " width: fit-content;";
   return ret_width_prm;
 };
@@ -68,6 +68,8 @@ export const width_prm = (width, free_val) => {
       ? " width: var(--wp--style--global--content-size);"
       : width === "free"
       ? ` width: ${free_val}px; `
+      : width === "full"
+      ? " width: 100%;"
       : " width: fit-content;";
   return ret_width_prm;
 };
