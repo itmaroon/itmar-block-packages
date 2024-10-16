@@ -43,8 +43,9 @@ const vert_between = <Icon icon={justifyStretch} className="rotate-icon" />;
 const vert_around = <Icon icon={justifySpaceBetween} className="rotate-icon" />;
 
 export default function BlockPlace(props) {
-  const { attributes, clientId, blockRef, isMobile, isSubmenu } = props;
-  const { positionType, default_pos, mobile_pos } = attributes;
+  const { attributes, clientId, blockRef, isMobile, isSubmenu, isParallax } =
+    props;
+  const { positionType, isPosCenter, default_pos, mobile_pos } = attributes;
 
   //モバイルかデスクトップか
   const sel_pos = isMobile ? mobile_pos : default_pos;
@@ -441,16 +442,10 @@ export default function BlockPlace(props) {
         </ToolbarGroup>
 
         {sel_pos.width_val === "free" && (
-          <RangeControl
+          <UnitControl
+            dragDirection="e"
+            onChange={(newValue) => props.onFreeWidthChange(newValue)}
             value={sel_pos.free_width}
-            label={__("Max width", "block-collections")}
-            max={1800}
-            min={300}
-            step={10}
-            onChange={(newValue) => {
-              props.onFreeWidthChange(newValue);
-            }}
-            withInputField={true}
           />
         )}
 
@@ -492,16 +487,10 @@ export default function BlockPlace(props) {
           </ToolbarItem>
         </ToolbarGroup>
         {sel_pos.height_val === "free" && (
-          <RangeControl
+          <UnitControl
+            dragDirection="e"
+            onChange={(newValue) => props.onFreeHeightChange(newValue)}
             value={sel_pos.free_height}
-            label={__("Height", "block-collections")}
-            max={1800}
-            min={300}
-            step={10}
-            onChange={(newValue) => {
-              props.onFreeHeightChange(newValue);
-            }}
-            withInputField={true}
           />
         )}
 
@@ -544,7 +533,19 @@ export default function BlockPlace(props) {
             }}
           />
         </div>
-        {(positionType === "absolute" ||
+        {positionType === "absolute" && !isParallax && (
+          <ToggleControl
+            label={__(
+              "Center Vertically and Horizontally",
+              "block-collections"
+            )}
+            checked={isPosCenter}
+            onChange={(newVal) => {
+              props.onIsPosCenterChange(newVal);
+            }}
+          />
+        )}
+        {((positionType === "absolute" && !isPosCenter) ||
           positionType === "fixed" ||
           positionType === "sticky") && (
           <>
@@ -553,62 +554,101 @@ export default function BlockPlace(props) {
             ) : (
               <p>{__("Block Position(DeskTop)", "block-collections")}</p>
             )}
-            <PanelRow className="position_row">
-              <ComboboxControl
-                label={__("Vertical", "block-collections")}
-                options={[
-                  { value: "top", label: "Top" },
-                  { value: "bottom", label: "Bottom" },
-                ]}
-                value={sel_pos.posValue?.vertBase || "top"}
-                onChange={(newValue) => {
-                  const newValObj = {
-                    ...(sel_pos.posValue || {}),
-                    vertBase: newValue,
-                  };
-                  props.onPosValueChange(newValObj);
-                }}
-              />
-              <UnitControl
-                dragDirection="e"
-                onChange={(newValue) => {
-                  const newValObj = {
-                    ...(sel_pos.posValue || {}),
-                    vertValue: newValue,
-                  };
-                  props.onPosValueChange(newValObj);
-                }}
-                value={sel_pos.posValue?.vertValue || "3em"}
-              />
-            </PanelRow>
-            <PanelRow className="position_row">
-              <ComboboxControl
-                label={__("Horizon", "block-collections")}
-                options={[
-                  { value: "left", label: "Left" },
-                  { value: "right", label: "Right" },
-                ]}
-                value={sel_pos.posValue?.horBase || "left"}
-                onChange={(newValue) => {
-                  const newValObj = {
-                    ...(sel_pos.posValue || {}),
-                    horBase: newValue,
-                  };
-                  props.onPosValueChange(newValObj);
-                }}
-              />
-              <UnitControl
-                dragDirection="e"
-                onChange={(newValue) => {
-                  const newValObj = {
-                    ...(sel_pos.posValue || {}),
-                    horValue: newValue,
-                  };
-                  props.onPosValueChange(newValObj);
-                }}
-                value={sel_pos.posValue?.horValue || "3em"}
-              />
-            </PanelRow>
+            <PanelBody
+              title={__("Vertical", "block-collections")}
+              initialOpen={true}
+            >
+              {!sel_pos.posValue?.isVertCenter && (
+                <PanelRow className="position_row">
+                  <ComboboxControl
+                    options={[
+                      { value: "top", label: "Top" },
+                      { value: "bottom", label: "Bottom" },
+                    ]}
+                    value={sel_pos.posValue?.vertBase || "top"}
+                    onChange={(newValue) => {
+                      const newValObj = {
+                        ...(sel_pos.posValue || {}),
+                        vertBase: newValue,
+                      };
+                      props.onPosValueChange(newValObj);
+                    }}
+                  />
+                  <UnitControl
+                    dragDirection="e"
+                    onChange={(newValue) => {
+                      const newValObj = {
+                        ...(sel_pos.posValue || {}),
+                        vertValue: newValue,
+                      };
+                      props.onPosValueChange(newValObj);
+                    }}
+                    value={sel_pos.posValue?.vertValue || "3em"}
+                  />
+                </PanelRow>
+              )}
+              {!isParallax && (
+                <ToggleControl
+                  label={__("Is Center", "block-collections")}
+                  checked={sel_pos.posValue?.isVertCenter}
+                  onChange={(newValue) => {
+                    const newValObj = {
+                      ...(sel_pos.posValue || {}),
+                      isVertCenter: newValue,
+                    };
+                    props.onPosValueChange(newValObj);
+                  }}
+                />
+              )}
+            </PanelBody>
+
+            <PanelBody
+              title={__("Horizon", "block-collections")}
+              initialOpen={true}
+            >
+              {!sel_pos.posValue?.isHorCenter && (
+                <PanelRow className="position_row">
+                  <ComboboxControl
+                    options={[
+                      { value: "left", label: "Left" },
+                      { value: "right", label: "Right" },
+                    ]}
+                    value={sel_pos.posValue?.horBase || "left"}
+                    onChange={(newValue) => {
+                      const newValObj = {
+                        ...(sel_pos.posValue || {}),
+                        horBase: newValue,
+                      };
+                      props.onPosValueChange(newValObj);
+                    }}
+                  />
+                  <UnitControl
+                    dragDirection="e"
+                    onChange={(newValue) => {
+                      const newValObj = {
+                        ...(sel_pos.posValue || {}),
+                        horValue: newValue,
+                      };
+                      props.onPosValueChange(newValObj);
+                    }}
+                    value={sel_pos.posValue?.horValue || "3em"}
+                  />
+                </PanelRow>
+              )}
+              {!isParallax && (
+                <ToggleControl
+                  label={__("Is Center", "block-collections")}
+                  checked={sel_pos.posValue?.isHorCenter}
+                  onChange={(newValue) => {
+                    const newValObj = {
+                      ...(sel_pos.posValue || {}),
+                      isHorCenter: newValue,
+                    };
+                    props.onPosValueChange(newValObj);
+                  }}
+                />
+              )}
+            </PanelBody>
           </>
         )}
       </PanelBody>
@@ -638,11 +678,11 @@ export function BlockWidth(props) {
   // 条件に応じて選択
   const blockWidthLabel = isMobile
     ? isSubmenu
-      ? blockWidthMobile
-      : blockMaxWidthMobile
+      ? blockMaxWidthMobile
+      : blockWidthMobile
     : isSubmenu
-    ? blockWidthDesktop
-    : blockMaxWidthDesktop;
+    ? blockMaxWidthDesktop
+    : blockWidthDesktop;
 
   return (
     <>
@@ -703,16 +743,10 @@ export function BlockWidth(props) {
       </ToolbarGroup>
 
       {sel_pos.width_val === "free" && (
-        <RangeControl
+        <UnitControl
+          dragDirection="e"
+          onChange={(newValue) => props.onFreeWidthChange(newValue)}
           value={sel_pos.free_width}
-          label={__("Max width", "block-collections")}
-          max={1800}
-          min={50}
-          step={10}
-          onChange={(newValue) => {
-            props.onFreeWidthChange(newValue);
-          }}
-          withInputField={true}
         />
       )}
     </>
@@ -766,16 +800,10 @@ export function BlockHeight(props) {
         </ToolbarItem>
       </ToolbarGroup>
       {sel_pos.height_val === "free" && (
-        <RangeControl
+        <UnitControl
+          dragDirection="e"
+          onChange={(newValue) => props.onFreeHeightChange(newValue)}
           value={sel_pos.free_height}
-          label={__("Height", "block-collections")}
-          max={1800}
-          min={50}
-          step={10}
-          onChange={(newValue) => {
-            props.onFreeHeightChange(newValue);
-          }}
-          withInputField={true}
         />
       )}
     </>

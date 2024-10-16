@@ -2,6 +2,10 @@
 const capitalizeFirstLetter = (string) => {
   return string.charAt(0).toUpperCase() + string.slice(1);
 };
+// objectかどうか判定する関数
+const isObject = (value) => {
+  return value !== null && typeof value === "object" && !Array.isArray(value);
+};
 
 //角丸のパラメータを返す
 export const radius_prm = (radius) => {
@@ -24,14 +28,26 @@ export const space_prm = (space) => {
 };
 //positionのオブジェクトを返します
 export const position_prm = (pos, type) => {
-  if (pos) {
+  //値でポジションを設定
+  if (isObject(pos)) {
     const resetVertBase = pos.vertBase === "top" ? "bottom" : "top";
     const resetHorBase = pos.horBase === "left" ? "right" : "left";
+    const centerVert = "50%";
+    const centerHor = "50%";
+    const centerTrans =
+      pos.isVertCenter && pos.isHorCenter
+        ? "transform: translate(-50%, -50%);"
+        : pos.isVertCenter
+        ? "transform: translateY(-50%);"
+        : pos.isHorCenter
+        ? "transform: translateX(-50%);"
+        : "";
     const ret_pos_prm =
       pos && (type === "absolute" || type === "fixed" || type === "sticky")
         ? `
-    ${pos.vertBase}: ${pos.vertValue}; 
-    ${pos.horBase}: ${pos.horValue};
+    ${pos.vertBase}: ${pos.isVertCenter ? centerVert : pos.vertValue}; 
+    ${pos.horBase}: ${pos.isHorCenter ? centerHor : pos.horValue};
+    ${centerTrans}
     ${resetVertBase}: auto;
     ${resetHorBase}: auto;
     ${
@@ -41,6 +57,10 @@ export const position_prm = (pos, type) => {
     }
   `
         : "";
+    return ret_pos_prm;
+    //縦横中央揃え
+  } else if (pos) {
+    const ret_pos_prm = "top:50%;left: 50%;transform: translate(-50%, -50%);";
     return ret_pos_prm;
   }
   return null;
@@ -53,7 +73,7 @@ export const max_width_prm = (width, free_val) => {
       : width === "contentSize"
       ? "width: 100%; max-width: var(--wp--style--global--content-size);"
       : width === "free"
-      ? `width: 100%; max-width: ${free_val}px;`
+      ? `width: 100%; max-width: ${free_val};`
       : width === "full"
       ? "width: fit-content; max-width: 100%;"
       : " width: fit-content;";
@@ -67,7 +87,7 @@ export const width_prm = (width, free_val) => {
       : width === "contentSize"
       ? " width: var(--wp--style--global--content-size);"
       : width === "free"
-      ? ` width: ${free_val}px; `
+      ? ` width: ${free_val}; `
       : width === "full"
       ? " width: 100%;"
       : " width: fit-content;";
@@ -79,7 +99,7 @@ export const height_prm = (height, free_val) => {
     height === "fit"
       ? " height: fit-content;"
       : height === "free"
-      ? ` height: ${free_val}px; `
+      ? ` height: ${free_val}; `
       : "height: 100%;";
   return ret_height_prm;
 };

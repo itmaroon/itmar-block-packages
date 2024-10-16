@@ -14,6 +14,23 @@ import {関数名又はコンポーネント名} from "itmar-block-packages"
 npm i @wordpress/scripts@^27.6.0 --save-dev
 
 ## 更新履歴
+= 1.3.15 =  
+- BlockPlaceのプロプスに視差効果のフラグを与え、そのフラグがtrueの時は中央揃えのセットができないように制御するようにした
+
+= 1.3.14 =  
+- position_prmの中央揃えがセットされていない場合にnullが出力されるという不具合を修正
+
+= 1.3.13 =  
+- BlockWidthのラベル表示が誤っていたのを修正
+
+= 1.3.12 =  
+- BlockPlaceの配置タイプが絶対位置の場合に縦横の中央揃えが設定できる機能を追加
+- 中央揃えができるようにしたために、position_prmにそれに対応するCSSプロパティを返す機能を追加
+
+= 1.3.11 =  
+- BlockPlace、BlockWidth、BlockHeightのfreeサイズにpx以外の単位を設定できるように修正
+- freeサイズにpx以外の単位を設定できるようにしたことから、max_width_prm、width_prm、height_prmがそれに対応できるように修正
+
 = 1.3.10 =  
 - useDuplicateBlockRemoveの不具合を修正。
 - ブロックの幅、高さを設定するためのコンポーネントとしてBlockWidth、BlockHeightを追加
@@ -155,6 +172,29 @@ marginやpaddingに設定するプロパティを文字列で返します。
 #### 引数
 - `space` object  
 top,right,bottom,leftをキーとしてもつオブジェクト
+
+### position_prm
+絶対位置のポジションに関するCSSを返します。
+#### 引数
+- `pos` object,boolean  
+次の形式のオブジェクト又はboolean
+```
+"posValue": {
+	"vertBase": "top",
+	"horBase": "left",
+	"vertValue": "3em",
+	"horValue": "3em",
+	"isVertCenter": false,
+	"isHorCenter": false
+},
+```
+
+- `type` string
+staic, relative,absolute,fixed,stickyのいづれか
+
+#### 戻り値
+- typeがabsolute,fixed,stickyのときposの値に応じてtop,buttom,left,rightのcssプロパティを返す。  pos内の中央揃えのフラグがオンならtransformのcssプロパティも返す。
+- posがtrueのとき`top:50%;left: 50%;transform: translate(-50%, -50%);`を返す。
   
 
 ### max_width_prm
@@ -162,12 +202,12 @@ top,right,bottom,leftをキーとしてもつオブジェクト
 #### 引数
 - `width` string  
 wideSize,contentSize,free,fullの文字列
-- `free_val` number  
+- `free_val` string  
 px値
 #### 戻り値
 - wideSizeのとき`width: 100%; max-width: var(--wp--style--global--wide-size);`  
 - contentSizeのとき`width: 100%; max-width: var(--wp--style--global--content-size);`  
-- freeのとき`width: 100%; max-width: ${free_val}px;`  
+- freeのとき`width: 100%; max-width: ${free_val};`  
 - fullのとき`width: 100%; max-width: 100%;`  
 - その他の文字列`width: fit-content;`  
   
@@ -177,12 +217,12 @@ widthのCSSを返します。
 #### 引数
 - `width` string  
 wideSize,contentSize,freeの文字列
-- `free_val` number  
+- `free_val` string  
 px値
 #### 戻り値
 - wideSizeのとき`width: var(--wp--style--global--wide-size);`
 - contentSizeのとき`width: var(--wp--style--global--content-size);`
-- freeのとき`width: ${free_val}px;`
+- freeのとき`width: ${free_val};`
 - その他の文字列`width: fit-content;`
   
 
@@ -191,11 +231,11 @@ heightのCSSを返します。
 #### 引数
 - `height` string
 fit, full, freeの文字列
-- `free_val` number  
+- `free_val` string  
 px値  
 #### 戻り値
 - fitのとき`height: fit-content;`
-- freeのとき`height: ${free_val}px;`
+- freeのとき`height: ${free_val};`
 - その他の文字列`height: 100%;`
   
 
@@ -614,6 +654,7 @@ WordPressのブロックエディタのサイドバーにブロックの配置�
 	blockRef={blockRef}
 	isMobile={isMobile}
 	isSubmenu={is_submenu}
+	isParallax={true}
 	onDirectionChange={(position) => {
 		setAttributes({direction: position });
 	}}
@@ -668,7 +709,7 @@ trueの場合はmax-widthを合わせて設定する
 - `onWidthChange` function
 widthの種別を設定するためのコールバック関数。返ってくる引数はfit,full,wideSize,contentSize,free
 - `onFreeWidthChange` function
-widthの種別がfreeのとき幅を設定するためのコールバック関数。返ってくる引数は数字
+widthの種別がfreeのとき幅を設定するためのコールバック関数。返ってくる引数は単位付きの文字列
 
 ```
 <BlockWidth
@@ -702,7 +743,7 @@ widthの種別がfreeのとき幅を設定するためのコールバック関�
 - `onHeightChange` function
 heightの種別を設定するためのコールバック関数。返ってくる引数はfit,full,free
 - `onFreeHeightChange` function
-heightの種別がfreeのとき幅を設定するためのコールバック関数。返ってくる引数は数字
+heightの種別がfreeのとき幅を設定するためのコールバック関数。返ってくる引数は単位付きの文字列
 
 ```
 <BlockHeight
