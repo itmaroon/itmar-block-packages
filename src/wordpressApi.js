@@ -9,9 +9,9 @@ import apiFetch from "@wordpress/api-fetch";
 
 //const _ = require("lodash");
 
-export const fetchData = async (rest_api) => {
+export const restFetchData = async (path) => {
   try {
-    const ret_data = await rest_api();
+    const ret_data = await apiFetch({ path: path });
     return ret_data;
   } catch (error) {
     console.error("Error fetching data:", error.message);
@@ -149,6 +149,7 @@ const ChoiceControl = (props) => {
       }
     });
   };
+
   return (
     <div className={`${type}_section`}>
       {type === "taxonomy" &&
@@ -171,7 +172,7 @@ const ChoiceControl = (props) => {
                     onChange={(checked) => {
                       const target = {
                         taxonomy: choice.slug,
-                        term: { id: term.id, slug: term.slug },
+                        term: { id: term.id, slug: term.slug, name: term.name },
                       };
                       const newChoiceTerms = handleChoiceChange(
                         checked,
@@ -187,12 +188,24 @@ const ChoiceControl = (props) => {
         })}
       {type === "field" &&
         choices.map((choice, index) => {
+          //metaの対象カスタムフィールドが含まれるかのフラグ
+          const metaFlg =
+            choice.meta &&
+            !Object.keys(choice.meta).every(
+              (key) => key === "_acf_changed" || key === "footnotes"
+            );
+          //acfの対象カスタムフィールドが含まれるかのフラグ
+          const acfFlg =
+            choice.acf &&
+            typeof choice.acf === "object" &&
+            !Array.isArray(choice.acf);
+
           return (
             <div key={index} className="field_section">
               {choice.title && (
                 <ToggleControl
                   className="field_choice"
-                  label={__("Title", textDomain)}
+                  label={__("Title", "block-collections")}
                   checked={choiceItems.some(
                     (choiceField) => choiceField === "title"
                   )}
@@ -208,7 +221,7 @@ const ChoiceControl = (props) => {
               {choice.date && (
                 <ToggleControl
                   className="field_choice"
-                  label="日付"
+                  label={__("Date", "block-collections")}
                   checked={choiceItems.some(
                     (choiceField) => choiceField === "date"
                   )}
@@ -221,7 +234,7 @@ const ChoiceControl = (props) => {
               {choice.excerpt && (
                 <ToggleControl
                   className="field_choice"
-                  label="抜粋"
+                  label={__("Excerpt", "block-collections")}
                   checked={choiceItems.some(
                     (choiceField) => choiceField === "excerpt"
                   )}
@@ -237,7 +250,7 @@ const ChoiceControl = (props) => {
               {choice.featured_media && (
                 <ToggleControl
                   className="field_choice"
-                  label="アイキャッチ画像"
+                  label={__("Featured Image", "block-collections")}
                   checked={choiceItems.some(
                     (choiceField) => choiceField === "featured_media"
                   )}
@@ -250,10 +263,10 @@ const ChoiceControl = (props) => {
                   }}
                 />
               )}
-              {(choice.meta || choice.acf.length > 0) && (
+              {(metaFlg || acfFlg) && (
                 <>
                   <div className="custom_field_label">
-                    {__("Custom Field", textDomain)}
+                    {__("Custom Field", "block-collections")}
                   </div>
                   <div className="custom_field_area">
                     <div className="custom_field_area">
@@ -366,6 +379,32 @@ export const restTaxonomies = async (post_type) => {
 
   const taxonomyObjects = await Promise.all(taxonomyPromises);
   return taxonomyObjects;
+};
+
+//タームの文字列化
+export const termToDispObj = (terms, connectString) => {
+  // taxonomyごとにterm.nameをまとめる
+  const result = terms.reduce((acc, item) => {
+    const taxonomy = item.taxonomy;
+    const termName = item.term.name;
+
+    // taxonomyがまだ存在しない場合は初期化
+    if (!acc[taxonomy]) {
+      acc[taxonomy] = [];
+    }
+
+    // term.nameを配列に追加
+    acc[taxonomy].push(termName);
+
+    return acc;
+  }, {});
+
+  // 各taxonomyの配列を connectString でつなげて文字列化
+  for (const taxonomy in result) {
+    result[taxonomy] = result[taxonomy].join(connectString);
+  }
+
+  return result;
 };
 
 //フィールド情報取得RestAPI関数

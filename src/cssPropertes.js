@@ -69,14 +69,14 @@ export const position_prm = (pos, type) => {
 export const max_width_prm = (width, free_val) => {
   const ret_width_prm =
     width === "wideSize"
-      ? "width: 100%; max-width: var(--wp--style--global--wide-size);"
+      ? "max-width: var(--wp--style--global--wide-size);"
       : width === "contentSize"
-      ? "width: 100%; max-width: var(--wp--style--global--content-size);"
+      ? "max-width: var(--wp--style--global--content-size);"
       : width === "free"
-      ? `width: 100%; max-width: ${free_val};`
+      ? `max-width: ${free_val};`
       : width === "full"
-      ? "width: fit-content; max-width: 100%;"
-      : " width: fit-content;";
+      ? "max-width: 100%;"
+      : "max-width: fit-content;";
   return ret_width_prm;
 };
 
@@ -110,8 +110,8 @@ export const align_prm = (align, camelFLg = false) => {
     align === "center"
       ? "margin-left: auto; margin-right: auto;"
       : align === "right"
-      ? "margin-left: auto; margin-right: 0"
-      : "margin-right: auto; margin-left: 0";
+      ? "margin-left: auto; margin-right: 0;"
+      : "margin-right: auto; margin-left: 0;";
   //インナースタイル用
   const camel_align_prm =
     align === "center"

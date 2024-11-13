@@ -14,6 +14,20 @@ import {関数名又はコンポーネント名} from "itmar-block-packages"
 npm i @wordpress/scripts@^27.6.0 --save-dev
 
 ## 更新履歴
+= 1.3.18 =  
+- WordPress RestAPIのエンドポイントを文字列で受けて、その結果を返すrestFetchDataを新設
+- TermChoiceControlでonChangeコールバックで返す引数にterm.nameを加えた。
+- BlockPlaceコンポーネントのフレックススタイルに折り返しを設定できるように機能追加
+- BlockPlaceコンポーネント内のブロック幅とブロック高の設定をBlockWidthとBlockHeightの各コンポーネントを利用するように変更
+- BlockWidthに幅と最大幅を別々に設定できるように機能追加
+- BlockPlaceコンポーネント内の横方向ブロック配置をフレックス、グリッドスタイルでも設定できるように修正  
+
+= 1.3.17 =  
+- restFieldesをインポートするため、エクスポート項目に加えた。
+
+= 1.3.16 =  
+- インスペクターの表示の国際化されていない部分を国際化した。
+
 = 1.3.15 =  
 - BlockPlaceのプロプスに視差効果のフラグを与え、そのフラグがtrueの時は中央揃えのセットができないように制御するようにした
 
@@ -501,6 +515,15 @@ WordPressのブロックエディタのサイドバーにTypographyを設定す�
 `link` アーカイブページのURL
 `label` ポストタイプの名称 
 
+### restFetchData
+RestAPIのエンドポイントを文字列で受けて、その結果を返す
+#### 引数
+- `path` string  
+エンドポイント
+
+#### 戻り値
+エンドポイントに対応したレスポンスがPromiseで返る 
+
 ### restTaxonomies
 投稿タイプに登録されているタクソノミー（カテゴリ、タグを含む）の情報およびそのタームの情報をを取得して配列で返します。
 #### 引数
@@ -513,6 +536,15 @@ WordPressのブロックエディタのサイドバーにTypographyを設定す�
 `name` タクソノミーの名称  
 `rest_base` タクソノミーのREST_APIの名称
 `terms` ターム情報オブジェクトの配列 
+
+### restFields
+投稿タイプに登録されているタクソノミー（カテゴリ、タグを含む）の情報およびそのタームの情報をを取得して配列で返します。
+#### 引数
+- `rest_base` string  
+投稿タイプのRestAPI用スラッグ  
+
+#### 戻り値
+"title","date","excerpt","featured_media","meta","acf"の各フィールドの値を投稿タイプの最新データ1件分を返す。この結果で投稿タイプがどのフィールドをサポートしているか、また、どのようなカスタムフィールドが設定されているかの情報を取得することができる。 
 
 ### PageSelectControl
 固定ページを選択できるコンボボックス表示し、固定ページの情報を返します。
@@ -573,7 +605,7 @@ WordPressのブロックエディタのサイドバーにTypographyを設定す�
 - `label` string  
 
 - `onChange` func
-チェックボックスの内容が変化したとき発生するコールバック関数。引数には{ taxonomy: タクソノミーのスラッグ, term: タームのスラッグ }という形式のオブジェクトを要素とする配列が入る。 
+チェックボックスの内容が変化したとき発生するコールバック関数。引数には{ taxonomy: タクソノミーのスラッグ, term:{ id: term.id, slug: term.slug, name: term.name } }という形式のオブジェクトを要素とする配列が入る。 
 
 ```
 <TermChoiceControl
@@ -707,27 +739,27 @@ WordPressのブロックエディタのサイドバーにブロックの配置�
 - `isSubmenu` boolean  
 trueの場合はmax-widthを合わせて設定する
 - `onWidthChange` function
-widthの種別を設定するためのコールバック関数。返ってくる引数はfit,full,wideSize,contentSize,free
+widthの種別を設定するためのコールバック関数。返ってくる引数はkey,valueの２つでkeyはwidth_valまたはmax_valという文字列でwidthValはfit,full,wideSize,contentSize,freeのいずれか
 - `onFreeWidthChange` function
-widthの種別がfreeのとき幅を設定するためのコールバック関数。返ってくる引数は単位付きの文字列
+widthの種別がfreeのとき幅を設定するためのコールバック関数。返ってくる引数はkey,valueの２つでkeyはfree_widthまたはmax_free_widthという文字列でvalueは単位付きの文字列
 
 ```
 <BlockWidth
 	attributes={attributes}
 	isMobile={isMobile}
 	isSubmenu={isFront}
-	onWidthChange={(value) => {
+	onWidthChange={(key,value) => {
 		setAttributes(
 			!isMobile
-				? { default_val: { ...default_val, width_val: value } }
-				: { mobile_val: { ...mobile_val, width_val: value } },
+				? { default_val: { ...default_val, [key]: value } }
+				: { mobile_val: { ...mobile_val, [key]: value } },
 		);
 	}}
-	onFreeWidthChange={(value) => {
+	onFreeWidthChange={(key,value) => {
 		setAttributes(
 			!isMobile
-				? { default_val: { ...default_val, free_width: value } }
-				: { mobile_val: { ...mobile_val, free_width: value } },
+				? { default_val: { ...default_val, [key]: value } }
+				: { mobile_val: { ...mobile_val, [key]: value } },
 		);
 	}}
 />

@@ -45,10 +45,10 @@ const vert_around = <Icon icon={justifySpaceBetween} className="rotate-icon" />;
 export default function BlockPlace(props) {
   const { attributes, clientId, blockRef, isMobile, isSubmenu, isParallax } =
     props;
-  const { positionType, isPosCenter, default_pos, mobile_pos } = attributes;
+  const { positionType, isPosCenter, default_val, mobile_val } = attributes;
 
   //モバイルかデスクトップか
-  const sel_pos = isMobile ? mobile_pos : default_pos;
+  const sel_pos = isMobile ? mobile_val : default_val;
 
   //配置アイコンの選択
   const start_icon = sel_pos.direction === "vertical" ? upper : justifyLeft;
@@ -186,15 +186,23 @@ export default function BlockPlace(props) {
               />
             )}
           </ToolbarItem>
+          {(sel_pos.direction === "horizen" ||
+            sel_pos.direction === "vertical") && (
+            <PanelRow className="position_row">
+              <ToggleControl
+                label={__("reverse", "block-collections")}
+                checked={sel_pos.reverse}
+                onChange={(checked) => props.onReverseChange(checked)}
+              />
+              <ToggleControl
+                label={__("wrap", "block-collections")}
+                checked={sel_pos.wrap}
+                onChange={(checked) => props.onWrapChange(checked)}
+              />
+            </PanelRow>
+          )}
         </ToolbarGroup>
-        {(sel_pos.direction === "horizen" ||
-          sel_pos.direction === "vertical") && (
-          <ToggleControl
-            label={__("reverse", "block-collections")}
-            checked={sel_pos.reverse}
-            onChange={(checked) => props.onReverseChange(checked)}
-          />
-        )}
+
         {sel_pos.direction !== "block" && sel_pos.direction !== "grid" && (
           <>
             {isMobile ? (
@@ -262,15 +270,14 @@ export default function BlockPlace(props) {
           </>
         )}
 
-        {!isContainer &&
-          !isSubmenu &&
+        {!isSubmenu &&
           (isMobile ? (
             <p>{__("Block alignment(Mobile)", "block-collections")}</p>
           ) : (
             <p>{__("Block alignment(DeskTop)", "block-collections")}</p>
           ))}
 
-        {!isContainer && !isSubmenu && (
+        {!isSubmenu && (
           <ToolbarGroup>
             <ToolbarItem>
               {(itemProps) => (
@@ -310,9 +317,9 @@ export default function BlockPlace(props) {
         {isContainer && (
           <>
             {isMobile ? (
-              <p>{__("Block alignment(Mobile)", "block-collections")}</p>
+              <p>{__("Alignment in container(Mobile)", "block-collections")}</p>
             ) : (
-              <p>{__("Block alignment(DeskTop)", "block-collections")}</p>
+              <p>{__("Alignment in container(DeskTop)", "block-collections")}</p>
             )}
 
             <ToolbarGroup>
@@ -385,114 +392,22 @@ export default function BlockPlace(props) {
           </>
         )}
 
-        <p>{blockWidthLabel}</p>
-        <ToolbarGroup>
-          <ToolbarItem>
-            {(itemProps) => (
-              <Button
-                {...itemProps}
-                isPressed={sel_pos.width_val === "full"}
-                onClick={() => props.onWidthChange("full")}
-                text="full"
-              />
-            )}
-          </ToolbarItem>
-          <ToolbarItem>
-            {(itemProps) => (
-              <Button
-                {...itemProps}
-                isPressed={sel_pos.width_val === "fit"}
-                onClick={() => props.onWidthChange("fit")}
-                text="fit"
-              />
-            )}
-          </ToolbarItem>
-          <ToolbarItem>
-            {(itemProps) => (
-              <Button
-                {...itemProps}
-                isPressed={sel_pos.width_val === "wideSize"}
-                onClick={() => props.onWidthChange("wideSize")}
-                icon={stretchWide}
-                label={__("Wide Size", "block-collections")}
-              />
-            )}
-          </ToolbarItem>
-          <ToolbarItem>
-            {(itemProps) => (
-              <Button
-                {...itemProps}
-                isPressed={sel_pos.width_val === "contentSize"}
-                onClick={() => props.onWidthChange("contentSize")}
-                icon={positionCenter}
-                label={__("Content Size", "block-collections")}
-              />
-            )}
-          </ToolbarItem>
-          <ToolbarItem>
-            {(itemProps) => (
-              <Button
-                {...itemProps}
-                isPressed={sel_pos.width_val === "free"}
-                onClick={() => props.onWidthChange("free")}
-                text="free"
-              />
-            )}
-          </ToolbarItem>
-        </ToolbarGroup>
+        <BlockWidth
+          attributes={attributes}
+          isMobile={isMobile}
+          isSubmenu={isSubmenu}
+          onWidthChange={(key, widthVal) => props.onWidthChange(key, widthVal)}
+          onFreeWidthChange={(key, freeVal) =>
+            props.onFreeWidthChange(key, freeVal)
+          }
+        />
 
-        {sel_pos.width_val === "free" && (
-          <UnitControl
-            dragDirection="e"
-            onChange={(newValue) => props.onFreeWidthChange(newValue)}
-            value={sel_pos.free_width}
-          />
-        )}
-
-        {isMobile ? (
-          <p>{__("Block Height(Mobile)", "block-collections")}</p>
-        ) : (
-          <p>{__("Block Height(DeskTop)", "block-collections")}</p>
-        )}
-        <ToolbarGroup>
-          <ToolbarItem>
-            {(itemProps) => (
-              <Button
-                {...itemProps}
-                isPressed={sel_pos.height_val === "full"}
-                onClick={() => props.onHeightChange("full")}
-                text="full"
-              />
-            )}
-          </ToolbarItem>
-          <ToolbarItem>
-            {(itemProps) => (
-              <Button
-                {...itemProps}
-                isPressed={sel_pos.height_val === "fit"}
-                onClick={() => props.onHeightChange("fit")}
-                text="fit"
-              />
-            )}
-          </ToolbarItem>
-          <ToolbarItem>
-            {(itemProps) => (
-              <Button
-                {...itemProps}
-                isPressed={sel_pos.height_val === "free"}
-                onClick={() => props.onHeightChange("free")}
-                text="free"
-              />
-            )}
-          </ToolbarItem>
-        </ToolbarGroup>
-        {sel_pos.height_val === "free" && (
-          <UnitControl
-            dragDirection="e"
-            onChange={(newValue) => props.onFreeHeightChange(newValue)}
-            value={sel_pos.free_height}
-          />
-        )}
+        <BlockHeight
+          attributes={attributes}
+          isMobile={isMobile}
+          onHeightChange={(heightVal) => props.onHeightChange(heightVal)}
+          onFreeHeightChange={(freeVal) => props.onFreeHeightChange(freeVal)}
+        />
 
         {sel_pos.direction === "grid" && (
           <>
@@ -675,25 +590,19 @@ export function BlockWidth(props) {
   );
   const blockWidthDesktop = __("Block Width(DeskTop)", "block-collections");
 
-  // 条件に応じて選択
-  const blockWidthLabel = isMobile
-    ? isSubmenu
-      ? blockMaxWidthMobile
-      : blockWidthMobile
-    : isSubmenu
-    ? blockMaxWidthDesktop
-    : blockWidthDesktop;
-
+  // ラベル
+  const widthLabel = isMobile ? blockWidthMobile : blockWidthDesktop;
+  const maxWidthLabel = isMobile ? blockMaxWidthMobile : blockMaxWidthDesktop;
   return (
     <>
-      <p>{blockWidthLabel}</p>
+      <p>{widthLabel}</p>
       <ToolbarGroup>
         <ToolbarItem>
           {(itemProps) => (
             <Button
               {...itemProps}
               isPressed={sel_pos.width_val === "full"}
-              onClick={() => props.onWidthChange("full")}
+              onClick={() => props.onWidthChange("width_val", "full")}
               text="full"
             />
           )}
@@ -703,7 +612,7 @@ export function BlockWidth(props) {
             <Button
               {...itemProps}
               isPressed={sel_pos.width_val === "fit"}
-              onClick={() => props.onWidthChange("fit")}
+              onClick={() => props.onWidthChange("width_val", "fit")}
               text="fit"
             />
           )}
@@ -713,7 +622,7 @@ export function BlockWidth(props) {
             <Button
               {...itemProps}
               isPressed={sel_pos.width_val === "wideSize"}
-              onClick={() => props.onWidthChange("wideSize")}
+              onClick={() => props.onWidthChange("width_val", "wideSize")}
               icon={stretchWide}
               label={__("Wide Size", "block-collections")}
             />
@@ -724,7 +633,7 @@ export function BlockWidth(props) {
             <Button
               {...itemProps}
               isPressed={sel_pos.width_val === "contentSize"}
-              onClick={() => props.onWidthChange("contentSize")}
+              onClick={() => props.onWidthChange("width_val", "contentSize")}
               icon={positionCenter}
               label={__("Content Size", "block-collections")}
             />
@@ -735,7 +644,7 @@ export function BlockWidth(props) {
             <Button
               {...itemProps}
               isPressed={sel_pos.width_val === "free"}
-              onClick={() => props.onWidthChange("free")}
+              onClick={() => props.onWidthChange("width_val", "free")}
               text="free"
             />
           )}
@@ -745,8 +654,75 @@ export function BlockWidth(props) {
       {sel_pos.width_val === "free" && (
         <UnitControl
           dragDirection="e"
-          onChange={(newValue) => props.onFreeWidthChange(newValue)}
+          onChange={(newValue) =>
+            props.onFreeWidthChange("free_width", newValue)
+          }
           value={sel_pos.free_width}
+        />
+      )}
+      <p>{maxWidthLabel}</p>
+      <ToolbarGroup>
+        <ToolbarItem>
+          {(itemProps) => (
+            <Button
+              {...itemProps}
+              isPressed={sel_pos.max_width === "full"}
+              onClick={() => props.onWidthChange("max_width", "full")}
+              text="full"
+            />
+          )}
+        </ToolbarItem>
+        <ToolbarItem>
+          {(itemProps) => (
+            <Button
+              {...itemProps}
+              isPressed={sel_pos.max_width === "fit"}
+              onClick={() => props.onWidthChange("max_width", "fit")}
+              text="fit"
+            />
+          )}
+        </ToolbarItem>
+        <ToolbarItem>
+          {(itemProps) => (
+            <Button
+              {...itemProps}
+              isPressed={sel_pos.max_width === "wideSize"}
+              onClick={() => props.onWidthChange("max_width", "wideSize")}
+              icon={stretchWide}
+              label={__("Wide Size", "block-collections")}
+            />
+          )}
+        </ToolbarItem>
+        <ToolbarItem>
+          {(itemProps) => (
+            <Button
+              {...itemProps}
+              isPressed={sel_pos.max_width === "contentSize"}
+              onClick={() => props.onWidthChange("max_width", "contentSize")}
+              icon={positionCenter}
+              label={__("Content Size", "block-collections")}
+            />
+          )}
+        </ToolbarItem>
+        <ToolbarItem>
+          {(itemProps) => (
+            <Button
+              {...itemProps}
+              isPressed={sel_pos.max_width === "free"}
+              onClick={() => props.onWidthChange("max_width", "free")}
+              text="free"
+            />
+          )}
+        </ToolbarItem>
+      </ToolbarGroup>
+
+      {sel_pos.max_width === "free" && (
+        <UnitControl
+          dragDirection="e"
+          onChange={(newValue) =>
+            props.onFreeWidthChange("max_free_width", newValue)
+          }
+          value={sel_pos.max_free_width}
         />
       )}
     </>

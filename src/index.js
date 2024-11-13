@@ -2,6 +2,7 @@
 export {
   useIsIframeMobile,
   useElementBackgroundColor,
+  useElementStyleObject,
   useElementWidth,
   useIsMobile,
   useDeepCompareEffect,
@@ -14,8 +15,10 @@ export {
 export {
   fetchPagesOptions,
   fetchArchiveOptions,
+  restFetchData,
   restTaxonomies,
-  //restFieldes,
+  restFieldes,
+  termToDispObj,
   PageSelectControl,
   ArchiveSelectControl,
   TermChoiceControl,

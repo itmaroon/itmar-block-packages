@@ -109,6 +109,30 @@ export function useElementBackgroundColor(blockRef, style) {
   return baseColor;
 }
 
+//ブロックのスタイルを取得し、コールバック関数を返すカスタムフック
+export function useElementStyleObject(blockRef, style) {
+  const [styleObject, setStyleObject] = useState("");
+
+  useEffect(() => {
+    if (blockRef.current && style) {
+      //レンダリング結果に基づくスタイルの取得
+      const computedStyles = getComputedStyle(blockRef.current);
+      // styleオブジェクトのキーに基づいてnewStyleObjectを生成
+      const newStyleObject = Object.keys(style).reduce((acc, key) => {
+        if (computedStyles[key]) {
+          // computedStylesにキーが存在するか確認
+          acc[key] = computedStyles[key];
+        }
+        return acc;
+      }, {});
+
+      setStyleObject(JSON.stringify(newStyleObject));
+    }
+  }, [blockRef, style]);
+  // styleObjectをオブジェクトとして返す
+  return styleObject;
+}
+
 //たくさんの要素をもつオブジェクトや配列の内容の変化で発火するuseEffect
 export function useDeepCompareEffect(callback, dependencies) {
   const dependenciesRef = useRef();
