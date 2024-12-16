@@ -14,6 +14,10 @@ import {関数名又はコンポーネント名} from "itmar-block-packages"
 npm i @wordpress/scripts@^27.6.0 --save-dev
 
 ## 更新履歴
+= 1.3.19 =  
+- FieldChoiceControlの選択可能フィールドにlinkを加えて、個別投稿ページへのリンク設定を可能にした。
+- BlockPlaceのフレックスボックスの配置に交差軸の配置を加えた。
+
 = 1.3.18 =  
 - WordPress RestAPIのエンドポイントを文字列で受けて、その結果を返すrestFetchDataを新設
 - TermChoiceControlでonChangeコールバックで返す引数にterm.nameを加えた。
@@ -619,6 +623,54 @@ RestAPIのエンドポイントを文字列で受けて、その結果を返す
 />
 ```
 
+### FieldChoiceControl
+タイトル、日付、抜粋、アイキャッチ画像、リンクの各フィールドと投稿タイプに紐づけられている全てのカスタムフィールドを選択できるチェックボックス表示し、コールバック関数に選択されたフィールドの情報を返します。
+また、各フィールドがどのブロックでレンダリングされるかの設定機能も含みます。
+#### プロプス  
+- `selectedSlug` string  
+選択済みの投稿タイプのスラッグ （Restタイプ）
+- `choiceItems` array  
+選択済みのフィールドの情報。配列の要素はフィールドのスラッグ（文字列）。  
+- `type` string 
+選択するデータのタイプ。将来の拡張のためにセットしている。現時点では"field"とセットすること。
+- `blockMap` object
+フィールド名とブロック名を対にしたオブジェクト
+```
+{
+	"title":"itmar/design-title",
+	"date":"itmar/design-title",
+	"excerpt":"core/paragraph",
+	"featured_media":"core/image",
+	"link":"itmar/design-button"
+}
+```
+- `textDomain` string
+使用するブロックのテキストドメイン
+
+- `onChange` func
+チェックボックスの内容が変化したとき発生するコールバック関数。引数には選択されたフィールドのフィールド名を要素とする配列が入る。 
+
+```
+
+- `onBlockMapChange` func
+コンボボックスの内容が変化したとき発生するコールバック関数。引数には設定されたフィールド名とブロック名を対にしたオブジェクトが入る。 
+
+```
+<FieldChoiceControl
+	type="field"
+	selectedSlug={selectedRest}
+	choiceItems={choiceFields}
+	blockMap={blockMap}
+	textDomain="post-blocks"
+	onChange={(newChoiceFields) => {
+		setAttributes({ choiceFields: newChoiceFields });
+	}}
+	onBlockMapChange={(newBlockMap) => {
+		setAttributes({ blockMap: newBlockMap });
+	}}
+/>
+```
+
 ## Font awesom のアイコンを選択するためのコントロール
 ### IconSelectControl
 WordPressのブロックエディタのサイドバーにFont awesomのアイコンを選択するためのコントロールを表示させるReactコンポーネント。
@@ -693,8 +745,8 @@ WordPressのブロックエディタのサイドバーにブロックの配置�
 	onReverseChange={(checked) => {
 		setAttributes({reverse: checked });	
 	}}
-	onFlexChange={(position) => {
-		setAttributes({inner_align: position });
+	onFlexChange={(position,axis) => {
+		setAttributes({[axis]: position });
 	}}
 	onAlignChange={(position) => {
 		setAttributes({outer_align: position });

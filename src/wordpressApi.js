@@ -61,6 +61,7 @@ const ChoiceControl = (props) => {
     textDomain,
     fetchFunction,
   } = props;
+
   const [choices, setChoices] = useState([]);
   useEffect(() => {
     if (!selectedSlug) return; //ポストタイプのスラッグが選択されていないときは処理終了
@@ -263,30 +264,66 @@ const ChoiceControl = (props) => {
                   }}
                 />
               )}
+              {choice.link && (
+                <div className="itmar_custom_field_set">
+                  <ToggleControl
+                    className="field_choice"
+                    label={__("Single Page Link", "block-collections")}
+                    checked={choiceItems.some(
+                      (choiceField) => choiceField === "link"
+                    )}
+                    onChange={(checked) => {
+                      const newChoiceFields = handleChoiceChange(
+                        checked,
+                        "link"
+                      );
+                      props.onChange(newChoiceFields);
+                    }}
+                  />
+                  <ComboboxControl
+                    options={[
+                      {
+                        value: "itmar/design-button",
+                        label: "itmar/design-button",
+                      },
+                      {
+                        value: "itmar/design-title",
+                        label: "itmar/design-title",
+                      },
+                    ]}
+                    value={blockMap["link"]}
+                    onChange={(newValue) => {
+                      const newBlockMap = {
+                        ...blockMap,
+                        link: newValue,
+                      };
+                      props.onBlockMapChange(newBlockMap);
+                    }}
+                  />
+                </div>
+              )}
               {(metaFlg || acfFlg) && (
                 <>
                   <div className="custom_field_label">
                     {__("Custom Field", "block-collections")}
                   </div>
                   <div className="custom_field_area">
-                    <div className="custom_field_area">
-                      {dispCustumFields({
-                        ...Object.entries(choice.meta).reduce(
-                          (acc, [key, value]) => ({
-                            ...acc,
-                            [`meta_${key}`]: value,
-                          }),
-                          {}
-                        ),
-                        ...Object.entries(choice.acf).reduce(
-                          (acc, [key, value]) => ({
-                            ...acc,
-                            [`acf_${key}`]: value,
-                          }),
-                          {}
-                        ),
-                      })}
-                    </div>
+                    {dispCustumFields({
+                      ...Object.entries(choice.meta).reduce(
+                        (acc, [key, value]) => ({
+                          ...acc,
+                          [`meta_${key}`]: value,
+                        }),
+                        {}
+                      ),
+                      ...Object.entries(choice.acf).reduce(
+                        (acc, [key, value]) => ({
+                          ...acc,
+                          [`acf_${key}`]: value,
+                        }),
+                        {}
+                      ),
+                    })}
                   </div>
                 </>
               )}
@@ -415,6 +452,7 @@ export const restFieldes = async (rest_base) => {
     "date",
     "excerpt",
     "featured_media",
+    "link",
     "meta",
     "acf",
   ];

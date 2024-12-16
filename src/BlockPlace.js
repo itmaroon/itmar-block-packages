@@ -51,9 +51,14 @@ export default function BlockPlace(props) {
   const sel_pos = isMobile ? mobile_val : default_val;
 
   //配置アイコンの選択
+
   const start_icon = sel_pos.direction === "vertical" ? upper : justifyLeft;
   const center_icon = sel_pos.direction === "vertical" ? middle : justifyCenter;
   const end_icon = sel_pos.direction === "vertical" ? lower : justifyRight;
+  const start_cross = sel_pos.direction === "vertical" ? justifyLeft : upper;
+  const center_cross =
+    sel_pos.direction === "vertical" ? justifyCenter : middle;
+  const end_cross = sel_pos.direction === "vertical" ? justifyRight : lower;
   const between_icon =
     sel_pos.direction === "vertical" ? vert_between : justifyStretch;
   const around_icon =
@@ -67,6 +72,14 @@ export default function BlockPlace(props) {
     sel_pos.direction === "vertical"
       ? __("lower alignment", "block-collections")
       : __("right alignment", "block-collections");
+  const cross_start_tip =
+    sel_pos.direction === "vertical"
+      ? __("left alignment", "block-collections")
+      : __("upper alignment", "block-collections");
+  const cross_end_tip =
+    sel_pos.direction === "vertical"
+      ? __("right alignment", "block-collections")
+      : __("lower alignment", "block-collections");
 
   const [isContainer, setIsContainer] = useState(false);
   const [direction, setDirection] = useState("row");
@@ -206,9 +219,9 @@ export default function BlockPlace(props) {
         {sel_pos.direction !== "block" && sel_pos.direction !== "grid" && (
           <>
             {isMobile ? (
-              <p>{__("InnerBlock alignment(Mobile)", "block-collections")}</p>
+              <p>{__("InnerBlock Main Axis(Mobile)", "block-collections")}</p>
             ) : (
-              <p>{__("InnerBlock alignment(DeskTop)", "block-collections")}</p>
+              <p>{__("InnerBlock Main Axis(DeskTop)", "block-collections")}</p>
             )}
             <ToolbarGroup>
               <ToolbarItem>
@@ -216,7 +229,9 @@ export default function BlockPlace(props) {
                   <Button
                     {...itemProps}
                     isPressed={sel_pos.inner_align === "flex-start"}
-                    onClick={() => props.onFlexChange("flex-start")} //親コンポーネントに通知
+                    onClick={() =>
+                      props.onFlexChange("flex-start", "inner_align")
+                    } //親コンポーネントに通知
                     icon={start_icon}
                     label={start_tip}
                   />
@@ -227,7 +242,7 @@ export default function BlockPlace(props) {
                   <Button
                     {...itemProps}
                     isPressed={sel_pos.inner_align === "center"}
-                    onClick={() => props.onFlexChange("center")} //親コンポーネントに通知
+                    onClick={() => props.onFlexChange("center", "inner_align")} //親コンポーネントに通知
                     icon={center_icon}
                     label={__("center alignment", "block-collections")}
                   />
@@ -238,7 +253,9 @@ export default function BlockPlace(props) {
                   <Button
                     {...itemProps}
                     isPressed={sel_pos.inner_align === "flex-end"}
-                    onClick={() => props.onFlexChange("flex-end")} //親コンポーネントに通知
+                    onClick={() =>
+                      props.onFlexChange("flex-end", "inner_align")
+                    } //親コンポーネントに通知
                     icon={end_icon}
                     label={end_tip}
                   />
@@ -249,7 +266,9 @@ export default function BlockPlace(props) {
                   <Button
                     {...itemProps}
                     isPressed={sel_pos.inner_align === "space-between"}
-                    onClick={() => props.onFlexChange("space-between")} //親コンポーネントに通知
+                    onClick={() =>
+                      props.onFlexChange("space-between", "inner_align")
+                    } //親コンポーネントに通知
                     icon={between_icon}
                     label={__("beteen stretch", "block-collections")}
                   />
@@ -260,7 +279,9 @@ export default function BlockPlace(props) {
                   <Button
                     {...itemProps}
                     isPressed={sel_pos.inner_align === "space-around"}
-                    onClick={() => props.onFlexChange("space-around")} //親コンポーネントに通知
+                    onClick={() =>
+                      props.onFlexChange("space-around", "inner_align")
+                    } //親コンポーネントに通知
                     icon={around_icon}
                     label={__("around stretch", "block-collections")}
                   />
@@ -272,9 +293,9 @@ export default function BlockPlace(props) {
 
         {!isSubmenu &&
           (isMobile ? (
-            <p>{__("Block alignment(Mobile)", "block-collections")}</p>
+            <p>{__("InnerBlock Cross Axis(Mobile)", "block-collections")}</p>
           ) : (
-            <p>{__("Block alignment(DeskTop)", "block-collections")}</p>
+            <p>{__("InnerBlock Cross Axis(DeskTop)", "block-collections")}</p>
           ))}
 
         {!isSubmenu && (
@@ -283,10 +304,12 @@ export default function BlockPlace(props) {
               {(itemProps) => (
                 <Button
                   {...itemProps}
-                  isPressed={sel_pos.outer_align === "left"}
-                  onClick={() => props.onAlignChange("left")}
-                  icon={justifyLeft}
-                  label={__("left alignment", "block-collections")}
+                  isPressed={sel_pos.inner_items === "flex-start"}
+                  onClick={() =>
+                    props.onFlexChange("flex-start", "inner_items")
+                  } //親コンポーネントに通知
+                  icon={start_cross}
+                  label={cross_start_tip}
                 />
               )}
             </ToolbarItem>
@@ -294,9 +317,9 @@ export default function BlockPlace(props) {
               {(itemProps) => (
                 <Button
                   {...itemProps}
-                  isPressed={sel_pos.outer_align === "center"}
-                  onClick={() => props.onAlignChange("center")}
-                  icon={justifyCenter}
+                  isPressed={sel_pos.inner_items === "center"}
+                  onClick={() => props.onFlexChange("center", "inner_items")} //親コンポーネントに通知
+                  icon={center_cross}
                   label={__("center alignment", "block-collections")}
                 />
               )}
@@ -305,10 +328,10 @@ export default function BlockPlace(props) {
               {(itemProps) => (
                 <Button
                   {...itemProps}
-                  isPressed={sel_pos.outer_align === "right"}
-                  onClick={() => props.onAlignChange("right")}
-                  icon={justifyRight}
-                  label={__("right alignment", "block-collections")}
+                  isPressed={sel_pos.inner_items === "flex-end"}
+                  onClick={() => props.onFlexChange("flex-end", "inner_items")} //親コンポーネントに通知
+                  icon={end_cross}
+                  label={cross_end_tip}
                 />
               )}
             </ToolbarItem>
@@ -319,7 +342,9 @@ export default function BlockPlace(props) {
             {isMobile ? (
               <p>{__("Alignment in container(Mobile)", "block-collections")}</p>
             ) : (
-              <p>{__("Alignment in container(DeskTop)", "block-collections")}</p>
+              <p>
+                {__("Alignment in container(DeskTop)", "block-collections")}
+              </p>
             )}
 
             <ToolbarGroup>
