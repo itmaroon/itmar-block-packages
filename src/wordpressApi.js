@@ -56,6 +56,7 @@ const ChoiceControl = (props) => {
   const {
     selectedSlug,
     choiceItems,
+    dispTaxonomies,
     type,
     blockMap,
     textDomain,
@@ -77,17 +78,17 @@ const ChoiceControl = (props) => {
   }, [selectedSlug, fetchFunction]);
 
   //選択肢が変わったときに選択されている項目の配列内容を更新するハンドラ
-  const handleChoiceChange = (checked, target) => {
+  const handleChoiceChange = (checked, target, setItems) => {
     if (checked) {
       // targetが重複していない場合のみ追加
-      if (!choiceItems.some((item) => _.isEqual(item, target))) {
-        return [...choiceItems, target];
+      if (!setItems.some((item) => _.isEqual(item, target))) {
+        return [...setItems, target];
       }
     } else {
       // targetを配列から削除
-      return choiceItems.filter((item) => !_.isEqual(item, target));
+      return setItems.filter((item) => !_.isEqual(item, target));
     }
-    return choiceItems;
+    return setItems;
   };
 
   //階層化されたカスタムフィールドのフィールド名を表示する関数
@@ -127,7 +128,11 @@ const ChoiceControl = (props) => {
                 (choiceField) => choiceField === fieldName
               )}
               onChange={(checked) => {
-                const newChoiceFields = handleChoiceChange(checked, fieldName);
+                const newChoiceFields = handleChoiceChange(
+                  checked,
+                  fieldName,
+                  choiceItems
+                );
                 props.onChange(newChoiceFields);
               }}
             />
@@ -157,7 +162,21 @@ const ChoiceControl = (props) => {
         choices.map((choice, index) => {
           return (
             <div key={index} className="term_section">
-              <div className="tax_label">{choice.name}</div>
+              <div className="tax_label">
+                {choice.name}
+                <ToggleControl
+                  label={__("Display", "block-collections")}
+                  checked={dispTaxonomies.some((tax) => tax === choice.slug)}
+                  onChange={(checked) => {
+                    const newChoiceFields = handleChoiceChange(
+                      checked,
+                      choice.slug,
+                      dispTaxonomies
+                    );
+                    props.onSetDispTax(newChoiceFields);
+                  }}
+                />
+              </div>
               {choice.terms.map((term, index) => {
                 return (
                   <CheckboxControl
@@ -177,7 +196,8 @@ const ChoiceControl = (props) => {
                       };
                       const newChoiceTerms = handleChoiceChange(
                         checked,
-                        target
+                        target,
+                        choiceItems
                       );
                       props.onChange(newChoiceTerms);
                     }}
@@ -213,7 +233,8 @@ const ChoiceControl = (props) => {
                   onChange={(checked) => {
                     const newChoiceFields = handleChoiceChange(
                       checked,
-                      "title"
+                      "title",
+                      choiceItems
                     );
                     props.onChange(newChoiceFields);
                   }}
@@ -227,7 +248,11 @@ const ChoiceControl = (props) => {
                     (choiceField) => choiceField === "date"
                   )}
                   onChange={(checked) => {
-                    const newChoiceFields = handleChoiceChange(checked, "date");
+                    const newChoiceFields = handleChoiceChange(
+                      checked,
+                      "date",
+                      choiceItems
+                    );
                     props.onChange(newChoiceFields);
                   }}
                 />
@@ -242,7 +267,8 @@ const ChoiceControl = (props) => {
                   onChange={(checked) => {
                     const newChoiceFields = handleChoiceChange(
                       checked,
-                      "excerpt"
+                      "excerpt",
+                      choiceItems
                     );
                     props.onChange(newChoiceFields);
                   }}
@@ -258,7 +284,8 @@ const ChoiceControl = (props) => {
                   onChange={(checked) => {
                     const newChoiceFields = handleChoiceChange(
                       checked,
-                      "featured_media"
+                      "featured_media",
+                      choiceItems
                     );
                     props.onChange(newChoiceFields);
                   }}
@@ -275,7 +302,8 @@ const ChoiceControl = (props) => {
                     onChange={(checked) => {
                       const newChoiceFields = handleChoiceChange(
                         checked,
-                        "link"
+                        "link",
+                        choiceItems
                       );
                       props.onChange(newChoiceFields);
                     }}
@@ -300,6 +328,12 @@ const ChoiceControl = (props) => {
                       props.onBlockMapChange(newBlockMap);
                     }}
                   />
+                  <p>
+                    {__(
+                      "If no block is specified, a link will be set to the parent block, Design Group.",
+                      "block-collections"
+                    )}
+                  </p>
                 </div>
               )}
               {(metaFlg || acfFlg) && (

@@ -17,6 +17,7 @@ npm i @wordpress/scripts@^27.6.0 --save-dev
 = 1.3.19 =  
 - FieldChoiceControlの選択可能フィールドにlinkを加えて、個別投稿ページへのリンク設定を可能にした。
 - BlockPlaceのフレックスボックスの配置に交差軸の配置を加えた。
+- TermChoiceControlでタームの表示をするか否かの選択を設定できるようにした。
 
 = 1.3.18 =  
 - WordPress RestAPIのエンドポイントを文字列で受けて、その結果を返すrestFetchDataを新設
@@ -603,23 +604,31 @@ RestAPIのエンドポイントを文字列で受けて、その結果を返す
 選択済みの投稿タイプのスラッグ 
 - `choiceTerms` array  
 選択済みのタームの情報。配列の要素は次の形式のオブジェクトであること。  
-{ taxonomy: タクソノミーのスラッグ, term: タームのスラッグ }    
+{ taxonomy: タクソノミーのスラッグ, term: タームのスラッグ } 
+- `dispTaxonomies` array  
+選択済みのタクソノミの情報。配列の要素はタクソノミーのスラッグ     
 - `type` string 
 選択するデータのタイプ。将来の拡張のためにセットしている。現時点では"taxonomy"とセットすること。
 - `label` string  
 
 - `onChange` func
-チェックボックスの内容が変化したとき発生するコールバック関数。引数には{ taxonomy: タクソノミーのスラッグ, term:{ id: term.id, slug: term.slug, name: term.name } }という形式のオブジェクトを要素とする配列が入る。 
+チェックボックスの内容が変化したとき発生するコールバック関数。引数には{ taxonomy: タクソノミーのスラッグ, term:{ id: term.id, slug: term.slug, name: term.name } }という形式のオブジェクトを要素とする配列が入る。
+- `onSetDispTax` func
+トグルコントロールの内容が変化したとき発生するコールバック関数。引数にはタクソノミーのスラッグを要素とする配列が入る。 
 
 ```
 <TermChoiceControl
 	selectedSlug={selectedSlug}
 	choiceTerms={choiceTerms}
+	dispTaxonomies={dispTaxonomies}
 	type="taxonomy"
 	label={__("Choice Taxsonomy", "post-blocks")}
 	onChange={(newChoiceTerms) =>
 		setAttributes({ choiceTerms: newChoiceTerms })
 	}
+	onSetDispTax={(newChoiceTerms) => {
+		setAttributes({ dispTaxonomies: newChoiceTerms });
+	}}
 />
 ```
 
