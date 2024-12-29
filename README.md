@@ -14,6 +14,9 @@ import {関数名又はコンポーネント名} from "itmar-block-packages"
 npm i @wordpress/scripts@^27.6.0 --save-dev
 
 ## 更新履歴
+= 1.3.20 =  
+- PageSelectControlでhomeUrlをエディタのホームURLに固定しないようにした。  
+
 = 1.3.19 =  
 - FieldChoiceControlの選択可能フィールドにlinkを加えて、個別投稿ページへのリンク設定を可能にした。
 - BlockPlaceのフレックスボックスの配置に交差軸の配置を加えた。

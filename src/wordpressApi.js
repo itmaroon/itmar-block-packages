@@ -386,7 +386,7 @@ export const fetchPagesOptions = async (home_url) => {
         value: page.id,
         slug: page.slug,
         label: page.title.rendered,
-        link: page.link,
+        link: `${home_url}/${page.slug}`,
       }))
     : [];
 
