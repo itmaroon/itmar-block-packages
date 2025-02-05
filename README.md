@@ -14,6 +14,20 @@ import {関数名又はコンポーネント名} from "itmar-block-packages"
 npm i @wordpress/scripts@^27.6.0 --save-dev
 
 ## 更新履歴
+= 1.4.2 =  
+- UpdateAllPostsBlockAttributesコンポーネントにonProcessStartのコールバック関数の処理を付加
+- parse, serializeのimport漏れを修正
+- 最初の100投稿までの処理しか対応できなかったものをページング処理で上限なしに改良
+
+= 1.4.1 =  
+- UpdateAllPostsBlockAttributesコンポーネントの宣言の誤りを修正
+
+= 1.4.0 =  
+- 指定した投稿タイプの投稿に含まれる特定のブロックの属性を書き換えるコンポーネントであるUpdateAllPostsBlockAttributesコンポーネントを追加
+
+= 1.3.21 =  
+- FieldChoiceControlで先頭の投稿にアイキャッチ画像が設定されていないとき、フィールド選択のトグルボタンが表示されないという不具合を修正
+
 = 1.3.20 =  
 - PageSelectControlでhomeUrlをエディタのホームURLに固定しないようにした。  
 
@@ -884,4 +898,45 @@ Hslオブジェクトのlightnessの値
 16進数のRGB表記を受け取り、それを10進数のRGBオブジェクトに変換するためのユーティリティ関数です。
 #### 引数
 - `strRgb16` string  
-#000000形式の１６進数の文字列又はrgb(0,0,0) 形式の文字列
+#000000形式の１６進数の文字列又はrgb(0,0,0) 形式の文字列  
+
+## 指定した投稿タイプの投稿に含まれる特定のブロックの属性を書き換えるコンポーネント
+### UpdateAllPostsBlockAttributes
+#### 引数
+- `postType` string  
+WordPressのRestAPIで使用するrest_baseに相当する文字列
+- `blockName` string  
+ブロックの名称。投稿本文に含まれるブロックの名前を指定
+- `newAttributes` object  
+新しいブロックの属性をオブジェクトで指定
+- `onProcessStart` function  
+処理が完了したときに実行するコールバック関数
+- `onProcessEnd` function  
+処理が完了したときに実行するコールバック関数
+- `onProcessCancel` function  
+処理が中断されたときに実行するコールバック関数
+```
+<UpdateAllPostsBlockAttributes
+	postType={rest_base}
+	blockName="itmar/markdown-block"
+	newAttributes={{
+		element_style_obj: element_style_obj,
+		backgroundColor: backgroundColor,
+		backgroundGradient: backgroundGradient,
+		default_val: default_val,
+		mobile_val: mobile_val,
+		radius_value: radius_value,
+		border_value: border_value,
+	}}
+	onProcessStart={startProgress}
+	onProcessEnd={closeProgress}
+	onProcessCancel={() => {
+		dispatch("core/notices").createNotice(
+			"error",
+			__("Processing was interrupted.", "markdown-block"),
+			{ type: "snackbar" },
+		);
+	}}
+/>
+```
+

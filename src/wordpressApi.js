@@ -37,7 +37,6 @@ const SelectControl = (props) => {
   }, [fetchOptions]);
 
   const selectedInfo = options.find((info) => info.slug === selectedSlug);
-
   return (
     <ComboboxControl
       label={label}
@@ -69,6 +68,7 @@ const ChoiceControl = (props) => {
     const fetchData = async () => {
       try {
         const fetchChoices = await fetchFunction(selectedSlug);
+
         setChoices(fetchChoices);
       } catch (error) {
         console.error("Error fetching data:", error.message);
@@ -274,7 +274,7 @@ const ChoiceControl = (props) => {
                   }}
                 />
               )}
-              {choice.featured_media && (
+              {(choice.featured_media || choice.featured_media === 0) && (
                 <ToggleControl
                   className="field_choice"
                   label={__("Featured Image", "block-collections")}
@@ -495,7 +495,6 @@ export const restFieldes = async (rest_base) => {
   const response = await apiFetch({
     path: `/wp/v2/${rest_base}?_fields=${fieldsParam}&per_page=1&order=desc`,
   });
-
   return response;
 };
 

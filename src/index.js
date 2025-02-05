@@ -90,3 +90,6 @@ export {
 
 //インナーブロック関連の関数
 export { flattenBlocks } from "./blockStore";
+
+//特定の投稿タイプの投稿に含まれる本ブロックの属性を書き換える
+export { default as UpdateAllPostsBlockAttributes } from "./UpdateAllPostsBlockAttributes";
