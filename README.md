@@ -14,6 +14,9 @@ import {関数名又はコンポーネント名} from "itmar-block-packages"
 npm i @wordpress/scripts@^27.6.0 --save-dev
 
 ## 更新履歴
+= 1.4.3 =  
+- UpdateAllPostsBlockAttributesコンポーネントのRestAPIによる更新の不具合を修正
+
 = 1.4.2 =  
 - UpdateAllPostsBlockAttributesコンポーネントにonProcessStartのコールバック関数の処理を付加
 - parse, serializeのimport漏れを修正

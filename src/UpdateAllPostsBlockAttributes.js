@@ -68,24 +68,17 @@ export default function UpdateAllPostsBlockAttributes({
         const updatedContent = serialize(updatedBlocks);
 
         // REST APIを使って投稿を更新
-        const updateResponse = await fetch(
-          `/wp-json/wp/v2/${postType}/${post.id}`,
-          {
+        try {
+          await apiFetch({
+            path: `/wp/v2/${postType}/${post.id}`,
             method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "X-WP-Nonce": wpApiSettings.nonce, // WP Nonceを指定
-            },
-            body: JSON.stringify({
-              content: updatedContent,
-            }),
+            data: { content: updatedContent },
+          });
+        } catch (error) {
+          console.error(`Failed to update post ID ${post.id}:`, error.message);
+          if (error.data) {
+            console.error("Error details:", error.data);
           }
-        );
-
-        if (!updateResponse.ok) {
-          console.error(
-            `Failed to update post ID ${post.id}: ${updateResponse.statusText}`
-          );
         }
         //カウンターセットとプログレスバーの処理
         processCount++;
