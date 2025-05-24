@@ -14,6 +14,9 @@ import {関数名又はコンポーネント名} from "itmar-block-packages"
 npm i @wordpress/scripts@^27.6.0 --save-dev
 
 ## 更新履歴
+= 1.5.0 =  
+- useTargetBlocksを新設  
+
 = 1.4.3 =  
 - UpdateAllPostsBlockAttributesコンポーネントのRestAPIによる更新の不具合を修正
 
@@ -942,4 +945,120 @@ WordPressのRestAPIで使用するrest_baseに相当する文字列
 	}}
 />
 ```
+
+## インナーブロックを取得・操作する関数
+### `useTargetBlocks`
+
+`useTargetBlocks` は、**Gutenberg ブロックエディタ上で同じ親ブロック内にある特定の名前・属性を持つブロックを取得する React フック**です。  
+ネストされたブロックの検索にも対応しています。
+
+
+
+#### 🧩 概要
+
+このカスタムフックは、次のような用途に使えます：
+
+- 同じ親ブロックの中から特定のブロックを配列で取得
+- 属性値でフィルタして一致する **1件のブロック**を取得
+- ネストされたブロックも含めて取得（オプション）
+
+---
+
+#### ✅ 使い方
+
+##### 基本構文
+
+```js
+const result = useTargetBlocks(clientId, blockName, attributeFilter?, includeNested?);
+```
+
+| 引数 | 型 | 説明 |
+|------|----|------|
+| `clientId` | `string` | 呼び出し元（自分自身）の `clientId`。`useBlockEditContext()` などで取得 |
+| `blockName` | `string` | 対象ブロック名（例: `'itmar/design-text-ctrl'`） |
+| `attributeFilter` | `object|null` | オプション：指定した属性に一致するブロックを1件だけ取得（例: `{ inputName: 'address' }`） |
+| `includeNested` | `boolean` | オプション：`true` でネストされたブロックも対象に含める（デフォルト: `false`） |
+
+---
+
+#### 🧪 使用例
+
+##### 1. 全ての `itmar/design-text-ctrl` ブロックを取得（自分を除く）
+
+```js
+import { useBlockEditContext } from '@wordpress/block-editor';
+import { useTargetBlocks } from '@your-scope/use-target-blocks';
+
+const MyComponent = () => {
+  const { clientId } = useBlockEditContext();
+
+  const blocks = useTargetBlocks(clientId, 'itmar/design-text-ctrl');
+
+  return <div>対象ブロック数: {blocks.length}</div>;
+};
+```
+
+---
+
+##### 2. `inputName: 'address'` を持つブロックを1件だけ取得
+
+```js
+const targetBlock = useTargetBlocks(clientId, 'itmar/design-text-ctrl', {
+  inputName: 'address',
+});
+
+if (targetBlock) {
+  console.log('Address block found:', targetBlock.clientId);
+}
+```
+
+---
+
+##### 3. ネストされたブロックも含めて検索
+
+```js
+const nestedBlock = useTargetBlocks(
+  clientId,
+  'itmar/design-text-ctrl',
+  { inputName: 'address' },
+  true // ネスト含める
+);
+```
+
+---
+
+#### 📁 内部で使用しているもの
+
+- `@wordpress/data`
+- `@wordpress/block-editor`
+- `useSelect`, `getBlockRootClientId`, `getBlock`, `getBlocks`
+
+---
+
+#### 🔁 補助関数：`flattenBlocks`
+
+ネストされたブロックを平坦化するためのユーティリティも内蔵：
+
+```js
+const flattenBlocks = (blocks) => {
+  return blocks.reduce((acc, block) => {
+    acc.push(block);
+    if (block.innerBlocks?.length > 0) {
+      acc.push(...flattenBlocks(block.innerBlocks));
+    }
+    return acc;
+  }, []);
+};
+```
+
+---
+
+#### 🛡️ 注意事項
+
+- このフックは **Gutenberg ブロックエディタ内でのみ使用可能**です。
+- `useTargetBlocks()` は **React フック**です。関数やイベントハンドラ内部では直接呼び出せません。
+
+---
+
+
 
