@@ -1060,5 +1060,71 @@ const flattenBlocks = (blocks) => {
 
 ---
 
+## 日本郵便番号から住所を取得するユーティリティ関数
+### `fetchZipToAddress`
+`fetchZipToAddress` は、[zipcloud](https://zipcloud.ibsnet.co.jp) API を使用して、日本の郵便番号から都道府県・市区町村・町域の住所を非同期で取得する JavaScript 関数です。  
+Gutenberg ブロック開発やフロントエンドフォーム処理において、郵便番号による住所補完機能を簡単に実装できます。
+
+
+#### 使用例（React / jQuery 共通）
+
+```js
+const addressObj = await fetchZipToAddress("1600022");
+if (addressObj) {
+  const fullAddress = addressObj.address1 + addressObj.address2 + addressObj.address3;
+  console.log(fullAddress); // 例: 東京都新宿区新宿
+}
+```
+
+---
+
+#### 🔐 バリデーション仕様
+
+- 郵便番号は「**ハイフンなしの7桁の数字**」形式のみ許可されます（例: `1234567`）。
+- 無効な形式や一致しない郵便番号、通信エラー時には `null` を返します。
+- エラーはすべて `alert()` によってユーザーに通知されます。
+
+---
+
+#### 🔁 返り値の形式（成功時）
+
+```json
+{
+  "zipcode": "1600022",
+  "prefcode": "13",
+  "address1": "東京都",
+  "address2": "新宿区",
+  "address3": "新宿",
+  ...
+}
+```
+
+---
+
+#### 🌐 使用API
+
+本ライブラリは以下の外部APIを使用しています：
+
+- **zipcloud（日本郵便公式APIラッパー）**
+  - URL: [https://zipcloud.ibsnet.co.jp](https://zipcloud.ibsnet.co.jp)
+  - ドキュメント: [https://zipcloud.ibsnet.co.jp/doc/api](https://zipcloud.ibsnet.co.jp/doc/api)
+
+#### ⚠️ ご注意
+
+- この API は外部サービス（zipcloud）に依存しており、アクセス過多による制限や仕様変更の可能性があります。
+- 本ライブラリを利用する場合は、[zipcloud利用規約](https://zipcloud.ibsnet.co.jp/doc/rule) を必ずご確認・順守してください。
+
+---
+
+#### 🧩 WordPress / Gutenberg との統合例
+
+```js
+const handleZipSearch = async () => {
+  const result = await fetchZipToAddress(zipValue);
+  if (result) {
+    setAttributes({ inputValue: result.address1 + result.address2 + result.address3 });
+  }
+};
+```
 
 
