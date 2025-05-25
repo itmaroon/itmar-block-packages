@@ -14,6 +14,9 @@ import {関数名又はコンポーネント名} from "itmar-block-packages"
 npm i @wordpress/scripts@^27.6.0 --save-dev
 
 ## 更新履歴
+= 1.6.0 =  
+- fetchZipToAddressを新設  
+
 = 1.5.0 =  
 - useTargetBlocksを新設  
 
