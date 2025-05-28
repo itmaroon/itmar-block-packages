@@ -377,7 +377,7 @@ export const fetchPagesOptions = async (home_url) => {
       id: -1,
       title: { rendered: "ホーム" },
       link: home_url,
-      slug: "home",
+      slug: "",
     });
   }
 
