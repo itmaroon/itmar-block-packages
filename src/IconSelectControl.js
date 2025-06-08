@@ -26,10 +26,15 @@ const helpTextCode = createElement(
   )
 );
 
+const helpImageURL = createElement(
+  "span",
+  {},
+  __("Enter the URL for the image.", "block-collections")
+);
+
 const helpTextFamily = createElement(
   "span",
   {},
-  helpLink,
   __(
     "Please select the first class name shown in the HTML code field of the selection dialog. ",
     "block-collections"
@@ -49,6 +54,8 @@ const family_option = [
 
 export default ({ iconStyle, setPosition, onChange }) => {
   const {
+    icon_type,
+    icon_url,
     icon_name,
     icon_pos,
     icon_size,
@@ -59,29 +66,62 @@ export default ({ iconStyle, setPosition, onChange }) => {
 
   return (
     <>
-      <TextControl
-        label={__("icon name", "block-collections")}
-        help={helpTextCode}
-        labelPosition="top"
-        value={icon_name}
-        isPressEnterToChange
-        onChange={(newValue) => {
-          const newStyle = { ...iconStyle, icon_name: newValue };
-          onChange(newStyle);
-        }}
-      />
+      <label className="components-base-control__label">
+        {__("Icon Types", "block-collections")}
+      </label>
+      <PanelRow className="itmar_position_row">
+        <RadioControl
+          selected={icon_type}
+          options={[
+            { label: __("Awesome", "block-collections"), value: "awesome" },
+            { label: __("Image", "block-collections"), value: "image" },
+            { label: __("Avatar", "block-collections"), value: "avatar" },
+          ]}
+          onChange={(newValue) => {
+            const newStyle = { ...iconStyle, icon_type: newValue };
+            onChange(newStyle);
+          }}
+        />
+      </PanelRow>
+      {icon_type === "awesome" && (
+        <>
+          <TextControl
+            label={__("icon name", "block-collections")}
+            help={helpTextCode}
+            labelPosition="top"
+            value={icon_name}
+            isPressEnterToChange
+            onChange={(newValue) => {
+              const newStyle = { ...iconStyle, icon_name: newValue };
+              onChange(newStyle);
+            }}
+          />
 
-      <ComboboxControl
-        label={__("Icon Family", "block-collections")}
-        help={helpTextFamily}
-        options={family_option}
-        value={icon_family ? icon_family : "Font Awesome 6 Free"}
-        onChange={(newValue) => {
-          const newStyle = { ...iconStyle, icon_family: newValue };
-          onChange(newStyle);
-        }}
-      />
-
+          <ComboboxControl
+            label={__("Icon Family", "block-collections")}
+            help={helpTextFamily}
+            options={family_option}
+            value={icon_family ? icon_family : "Font Awesome 6 Free"}
+            onChange={(newValue) => {
+              const newStyle = { ...iconStyle, icon_family: newValue };
+              onChange(newStyle);
+            }}
+          />
+        </>
+      )}
+      {icon_type === "image" && (
+        <TextControl
+          label={__("icon url", "block-collections")}
+          help={helpImageURL}
+          labelPosition="top"
+          value={icon_url}
+          isPressEnterToChange
+          onChange={(newValue) => {
+            const newStyle = { ...iconStyle, icon_url: newValue };
+            onChange(newStyle);
+          }}
+        />
+      )}
       <PanelRow className="sizing_row">
         <UnitControl
           dragDirection="e"
