@@ -463,8 +463,14 @@ export default function BlockPlace(props) {
             selected={positionType}
             options={[
               { label: __("Static", "block-collections"), value: "staic" },
-              { label: __("Relative", "block-collections"), value: "relative" },
-              { label: __("Absolute", "block-collections"), value: "absolute" },
+              {
+                label: __("Relative", "block-collections"),
+                value: "relative",
+              },
+              {
+                label: __("Absolute", "block-collections"),
+                value: "absolute",
+              },
               { label: __("Fix", "block-collections"), value: "fixed" },
               { label: __("Sticky", "block-collections"), value: "sticky" },
             ]}

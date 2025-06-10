@@ -14,6 +14,9 @@ import {関数名又はコンポーネント名} from "itmar-block-packages"
 npm i @wordpress/scripts@^27.6.0 --save-dev
 
 ## 更新履歴
+= 1.6.3 =  
+- IconSelectControlに設定できるアイコンをFontAwesomeに加え、画像、アバターを選択できるようにした
+
 = 1.6.0 =  
 - fetchZipToAddressを新設  
 
@@ -712,6 +715,8 @@ WordPressのブロックエディタのサイドバーにFont awesomのアイコ
 ```
 <IconSelectControl
 	iconStyle={
+		icon_type: "awesome",
+		icon_url: "",
 		icon_name: "f030",
 		icon_pos: "left",
 		icon_size: "24px",
