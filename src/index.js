@@ -91,6 +91,9 @@ export {
 //インナーブロック関連の関数
 export { flattenBlocks, useTargetBlocks } from "./blockStore";
 
+//バリデーションチェック関連の関数
+export { isValidUrlWithUrlApi } from "./validationCheck";
+
 //特定の投稿タイプの投稿に含まれる本ブロックの属性を書き換える
 export { default as UpdateAllPostsBlockAttributes } from "./UpdateAllPostsBlockAttributes";
 

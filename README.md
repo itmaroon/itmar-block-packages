@@ -14,6 +14,9 @@ import {関数名又はコンポーネント名} from "itmar-block-packages"
 npm i @wordpress/scripts@^27.6.0 --save-dev
 
 ## 更新履歴
+= 1.7.0 =  
+- バリデーションチェック用の関数を集めるためのvalidationCheck.jsを新設し、URLの形式をチェックするisValidUrlWithUrlApiを加えた。
+
 = 1.6.3 =  
 - IconSelectControlに設定できるアイコンをFontAwesomeに加え、画像、アバターを選択できるようにした
 
@@ -1133,6 +1136,18 @@ const handleZipSearch = async () => {
     setAttributes({ inputValue: result.address1 + result.address2 + result.address3 });
   }
 };
+```
+
+## バリデーションチェックを行う関数
+### `isValidUrlWithUrlApi`
+`isValidUrlWithUrlApi` は、引数で与えた文字列がURLの形式であるかどうかのバリデーションチェックをします。
+
+
+#### 使用例
+```
+if (isValidUrlWithUrlApi(headingContent)) {
+	setAttributes({ selectedPageUrl: headingContent });
+} 
 ```
 
 
