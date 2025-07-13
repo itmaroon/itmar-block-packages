@@ -113,3 +113,66 @@ export function MultiImageSelect(props) {
     </PanelBody>
   );
 }
+
+//静止画か動画かを判定する関数
+export function getMediaType(url) {
+  const imageExtensions = [
+    ".jpg",
+    ".jpeg",
+    ".png",
+    ".gif",
+    ".webp",
+    ".bmp",
+    ".svg",
+  ];
+  const videoExtensions = [".mp4", ".webm", ".ogg", ".mov", ".m4v"];
+
+  // クエリストリング（?以降）を除去
+  const cleanUrl = url.split("?")[0].toLowerCase();
+
+  const isImage = imageExtensions.some((ext) => cleanUrl.endsWith(ext));
+  const isVideo = videoExtensions.some((ext) => cleanUrl.endsWith(ext));
+
+  if (isImage) {
+    return "image";
+  } else if (isVideo) {
+    return "video";
+  } else {
+    // 拡張子で判別できない → HEADリクエストでContent-Type判定 or fallback
+    return undefined;
+  }
+}
+//静止画のアスペクト比を返す関数
+export function getImageAspectRatio(url) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = function () {
+      const aspectRatio = img.naturalWidth / img.naturalHeight;
+      resolve(aspectRatio);
+    };
+    img.onerror = function () {
+      reject(new Error("画像の読み込みに失敗しました: " + url));
+    };
+    img.src = url;
+  });
+}
+//動画のアスペクト比を返す関数
+export function getVideoAspectRatio(url) {
+  return new Promise((resolve, reject) => {
+    const video = document.createElement("video");
+
+    video.preload = "metadata";
+    video.src = url;
+    video.muted = true; // 一部のブラウザで安全に動作させるため
+    video.playsInline = true;
+
+    video.onloadedmetadata = function () {
+      const aspectRatio = video.videoWidth / video.videoHeight;
+      resolve(aspectRatio);
+    };
+
+    video.onerror = function () {
+      reject(new Error("動画の読み込みに失敗しました: " + url));
+    };
+  });
+}

@@ -14,6 +14,13 @@ import {関数名又はコンポーネント名} from "itmar-block-packages"
 npm i @wordpress/scripts@^27.6.0 --save-dev
 
 ## 更新履歴
+= 1.8.0 =  
+- formatCreate.jsを新設。Gutenberg ブロックにおける数値・日付・自由書式の表示形式を選択・制御するための UI コンポーネントおよびフォーマット関数を含みます。
+  
+= 1.7.1 =  
+- serializeBlockTree,createBlockTreeをblockStore.jsに加えた。
+- BlockPlace.jsでdesign-groupがフレックス要素の場合は主軸の大きさの設定がflex-grow,flex-shrink,flex-basisとなるよう修正した加えた。
+
 = 1.7.0 =  
 - バリデーションチェック用の関数を集めるためのvalidationCheck.jsを新設し、URLの形式をチェックするisValidUrlWithUrlApiを加えた。
 
@@ -1071,6 +1078,103 @@ const flattenBlocks = (blocks) => {
 
 ---
 
+### `serializeBlockTree`
+
+指定された Gutenberg ブロックオブジェクトを、**ネスト構造を保ったままプレーンな JSON 形式に変換（保存用）**します。
+
+#### ✅ 使い方
+
+```js
+import { serializeBlockTree } from '@your-scope/block-tree-utils';
+
+const json = serializeBlockTree(block);
+```
+
+#### 📥 入力
+
+- `block`: Gutenberg ブロックオブジェクト（`name`, `attributes`, `innerBlocks` を含む）
+
+#### 📤 出力
+
+```json
+{
+  "blockName": "core/group",
+  "attributes": { ... },
+  "innerBlocks": [
+    {
+      "blockName": "core/paragraph",
+      "attributes": { ... },
+      "innerBlocks": []
+    }
+  ]
+}
+```
+
+---
+
+### `createBlockTree`
+
+`serializeBlockTree` によって得られた JSON 構造を、**`createBlock()` に渡せる Gutenberg ブロックオブジェクトに再構築**します。
+
+#### ✅ 使い方
+
+```js
+import { createBlockTree } from '@your-scope/block-tree-utils';
+import { createBlock } from '@wordpress/blocks';
+
+const wpBlock = createBlockTree(savedJson);
+```
+
+#### 📥 入力
+
+- `savedJson`: `serializeBlockTree` で生成されたブロックデータ
+
+#### 📤 出力
+
+- `createBlock(name, attributes, innerBlocks)` の形で再帰的に構成された WP ブロックオブジェクト
+
+---
+
+### `flattenBlocks`
+
+Gutenberg のネストされたブロック配列を、**1階層の配列としてフラットに展開**します。  
+ブロック構成内にあるすべてのブロック（ネスト含む）を一括走査する際に便利です。
+
+#### ✅ 使い方
+
+```js
+import { flattenBlocks } from '@your-scope/block-tree-utils';
+
+const flat = flattenBlocks(innerBlocks);
+```
+
+#### 📥 入力
+
+- `innerBlocks`: Gutenberg のブロック配列（`innerBlocks` を含む構造）
+
+#### 📤 出力
+
+- 平坦化されたブロック配列（元の構造は保持しない）
+
+---
+
+## 🧪 使用例
+
+```js
+import {
+  serializeBlockTree,
+  createBlockTree,
+  flattenBlocks,
+} from '@your-scope/block-tree-utils';
+
+const savedData = blocks.map(serializeBlockTree);
+const restored = savedData.map(createBlockTree);
+const flatList = flattenBlocks(restored);
+```
+
+---  
+
+
 ## 日本郵便番号から住所を取得するユーティリティ関数
 ### `fetchZipToAddress`
 `fetchZipToAddress` は、[zipcloud](https://zipcloud.ibsnet.co.jp) API を使用して、日本の郵便番号から都道府県・市区町村・町域の住所を非同期で取得する JavaScript 関数です。  
@@ -1149,5 +1253,106 @@ if (isValidUrlWithUrlApi(headingContent)) {
 	setAttributes({ selectedPageUrl: headingContent });
 } 
 ```
+
+## データのフォーマットを設定、表示するコンポーネント
+
+Gutenberg ブロックにおける数値・日付・自由書式の表示形式を選択・制御するための UI コンポーネントおよびフォーマット関数です。
+
+---
+
+### 概要
+
+このライブラリは、以下の2つの機能を提供します：
+
+1. **`<FormatSelectControl />`**  
+   ブロックエディターの「インスペクター設定」内で、表示形式を選択する UI コンポーネント。
+
+2. **`displayFormated()`**  
+   保存された設定に基づき、日付・数値・自由文字列の値を整形する表示用関数。
+
+---
+
+### `FormatSelectControl`
+
+#### 説明
+
+ブロック編集画面で「日付」「数値」「自由文字列」のいずれかの表示形式を選択・設定可能にする `PanelBody` コンポーネントです。
+
+#### 引数
+
+| 名前 | 型 | 必須 | 説明 |
+|------|----|------|------|
+| `titleType` | `"date"` \| `"plaine"` \| `"user"` | ✅ | フォーマット対象の種類を指定します。 |
+| `userFormat` | `string` | ✅ | 現在選択中のフォーマットのキー（例: `"num_comma"`）。 |
+| `freeStrFormat` | `string` | ✅ | 自由書式入力時の書式文字列（例: `"¥%s円"`）。 |
+| `decimal` | `number` | ✅ | 数値の小数点以下の桁数（0〜5） |
+| `onFormatChange` | `(info: FormatSettings) => void` | ✅ | 各設定項目の更新を通知するコールバック |
+
+#### フォーマットオプション例（SelectControlで使用）
+
+- 日付形式：`Y-m-d H:i:s`、`Y年n月j日 (l)` など
+- 数値形式：カンマ区切りあり／なし、金額表示など
+- 自由書式：`"%s"` を含む文字列で、実際の値が置換されます
+
+---
+
+### `displayFormated(content, userFormat, freeStrFormat, decimal)`
+
+#### 説明
+
+指定されたフォーマットに従って、値を整形して文字列として返します。
+
+#### 引数
+
+| 名前 | 型 | 説明 |
+|------|----|------|
+| `content` | `string` \| `number` | 整形対象の生の値 |
+| `userFormat` | `string` | 日付または数値のフォーマットキー（例: `"num_comma"`、`"Y-m-d"`） |
+| `freeStrFormat` | `string` | `"%s"` を含む自由書式文字列 |
+| `decimal` | `number` | 小数点以下の桁数指定（`0` なら整数扱い） |
+
+#### 戻り値
+
+整形後の文字列（`string`）
+
+---
+
+### 使用例
+
+#### 1. コンポーネントの設置例
+
+```jsx
+<FormatSelectControl
+  titleType="plaine"
+  userFormat={attributes.userFormat}
+  freeStrFormat={attributes.freeStrFormat}
+  decimal={attributes.decimal}
+  onFormatChange={(newSettings) => setAttributes(newSettings)}
+/>
+```
+#### 2. 表示用フォーマット関数の使用例
+```
+const display = displayFormated(
+  1234567.89,
+  attributes.userFormat,
+  attributes.freeStrFormat,
+  attributes.decimal
+);
+// → "1,234,567.89"（例: num_comma + decimal: 2 の場合）
+```
+
+### 注意事項・ルール
+✅ 自由書式（freeStrFormat）について
+- %s を含まない文字列は 置換せず、値をそのまま返します
+- 例："¥%s" → "¥1234"、"Total: " → "1234"（%s なし）
+
+✅ 日付フォーマットの安全性
+- userFormat が dateFormats に存在しない限り format() は呼び出されません（安全）
+- Gutenberg 標準の PHP形式に準拠（例：Y-m-d, F j, Y）
+
+✅ 数値フォーマットの条件
+- decimal が 1 以上のときは minimumFractionDigits / maximumFractionDigits が指定され、常に小数点以下を表示
+- decimal = 0 の場合は整数として表示
+
 
 

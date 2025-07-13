@@ -1,6 +1,6 @@
 {
   "name": "itmar-block-packages",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "description": "We have put together a package of common React components used for WordPress custom blocks.",
   "main": "build/index.js",
   "scripts": {

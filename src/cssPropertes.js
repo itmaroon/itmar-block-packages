@@ -90,7 +90,9 @@ export const width_prm = (width, free_val) => {
       ? ` width: ${free_val}; `
       : width === "full"
       ? " width: 100%;"
-      : " width: fit-content;";
+      : width === "fit"
+      ? " width: fit-content;"
+      : " width: auto;";
   return ret_width_prm;
 };
 
@@ -98,9 +100,11 @@ export const height_prm = (height, free_val) => {
   const ret_height_prm =
     height === "fit"
       ? " height: fit-content;"
+      : height === "full"
+      ? ` height: 100%; `
       : height === "free"
       ? ` height: ${free_val}; `
-      : "height: 100%;";
+      : "height: auto;";
   return ret_height_prm;
 };
 //配置を返す

@@ -1,5 +1,6 @@
 import { useSelect } from "@wordpress/data";
 import { store as blockEditorStore } from "@wordpress/block-editor";
+import { createBlock } from "@wordpress/blocks";
 
 export const useTargetBlocks = (
   clientId,
@@ -51,4 +52,24 @@ export const flattenBlocks = (blocks) => {
     }
     return acc;
   }, []);
+};
+
+// 再帰的にブロック構造をシリアライズする関数
+export const serializeBlockTree = (block) => {
+  return {
+    blockName: block.name,
+    attributes: block.attributes,
+    innerBlocks:
+      block.innerBlocks.length > 0
+        ? block.innerBlocks.map(serializeBlockTree)
+        : [],
+  };
+};
+// シリアライズしたブロックデータをもとの階層構造に戻す関数
+export const createBlockTree = (blockData) => {
+  const inner = Array.isArray(blockData.innerBlocks)
+    ? blockData.innerBlocks.map(createBlockTree)
+    : [];
+
+  return createBlock(blockData.blockName, blockData.attributes, inner);
 };

@@ -11,6 +11,7 @@ import {
   ToolbarGroup,
   ToolbarItem,
   RangeControl,
+  TextControl,
   RadioControl,
   ToggleControl,
   Modal,
@@ -59,6 +60,8 @@ export default function BlockPlace(props) {
   const center_cross =
     sel_pos.direction === "vertical" ? justifyCenter : middle;
   const end_cross = sel_pos.direction === "vertical" ? justifyRight : lower;
+  const stretch =
+    sel_pos.direction === "vertical" ? justifyStretch : vert_between;
   const between_icon =
     sel_pos.direction === "vertical" ? vert_between : justifyStretch;
   const around_icon =
@@ -82,12 +85,14 @@ export default function BlockPlace(props) {
       : __("lower alignment", "block-collections");
 
   const [isContainer, setIsContainer] = useState(false);
+  const [isFlexItem, setIsFlexItem] = useState(false);
   const [direction, setDirection] = useState("row");
   useEffect(() => {
     if (blockRef.current) {
       const element = blockRef.current;
       const parentElement = element.parentElement;
       const grandparentElement = parentElement?.parentElement;
+
       const computedStyle = getComputedStyle(grandparentElement);
       //親要素がFlex又はGridコンテナか
       if (
@@ -103,6 +108,7 @@ export default function BlockPlace(props) {
         computedStyle.display === "flex" ||
         computedStyle.display === "inline-flex"
       ) {
+        setIsFlexItem(true);
         if (
           computedStyle.flexDirection === "row" ||
           computedStyle.flexDirection === "row-reverse"
@@ -270,7 +276,7 @@ export default function BlockPlace(props) {
                       props.onFlexChange("space-between", "inner_align")
                     } //親コンポーネントに通知
                     icon={between_icon}
-                    label={__("beteen stretch", "block-collections")}
+                    label={__("stretch", "block-collections")}
                   />
                 )}
               </ToolbarItem>
@@ -332,6 +338,17 @@ export default function BlockPlace(props) {
                   onClick={() => props.onFlexChange("flex-end", "inner_items")} //親コンポーネントに通知
                   icon={end_cross}
                   label={cross_end_tip}
+                />
+              )}
+            </ToolbarItem>
+            <ToolbarItem>
+              {(itemProps) => (
+                <Button
+                  {...itemProps}
+                  isPressed={sel_pos.inner_items === "stretch"}
+                  onClick={() => props.onFlexChange("stretch", "inner_items")} //親コンポーネントに通知
+                  icon={stretch}
+                  label={__("beteen stretch", "block-collections")}
                 />
               )}
             </ToolbarItem>
@@ -413,6 +430,21 @@ export default function BlockPlace(props) {
                   />
                 )}
               </ToolbarItem>
+              <ToolbarItem>
+                {(itemProps) => (
+                  <Button
+                    {...itemProps}
+                    isPressed={sel_pos.outer_vertical === "stretch"}
+                    onClick={
+                      direction === "row"
+                        ? () => props.onVerticalChange("stretch")
+                        : () => props.onAlignChange("stretch")
+                    }
+                    icon={direction === "row" ? vert_between : justifyStretch}
+                    label={__("stretch", "block-collections")}
+                  />
+                )}
+              </ToolbarItem>
             </ToolbarGroup>
           </>
         )}
@@ -426,6 +458,50 @@ export default function BlockPlace(props) {
             props.onFreeWidthChange(key, freeVal)
           }
         />
+
+        {isFlexItem && (
+          <PanelRow className="position_row">
+            <TextControl
+              label={__("grow", "block-collections")}
+              labelPosition="left"
+              value={sel_pos.flex?.grow}
+              onChange={(newValue) => {
+                const flexObj = {
+                  grow: newValue,
+                  shrink: sel_pos.flex?.shrink,
+                  basis: sel_pos.flex?.basis,
+                };
+                props.onFlexItemChange(flexObj);
+              }}
+            />
+            <TextControl
+              label={__("shrink", "block-collections")}
+              labelPosition="left"
+              value={sel_pos.flex?.shrink}
+              onChange={(newValue) => {
+                const flexObj = {
+                  grow: sel_pos.flex?.grow,
+                  shrink: newValue,
+                  basis: sel_pos.flex?.basis,
+                };
+                props.onFlexItemChange(flexObj);
+              }}
+            />
+            <TextControl
+              label={__("basis", "block-collections")}
+              labelPosition="left"
+              value={sel_pos.flex?.basis}
+              onChange={(newValue) => {
+                const flexObj = {
+                  grow: sel_pos.flex?.grow,
+                  shrink: sel_pos.flex?.shrink,
+                  basis: newValue,
+                };
+                props.onFlexItemChange(flexObj);
+              }}
+            />
+          </PanelRow>
+        )}
 
         <BlockHeight
           attributes={attributes}
@@ -603,7 +679,7 @@ export default function BlockPlace(props) {
 }
 
 export function BlockWidth(props) {
-  const { attributes, isMobile, isSubmenu } = props;
+  const { attributes, isMobile, flexDirection, isSubmenu } = props;
   const { default_val, mobile_val } = attributes;
 
   //モバイルかデスクトップか
@@ -802,6 +878,16 @@ export function BlockHeight(props) {
               isPressed={sel_pos.height_val === "free"}
               onClick={() => props.onHeightChange("free")}
               text="free"
+            />
+          )}
+        </ToolbarItem>
+        <ToolbarItem>
+          {(itemProps) => (
+            <Button
+              {...itemProps}
+              isPressed={sel_pos.height_val === "auto"}
+              onClick={() => props.onHeightChange("auto")}
+              text="auto"
             />
           )}
         </ToolbarItem>

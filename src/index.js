@@ -48,7 +48,13 @@ export { default as ShadowStyle, ShadowElm } from "./ShadowStyle";
 export { default as PseudoElm, Arrow } from "./PseudoElm";
 
 //メディアライブラリから複数の画像を選択するコントロール
-export { SingleImageSelect, MultiImageSelect } from "./mediaUpload";
+export {
+  SingleImageSelect,
+  MultiImageSelect,
+  getMediaType,
+  getImageAspectRatio,
+  getVideoAspectRatio,
+} from "./mediaUpload";
 
 //ブロックのドラッガブルを設定するコントロール
 export { default as DraggableBox, useDraggingMove } from "./DraggableBox";
@@ -89,7 +95,12 @@ export {
 } from "./DateElm";
 
 //インナーブロック関連の関数
-export { flattenBlocks, useTargetBlocks } from "./blockStore";
+export {
+  flattenBlocks,
+  useTargetBlocks,
+  serializeBlockTree,
+  createBlockTree,
+} from "./blockStore";
 
 //バリデーションチェック関連の関数
 export { isValidUrlWithUrlApi } from "./validationCheck";
@@ -99,3 +110,6 @@ export { default as UpdateAllPostsBlockAttributes } from "./UpdateAllPostsBlockA
 
 //住所変換関連の関数
 export { fetchZipToAddress } from "./ZipAddress";
+
+//書式設定用のコンポーネント
+export { FormatSelectControl, displayFormated } from "./formatCreate";
