@@ -14,6 +14,9 @@ import {関数名又はコンポーネント名} from "itmar-block-packages"
 npm i @wordpress/scripts@^27.6.0 --save-dev
 
 ## 更新履歴
+= 1.9.0 =  
+- shopfiApi.jsを新設。
+
 = 1.8.0 =  
 - formatCreate.jsを新設。Gutenberg ブロックにおける数値・日付・自由書式の表示形式を選択・制御するための UI コンポーネントおよびフォーマット関数を含みます。
   

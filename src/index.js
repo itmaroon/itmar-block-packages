@@ -113,3 +113,10 @@ export { fetchZipToAddress } from "./ZipAddress";
 
 //書式設定用のコンポーネント
 export { FormatSelectControl, displayFormated } from "./formatCreate";
+
+//ShopifyAPI関連のコンポーネント
+export {
+  checkCustomerLoginState,
+  redirectCustomerAuthorize,
+  sendRegistrationRequest,
+} from "./shopfiApi";
