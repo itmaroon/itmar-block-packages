@@ -249,6 +249,7 @@ export function useBlockAttributeChanges(
           //   setIdleFlg(false);
           // }
           //呼び出し元に返すための更新後の属性オブジェクトを格納
+
           setLatestAttributes(JSON.stringify(filteredCurrentAttributes));
         }
       }

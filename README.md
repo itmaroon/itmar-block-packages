@@ -14,6 +14,10 @@ import {関数名又はコンポーネント名} from "itmar-block-packages"
 npm i @wordpress/scripts@^27.6.0 --save-dev
 
 ## 更新履歴
+= 1.10.0 =  
+- useRebuildChangeFieldを新設。
+- FieldChoiceControlについてacfフィールドの付加情報をフィールド選択項目として表示されていたものを表示しないように修正。また、gallaryについては画像を個別に選択するのではなく全体を選択するように修正
+
 = 1.9.0 =  
 - shopfiApi.jsを新設。
 

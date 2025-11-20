@@ -68,7 +68,6 @@ const ChoiceControl = (props) => {
     const fetchData = async () => {
       try {
         const fetchChoices = await fetchFunction(selectedSlug);
-
         setChoices(fetchChoices);
       } catch (error) {
         console.error("Error fetching data:", error.message);
@@ -98,8 +97,12 @@ const ChoiceControl = (props) => {
       const fieldName = prefix ? `${prefix}.${key}` : key; //prefixはグループ名
 
       const fieldLabel = key.replace(/^(meta_|acf_)/, "");
-
-      if (typeof value === "object" && value !== null) {
+      //オブジェクトであって配列でないものがグループと考える
+      if (
+        typeof value === "object" &&
+        !Array.isArray(value) &&
+        value !== null
+      ) {
         groupLabel = `${fieldLabel}.`;
         return (
           <div className="group_area">
@@ -117,6 +120,7 @@ const ChoiceControl = (props) => {
           { value: "itmar/design-title", label: "itmar/design-title" },
           { value: "core/paragraph", label: "core/paragraph" },
           { value: "core/image", label: "core/image" },
+          { value: "itmar/slide-mv", label: "itmar/slide-mv" },
         ];
         return (
           <div className="itmar_custom_field_set">
@@ -139,13 +143,14 @@ const ChoiceControl = (props) => {
             <ComboboxControl
               options={options}
               value={
-                blockMap[`${prefix ? groupLabel : ""}${fieldLabel}`] ||
+                //blockMap[`${prefix ? groupLabel : ""}${key}`] || "itmar/design-title"
+                blockMap[`${prefix ? prefix + "." : ""}${key}`] ||
                 "itmar/design-title"
               }
               onChange={(newValue) => {
-                const fieldKey = prefix
-                  ? `${groupLabel}${fieldLabel}`
-                  : `${fieldLabel}`;
+                //const fieldKey = prefix ? `${groupLabel}${key}` : `${key}`;
+                const fieldKey = prefix ? `${prefix}.${key}` : `${key}`;
+
                 const newBlockMap = { ...blockMap, [fieldKey]: newValue };
                 props.onBlockMapChange(newBlockMap);
               }}
@@ -343,6 +348,7 @@ const ChoiceControl = (props) => {
                   </div>
                   <div className="custom_field_area">
                     {dispCustumFields({
+                      // meta はそのまま
                       ...Object.entries(choice.meta).reduce(
                         (acc, [key, value]) => ({
                           ...acc,
@@ -350,13 +356,16 @@ const ChoiceControl = (props) => {
                         }),
                         {}
                       ),
-                      ...Object.entries(choice.acf).reduce(
-                        (acc, [key, value]) => ({
-                          ...acc,
-                          [`acf_${key}`]: value,
-                        }),
-                        {}
-                      ),
+                      // acf は「同名で _source があるもののベース側を除く」
+                      ...Object.entries(choice.acf)
+                        .filter(([key]) => !key.endsWith("_source"))
+                        .reduce(
+                          (acc, [key, value]) => ({
+                            ...acc,
+                            [`acf_${key}`]: value,
+                          }),
+                          {}
+                        ),
                     })}
                   </div>
                 </>
@@ -495,6 +504,7 @@ export const restFieldes = async (rest_base) => {
   const response = await apiFetch({
     path: `/wp/v2/${rest_base}?_fields=${fieldsParam}&per_page=1&order=desc`,
   });
+
   return response;
 };
 

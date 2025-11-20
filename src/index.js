@@ -120,3 +120,6 @@ export {
   redirectCustomerAuthorize,
   sendRegistrationRequest,
 } from "./shopfiApi";
+
+//インナーブロック挿入のカスタムフック
+export { useRebuildChangeField } from "./BrockInserter";
