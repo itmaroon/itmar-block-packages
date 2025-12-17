@@ -92,7 +92,7 @@ const ChoiceControl = (props) => {
 
   //階層化されたカスタムフィールドのフィールド名を表示する関数
   let groupLabel = "";
-  const dispCustumFields = (obj, prefix = "", onChange) => {
+  const dispCustumFields = (obj, prefix = "", isImage = false, onChange) => {
     return Object.entries(obj).map(([key, value]) => {
       const fieldName = prefix ? `${prefix}.${key}` : key; //prefixはグループ名
 
@@ -108,7 +108,7 @@ const ChoiceControl = (props) => {
           <div className="group_area">
             <div className="group_label">{fieldLabel}</div>
             <div key={fieldName} className="field_group">
-              {dispCustumFields(value, fieldName, onChange)}
+              {dispCustumFields(value, fieldName, isImage, onChange)}
             </div>
           </div>
         );
@@ -140,21 +140,23 @@ const ChoiceControl = (props) => {
                 props.onChange(newChoiceFields);
               }}
             />
-            <ComboboxControl
-              options={options}
-              value={
-                //blockMap[`${prefix ? groupLabel : ""}${key}`] || "itmar/design-title"
-                blockMap[`${prefix ? prefix + "." : ""}${key}`] ||
-                "itmar/design-title"
-              }
-              onChange={(newValue) => {
-                //const fieldKey = prefix ? `${groupLabel}${key}` : `${key}`;
-                const fieldKey = prefix ? `${prefix}.${key}` : `${key}`;
+            {!isImage && (
+              <ComboboxControl
+                options={options}
+                value={
+                  //blockMap[`${prefix ? groupLabel : ""}${key}`] || "itmar/design-title"
+                  blockMap[`${prefix ? prefix + "." : ""}${key}`] ||
+                  "itmar/design-title"
+                }
+                onChange={(newValue) => {
+                  //const fieldKey = prefix ? `${groupLabel}${key}` : `${key}`;
+                  const fieldKey = prefix ? `${prefix}.${key}` : `${key}`;
 
-                const newBlockMap = { ...blockMap, [fieldKey]: newValue };
-                props.onBlockMapChange(newBlockMap);
-              }}
-            />
+                  const newBlockMap = { ...blockMap, [fieldKey]: newValue };
+                  props.onBlockMapChange(newBlockMap);
+                }}
+              />
+            )}
           </div>
         );
       }
@@ -239,6 +241,23 @@ const ChoiceControl = (props) => {
                     const newChoiceFields = handleChoiceChange(
                       checked,
                       "title",
+                      choiceItems
+                    );
+                    props.onChange(newChoiceFields);
+                  }}
+                />
+              )}
+              {choice.content && (
+                <ToggleControl
+                  className="field_choice"
+                  label={__("Content", "block-collections")}
+                  checked={choiceItems.some(
+                    (choiceField) => choiceField === "content"
+                  )}
+                  onChange={(checked) => {
+                    const newChoiceFields = handleChoiceChange(
+                      checked,
+                      "content",
                       choiceItems
                     );
                     props.onChange(newChoiceFields);
@@ -373,6 +392,93 @@ const ChoiceControl = (props) => {
             </div>
           );
         })}
+      {type === "imgField" &&
+        choices.map((choice, index) => {
+          //metaの対象カスタムフィールドが含まれるかのフラグ
+          const metaFlg =
+            choice.meta &&
+            !Object.keys(choice.meta).every(
+              (key) => key === "_acf_changed" || key === "footnotes"
+            );
+          //acfの対象カスタムフィールドが含まれるかのフラグ
+          const acfFlg =
+            choice.acf &&
+            typeof choice.acf === "object" &&
+            !Array.isArray(choice.acf);
+
+          return (
+            <div key={index} className="field_section">
+              {choice.content && (
+                <ToggleControl
+                  className="field_choice"
+                  label={__("Content", "block-collections")}
+                  checked={choiceItems.some(
+                    (choiceField) => choiceField === "content"
+                  )}
+                  onChange={(checked) => {
+                    const newChoiceFields = handleChoiceChange(
+                      checked,
+                      "content",
+                      choiceItems
+                    );
+                    props.onChange(newChoiceFields);
+                  }}
+                />
+              )}
+              {(choice.featured_media || choice.featured_media === 0) && (
+                <ToggleControl
+                  className="field_choice"
+                  label={__("Featured Image", "block-collections")}
+                  checked={choiceItems.some(
+                    (choiceField) => choiceField === "featured_media"
+                  )}
+                  onChange={(checked) => {
+                    const newChoiceFields = handleChoiceChange(
+                      checked,
+                      "featured_media",
+                      choiceItems
+                    );
+                    props.onChange(newChoiceFields);
+                  }}
+                />
+              )}
+
+              {(metaFlg || acfFlg) && (
+                <>
+                  <div className="custom_field_label">
+                    {__("Custom Field", "block-collections")}
+                  </div>
+                  <div className="custom_field_area">
+                    {dispCustumFields(
+                      {
+                        // meta はそのまま
+                        ...Object.entries(choice.meta).reduce(
+                          (acc, [key, value]) => ({
+                            ...acc,
+                            [`meta_${key}`]: value,
+                          }),
+                          {}
+                        ),
+                        // acf は「同名で _source があるもののベース側を除く」
+                        ...Object.entries(choice.acf)
+                          .filter(([key]) => !key.endsWith("_source"))
+                          .reduce(
+                            (acc, [key, value]) => ({
+                              ...acc,
+                              [`acf_${key}`]: value,
+                            }),
+                            {}
+                          ),
+                      },
+                      "",
+                      true
+                    )}
+                  </div>
+                </>
+              )}
+            </div>
+          );
+        })}
     </div>
   );
 };
@@ -492,6 +598,7 @@ export const restFieldes = async (rest_base) => {
   //投稿データに以下のフィールドが含まれているかを調べる
   const selectedFields = [
     "title",
+    "content",
     "date",
     "excerpt",
     "featured_media",
