@@ -126,3 +126,6 @@ export { useRebuildChangeField } from "./BrockInserter";
 
 //Masonry グリッドを初期化する共通関数
 export { default as MasonryControl } from "./MasonryControl";
+
+//インナーブロック挿入のカスタムフック
+export { slideBlockSwiperInit } from "./SwiperControl";

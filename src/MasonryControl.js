@@ -15,7 +15,7 @@
 export default function MasonryControl(
   gridEl,
   images = [],
-  { columns = 1, renderItems = true, MasonryLib, imagesLoadedLib } = {}
+  { columns = 1, renderItems = true } = {}
 ) {
   if (!gridEl) return null;
   const columnWidthPercent = 100 / (columns || 1);
@@ -34,8 +34,10 @@ export default function MasonryControl(
   // 1) アイテムの DOM を構築 or 更新
   // ---------------------------
   if (renderItems) {
-    // 中身をクリア
-    gridEl.innerHTML = "";
+    // ★ コンテナ全部は消さない。マソンリー用の要素だけを削除する
+    gridEl
+      .querySelectorAll(".itmar-masonry-sizer, .itmar-masonry-item")
+      .forEach((node) => node.remove());
 
     // sizer 追加
     const sizer = document.createElement("div");
@@ -44,11 +46,17 @@ export default function MasonryControl(
     gridEl.appendChild(sizer);
 
     // 画像アイテム追加
-    images.forEach((item) => {
+    images.forEach((item, index) => {
       const fig = document.createElement("figure");
       fig.className = "itmar-masonry-item";
       fig.style.width = `${columnWidthPercent}%`;
 
+      // クリック検知用の a タグ
+      const link = document.createElement("a");
+      link.href = "#";
+      link.className = "itmar-masonry-link";
+      link.dataset.masonryIndex = String(index);
+      //img要素
       const img = document.createElement("img");
       img.src = item.url;
       img.alt = item.alt || "";
@@ -56,7 +64,8 @@ export default function MasonryControl(
       img.style.width = "100%";
       img.style.height = "auto";
 
-      fig.appendChild(img);
+      link.appendChild(img);
+      fig.appendChild(link);
       gridEl.appendChild(fig);
     });
   } else {

@@ -17,6 +17,7 @@ npm i @wordpress/scripts@^27.6.0 --save-dev
 = 1.10.0 =  
 - useRebuildChangeFieldを新設。
 - FieldChoiceControlについてacfフィールドの付加情報をフィールド選択項目として表示されていたものを表示しないように修正。また、gallaryについては画像を個別に選択するのではなく全体を選択するように修正
+- FieldChoiceControlについて、指定された投稿タイプに紐づかないフィールドが選択項目に含まれる場合、それを除外する機能を備えた。
 
 = 1.9.0 =  
 - shopfiApi.jsを新設。

@@ -69,6 +69,8 @@ const ChoiceControl = (props) => {
       try {
         const fetchChoices = await fetchFunction(selectedSlug);
         setChoices(fetchChoices);
+        //指定の投稿タイプに含まれないフィールドを削除する
+        pruneChoiceItemsByObjectKeys(fetchChoices[0], choiceItems);
       } catch (error) {
         console.error("Error fetching data:", error.message);
       }
@@ -89,6 +91,58 @@ const ChoiceControl = (props) => {
     }
     return setItems;
   };
+  /**
+   * dataObj のキー一覧を「choiceItems と比較する形」に変換して Set で返す
+   * - 通常キー: そのまま
+   * - acf / meta: 子キーに `${parent}_` を付けたもの（例: acf_relate_url, meta_footnotes）
+   */
+  function buildComparableKeySet(dataObj) {
+    const keySet = new Set();
+
+    if (!dataObj || typeof dataObj !== "object") return keySet;
+
+    for (const [key, val] of Object.entries(dataObj)) {
+      if (
+        (key === "acf" || key === "meta") &&
+        val &&
+        typeof val === "object" &&
+        !Array.isArray(val)
+      ) {
+        for (const childKey of Object.keys(val)) {
+          keySet.add(`${key}_${childKey}`);
+        }
+        continue;
+      }
+
+      keySet.add(key);
+    }
+
+    return keySet;
+  }
+
+  /**
+   * choiceItems を dataObj のキーに合わせて削除する
+   * - choiceItems が string 配列でも、{value: "..."} の配列でも動くようにしてあります
+   */
+  function pruneChoiceItemsByObjectKeys(dataObj, choiceItems) {
+    const validKeys = buildComparableKeySet(dataObj);
+
+    const getItemKey = (item) => {
+      if (typeof item === "string") return item;
+      if (item && typeof item === "object")
+        return item.value ?? item.key ?? item.name ?? "";
+      return "";
+    };
+
+    const next = (choiceItems ?? []).filter((item) =>
+      validKeys.has(getItemKey(item))
+    );
+
+    // ★ 配列の参照はそのまま、中身だけ置き換える
+    choiceItems.splice(0, choiceItems.length, ...next);
+
+    return choiceItems; // 必要なら返す
+  }
 
   //階層化されたカスタムフィールドのフィールド名を表示する関数
   let groupLabel = "";
