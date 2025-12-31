@@ -6,6 +6,7 @@ import {
   ToggleControl,
 } from "@wordpress/components";
 import apiFetch from "@wordpress/api-fetch";
+import { addQueryArgs } from "@wordpress/url";
 
 //const _ = require("lodash");
 
@@ -539,10 +540,31 @@ const ChoiceControl = (props) => {
 
 //固定ページ取得RestAPI関数
 export const fetchPagesOptions = async (home_url) => {
-  const pages = await apiFetch({ path: "/wp/v2/pages" });
-  //ページIDが-1である要素をホーム要素として作成
-  if (pages && !pages.some((page) => page.id === -1)) {
-    pages.unshift({
+  const allPages = [];
+  let page = 1;
+
+  while (true) {
+    const items = await apiFetch({
+      path: addQueryArgs("/wp/v2/pages", {
+        status: "publish", // 公開のみ
+        per_page: 100, // 最大100
+        page,
+        // orderby: "title",
+        // order: "asc",
+      }),
+    });
+
+    allPages.push(...items);
+
+    // 100件未満ならこれが最後
+    if (!items || items.length < 100) break;
+
+    page++;
+  }
+
+  // ページIDが-1である要素をホーム要素として作成
+  if (!allPages.some((p) => p.id === -1)) {
+    allPages.unshift({
       id: -1,
       title: { rendered: "ホーム" },
       link: home_url,
@@ -550,14 +572,13 @@ export const fetchPagesOptions = async (home_url) => {
     });
   }
 
-  const ret_pages = pages
-    ? pages.map((page) => ({
-        value: page.id,
-        slug: page.slug,
-        label: page.title.rendered,
-        link: `${home_url}/${page.slug}`,
-      }))
-    : [];
+  const ret_pages = allPages.map((p) => ({
+    value: p.id,
+    slug: p.slug,
+    label: p.title?.rendered ?? "",
+    // 階層ページでも正しいURLになるようにRESTのlinkを優先
+    link: p.link || (p.slug ? `${home_url}/${p.slug}` : home_url),
+  }));
 
   return ret_pages;
 };
