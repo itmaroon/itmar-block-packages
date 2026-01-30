@@ -2,7 +2,7 @@
 
 var _rollupPluginBabelHelpers = require('./_virtual/_rollupPluginBabelHelpers.js');
 var i18n = require('@wordpress/i18n');
-var index = require('./node_modules/nanoid/index.js');
+var index = require('./node_modules/nanoid/non-secure/index.js');
 var components = require('@wordpress/components');
 
 //期間の設定から選択できる月の情報オブジェクトを配列にする関数

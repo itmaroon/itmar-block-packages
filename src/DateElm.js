@@ -1,5 +1,5 @@
 import { __ } from "@wordpress/i18n";
-import { nanoid } from "nanoid";
+import { nanoid } from "nanoid/non-secure";
 import {
   PanelBody,
   PanelRow,

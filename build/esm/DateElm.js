@@ -1,6 +1,6 @@
 import { objectSpread2 as _objectSpread2 } from './_virtual/_rollupPluginBabelHelpers.js';
 import { __ } from '@wordpress/i18n';
-import { nanoid } from './node_modules/nanoid/index.js';
+import { nanoid } from './node_modules/nanoid/non-secure/index.js';
 import { PanelBody, PanelRow, __experimentalNumberControl } from '@wordpress/components';
 
 //期間の設定から選択できる月の情報オブジェクトを配列にする関数
