@@ -21,6 +21,7 @@ export {
   termToDispObj,
   PageSelectControl,
   ArchiveSelectControl,
+  PostSelectControl,
   TermChoiceControl,
   FieldChoiceControl,
 } from "./wordpressApi";
@@ -90,9 +91,13 @@ export {
   getTodayYearMonth,
   getTodayYear,
   getTodayMonth,
+  getMonthRangeYmd,
+  normalizeDateYYYYMMDD,
+  toYmdFromMonthAndDay,
   generateGridAreas,
-  JapaneseHolidays,
 } from "./DateElm";
+
+export { JapaneseHolidays } from "./JapaneseHolidays";
 
 //インナーブロック関連の関数
 export {

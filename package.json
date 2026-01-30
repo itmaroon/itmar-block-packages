@@ -1,12 +1,22 @@
 {
   "name": "itmar-block-packages",
-  "version": "1.10.1",
+  "version": "2.0.0",
   "description": "We have put together a package of common React components used for WordPress custom blocks.",
-  "main": "build/index.js",
+  "main": "build/cjs/index.js",
+  "module": "build/esm/index.js",
+  "exports": {
+    ".": {
+      "import": "./build/esm/index.js",
+      "require": "./build/cjs/index.js"
+    }
+  },
+  "sideEffects": false,
+  "files": [
+    "build"
+  ],
   "scripts": {
-    "build": "wp-scripts build",
-    "start": "wp-scripts start",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "rollup -c",
+    "start": "rollup -c -w"
   },
   "author": "Web Creator ITmaroon",
   "repository": {
@@ -27,6 +37,12 @@
     "styled-components": "^6.1.8"
   },
   "devDependencies": {
-    "@wordpress/scripts": "^27.6.0"
+    "@babel/core": "^7.28.6",
+    "@babel/preset-env": "^7.28.6",
+    "@babel/preset-react": "^7.28.5",
+    "@rollup/plugin-babel": "^6.1.0",
+    "@rollup/plugin-commonjs": "^29.0.0",
+    "@rollup/plugin-node-resolve": "^15.3.1",
+    "rollup": "^4.57.0"
   }
 }

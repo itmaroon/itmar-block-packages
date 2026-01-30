@@ -14,6 +14,18 @@ import {関数名又はコンポーネント名} from "itmar-block-packages"
 npm i @wordpress/scripts@^27.6.0 --save-dev
 
 ## 更新履歴
+= 2.0.0 =
+- ビルド方式を Rollup に変更（ESM 出力を優先し、未使用コードがバンドルされにくい構成に改善）
+- build 出力を ESM/CJS に分離（tree-shaking の効率と将来互換性を向上）
+- package.json の exports を整備（利用側の bundler が最適な形式を選べるよう改善）
+- 破壊的変更: 配布物の構成を build/index.js から build/esm・build/cjs に変更（インポート方法は従来通り）
+
+= 1.11.1 =  
+- generateMonthCalendarで祝日判定に誤りがあったところを修正
+
+= 1.11.0 =  
+- PostSelectControlを新設
+
 = 1.10.1 =  
 - PageSelectControlで固定ページの選択肢が１０個しか表示されないという不具合を解消
 
@@ -643,6 +655,70 @@ RestAPIのエンドポイントを文字列で受けて、その結果を返す
 	homeUrl={post_blocks.home_url}
 	onChange={(postInfo) => {
 		setAttributes({ selectedSlug: postInfo.slug });
+	}}
+/>
+```
+
+### PostSelectControl
+投稿（カスタム投稿タイプを含む）のタイトルを選択できるコンボボックスを表示し、選択した投稿の情報を返します。
+
+#### プロプス
+- `selectedSlug` string  
+選択済みの投稿スラッグ
+
+- `label` string  
+コンボボックスのラベル
+
+- `homeUrl` string  
+サイトのホームURL
+
+- `restBase` string  
+取得対象の REST Base（例：`posts` / `pages` / `itmar_resource` など）  
+※ `/wp/v2/{restBase}` を呼び出して投稿一覧を取得します。
+
+- `status` string (optional)  
+取得する投稿ステータス（デフォルト：`publish`）  
+例：`any` を指定すると下書き等も含めて取得できます。
+
+- `perPage` number (optional)  
+1ページあたりの取得件数（最大100 / デフォルト：100）
+
+- `orderby` string (optional)  
+並び順のキー（デフォルト：`title`）
+
+- `order` string (optional)  
+並び順（デフォルト：`asc`）
+
+- `search` string (optional)  
+検索キーワード（指定した場合、RESTの `search` パラメータで絞り込みます）
+
+- `onChange` func  
+コンボボックスの内容が変化したとき発生するコールバック関数。  
+引数には `fetchPostOptions` の戻り値（options配列の要素）が入ります。
+
+#### 返却される情報（onChange の引数例）
+- `value` number（投稿ID）
+- `label` string（投稿タイトル）
+- `slug` string（投稿スラッグ）
+- `link` string（投稿のパーマリンク）
+- `rest_base` string（使用した restBase）
+- `post_id` number（投稿ID）
+
+#### 使用例
+```
+<PostSelectControl
+	label={__("Resource Name", "itmaroon-booking-block")}
+	homeUrl={itmar_option.home_url}
+	restBase={selectedRest || "itmar_resource"}
+	selectedSlug={selectedPostSlug || ""}
+	onChange={(info) => {
+		if (info) {
+			setAttributes({
+				resourceId: info.post_id,
+				resourceSlug: info.slug,
+				resourceRest: info.rest_base,
+			});
+		}
 	}}
 />
 ```

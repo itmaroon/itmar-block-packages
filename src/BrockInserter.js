@@ -10,7 +10,6 @@ import { useSelect, useDispatch } from "@wordpress/data";
 //フィールド生成用関数
 const createBlockAttr = (selectedField) => {
   let blockAttributes = {};
-
   switch (selectedField.block) {
     case "itmar/design-title":
       const block_class = selectedField.key.startsWith("tax_")
@@ -31,7 +30,7 @@ const createBlockAttr = (selectedField) => {
     case "core/image":
       blockAttributes = {
         className: `itmar_ex_block sp_field_${selectedField.key}`,
-        url: `${ec_relate_blocks.plugin_url}/assets/image/main_sample.png`,
+        url: `${itmar_option.plugin_url}/assets/image/main_sample.png`,
       };
       break;
     case "itmar/slide-mv":
@@ -58,7 +57,7 @@ const createBlockAttr = (selectedField) => {
 
       const imageBlock = createBlock("core/image", {
         className: "itmar_ex_block",
-        url: `${ec_relate_blocks.plugin_url}/assets/image/slide_sample.png`,
+        url: `${itmar_option.plugin_url}/assets/image/slide_sample.png`,
         ...spaceAttributes,
       });
       //Design Blockの初期設定を取得
@@ -77,13 +76,13 @@ const createBlockAttr = (selectedField) => {
             width_val: "fit",
           },
         },
-        [imageBlock]
+        [imageBlock],
       );
       //slideBlock をシリアライズ
       const serializedSlide = serializeBlockTree(slideBlock);
       // 同じスライドブロックを5つ複製（独立したブロックとして）
       const slideBlocks = Array.from({ length: 5 }, () =>
-        createBlockTree(serializedSlide)
+        createBlockTree(serializedSlide),
       );
       //子ブロック付きで返す
       blockAttributes = {
@@ -109,19 +108,18 @@ export const useRebuildChangeField = (
   sectionCount,
   domType,
   clientId,
-  insertId
+  insertId,
 ) => {
   // dispatch関数を取得
   const { replaceInnerBlocks } = useDispatch("core/block-editor");
   const pickupBlock = useSelect(
     (select) => select("core/block-editor").getBlock(clientId),
-    [clientId]
+    [clientId],
   );
 
   useEffect(() => {
     //dispAttributeArray の個数調整
     const blocksLength = dispAttributeArray.length;
-
     if (blocksLength < sectionCount) {
       // dispAttributeArrayの長さが短い場合、{}を追加する
       const diff = sectionCount - blocksLength;
@@ -219,7 +217,7 @@ export const useRebuildChangeField = (
 
       const userBlocks = Array.isArray(dispAttribute.innerBlocks)
         ? filterBlocksRecursively(dispAttribute.innerBlocks).map(
-            createBlockTree
+            createBlockTree,
           )
         : [];
 
@@ -233,10 +231,12 @@ export const useRebuildChangeField = (
           className: `unit_design_${unit_index}`,
           domType: domType,
         },
-        innerBlocks
+        innerBlocks,
       );
+
       return ret;
     });
+
     //挿入するブロックと自身のブロックが異なる場合（slide-mvにデータを入れる場合）
     if (insertId !== clientId) {
       blocksArray.push(pickupBlock);

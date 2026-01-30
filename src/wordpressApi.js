@@ -27,7 +27,7 @@ const SelectControl = (props) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const fetchedOptions = await fetchOptions(homeUrl);
+        const fetchedOptions = await fetchOptions(homeUrl, props);
         setOptions(fetchedOptions);
       } catch (error) {
         console.error("Error fetching data:", error.message);
@@ -35,7 +35,16 @@ const SelectControl = (props) => {
     };
 
     fetchData();
-  }, [fetchOptions]);
+  }, [
+    fetchOptions,
+    homeUrl,
+    props.restBase,
+    props.status,
+    props.perPage,
+    props.orderby,
+    props.order,
+    props.search,
+  ]);
 
   const selectedInfo = options.find((info) => info.slug === selectedSlug);
   return (
@@ -611,6 +620,61 @@ export const fetchArchiveOptions = async (home_url) => {
     return acc;
   }, []);
 };
+//投稿データ取得RestAPI関数
+export const fetchPostOptions = async (home_url, props = {}) => {
+  const perPage = Math.min(Number(props.perPage || 100), 100);
+  const status = props.status || "publish"; // 管理画面で下書き等も含めたいなら 'any' を検討
+  const orderby = props.orderby || "title";
+  const order = props.order || "asc";
+  const search = props.search ? String(args.search) : "";
+  const restBase = props.restBase || "";
+
+  const allPosts = [];
+  const maxPagesSafety = 50; // 念のための安全上限
+
+  for (let page = 1; page <= maxPagesSafety; page++) {
+    const params = new URLSearchParams();
+    params.set("per_page", String(perPage));
+    params.set("page", String(page));
+    params.set("status", status);
+    params.set("orderby", orderby);
+    params.set("order", order);
+    // 必要なフィールドだけ返して軽量化
+    params.set("_fields", "id,slug,title,link");
+
+    if (search) params.set("search", search);
+
+    const path = `/wp/v2/${encodeURIComponent(restBase)}?${params.toString()}`;
+
+    const posts = await apiFetch({ path });
+
+    if (!Array.isArray(posts) || posts.length === 0) break;
+
+    allPosts.push(...posts);
+
+    // これ以上ページがない（=最終ページ）と判断
+    if (posts.length < perPage) break;
+  }
+
+  // title.rendered はHTMLを含むことがあるのでタグを除去
+  const stripTags = (html) =>
+    String(html || "")
+      .replace(/<[^>]*>/g, "")
+      .trim();
+
+  return allPosts.map((post) => {
+    const title = stripTags(post?.title?.rendered) || "(no title)";
+
+    return {
+      value: Number(post.id), // ComboboxControl の value
+      label: title, // ComboboxControl の表示文字
+      slug: post.slug, // あなたの SelectControl が selectedSlug と照合するキー
+      link: post.link || `${home_url}/?p=${post.id}`,
+      rest_base: restBase,
+      post_id: Number(post.id),
+    };
+  });
+};
 
 //タクソノミー取得RestAPI関数
 export const restTaxonomies = async (post_type) => {
@@ -696,6 +760,10 @@ export const PageSelectControl = (props) => (
 
 export const ArchiveSelectControl = (props) => (
   <SelectControl {...props} fetchOptions={fetchArchiveOptions} />
+);
+
+export const PostSelectControl = (props) => (
+  <SelectControl {...props} fetchOptions={fetchPostOptions} />
 );
 
 export const TermChoiceControl = (props) => (
