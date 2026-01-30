@@ -8,8 +8,8 @@ import {関数名又はコンポーネント名} from "itmar-block-packages"
 名前付きインポートでお願いします。
 
 ## 必要条件
-
-このパッケージは`@wordpress/scripts`によるWebPackのトランスパイル環境でトランスパイルされています。そして、このパッケージを使用するには、`@wordpress/scripts`のバージョン^27.6.0以上が必要です。以下のコマンドを実行して、`@wordpress/scripts`を更新してください：
+このパッケージは WordPress ブロック開発のビルド環境（`@wordpress/scripts`）での利用を前提としています。  
+このパッケージを使用するには、`@wordpress/scripts`のバージョン^27.6.0以上を推奨します。以下のコマンドを実行して、`@wordpress/scripts`を更新してください：
 
 npm i @wordpress/scripts@^27.6.0 --save-dev
 
