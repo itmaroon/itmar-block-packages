@@ -1,5 +1,6 @@
 import { objectSpread2 as _objectSpread2 } from './_virtual/_rollupPluginBabelHelpers.js';
 import { __ } from '@wordpress/i18n';
+import { createElement } from '@wordpress/element';
 import { PanelRow, RadioControl, TextControl, ComboboxControl, __experimentalUnitControl } from '@wordpress/components';
 import { PanelColorSettings } from '@wordpress/block-editor';
 

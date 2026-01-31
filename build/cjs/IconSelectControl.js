@@ -4,16 +4,17 @@ Object.defineProperty(exports, '__esModule', { value: true });
 
 var _rollupPluginBabelHelpers = require('./_virtual/_rollupPluginBabelHelpers.js');
 var i18n = require('@wordpress/i18n');
+var element = require('@wordpress/element');
 var components = require('@wordpress/components');
 var blockEditor = require('@wordpress/block-editor');
 
-var helpLink = createElement("a", {
+var helpLink = element.createElement("a", {
   href: "https://fontawesome.com/search",
   target: "_blank"
 }, "FontAwesome");
-var helpTextCode = createElement("span", {}, helpLink, i18n.__("Select the icon from and enter Unicode (the upper right four digits of the selection dialog). ", "block-collections"));
-var helpImageURL = createElement("span", {}, i18n.__("Enter the URL for the image.", "block-collections"));
-var helpTextFamily = createElement("span", {}, i18n.__("Please select the first class name shown in the HTML code field of the selection dialog. ", "block-collections"));
+var helpTextCode = element.createElement("span", {}, helpLink, i18n.__("Select the icon from and enter Unicode (the upper right four digits of the selection dialog). ", "block-collections"));
+var helpImageURL = element.createElement("span", {}, i18n.__("Enter the URL for the image.", "block-collections"));
+var helpTextFamily = element.createElement("span", {}, i18n.__("Please select the first class name shown in the HTML code field of the selection dialog. ", "block-collections"));
 var units = [{
   value: "px",
   label: "px"

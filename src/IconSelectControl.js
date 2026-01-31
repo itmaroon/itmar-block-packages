@@ -1,4 +1,5 @@
 import { __ } from "@wordpress/i18n";
+import { createElement } from "@wordpress/element";
 
 import {
   TextControl,
@@ -13,7 +14,7 @@ import { PanelColorSettings } from "@wordpress/block-editor";
 const helpLink = createElement(
   "a",
   { href: "https://fontawesome.com/search", target: "_blank" },
-  "FontAwesome"
+  "FontAwesome",
 );
 
 const helpTextCode = createElement(
@@ -22,14 +23,14 @@ const helpTextCode = createElement(
   helpLink,
   __(
     "Select the icon from and enter Unicode (the upper right four digits of the selection dialog). ",
-    "block-collections"
-  )
+    "block-collections",
+  ),
 );
 
 const helpImageURL = createElement(
   "span",
   {},
-  __("Enter the URL for the image.", "block-collections")
+  __("Enter the URL for the image.", "block-collections"),
 );
 
 const helpTextFamily = createElement(
@@ -37,8 +38,8 @@ const helpTextFamily = createElement(
   {},
   __(
     "Please select the first class name shown in the HTML code field of the selection dialog. ",
-    "block-collections"
-  )
+    "block-collections",
+  ),
 );
 
 const units = [

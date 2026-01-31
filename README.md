@@ -14,6 +14,9 @@ import {関数名又はコンポーネント名} from "itmar-block-packages"
 npm i @wordpress/scripts@^27.6.0 --save-dev
 
 ## 更新履歴
+= 2.0.3 =  
+- IconSelectControlのcreateElementのインポート漏れを修正
+
 = 2.0.0 =
 - ビルド方式を Rollup に変更（ESM 出力を優先し、未使用コードがバンドルされにくい構成に改善）
 - build 出力を ESM/CJS に分離（tree-shaking の効率と将来互換性を向上）
