@@ -14,6 +14,9 @@ import {関数名又はコンポーネント名} from "itmar-block-packages"
 npm i @wordpress/scripts@^27.6.0 --save-dev
 
 ## 更新履歴
+= 2.0.4 =  
+- JapaneseHolidaysのgetPeriodQueryのインポート漏れを修正
+
 = 2.0.3 =  
 - IconSelectControlのcreateElementのインポート漏れを修正
 

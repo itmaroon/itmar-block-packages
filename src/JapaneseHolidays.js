@@ -1,3 +1,5 @@
+import { getPeriodQuery } from "./DateElm";
+
 export const JapaneseHolidays = async (apiKey, targetMonth) => {
   //Google API Client Libraryをプロジェクトに追加する(非同期で読み込み)
   const loadGoogleAPI = () => {

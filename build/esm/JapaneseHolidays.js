@@ -1,4 +1,5 @@
 import { asyncToGenerator as _asyncToGenerator } from './_virtual/_rollupPluginBabelHelpers.js';
+import { getPeriodQuery } from './DateElm.js';
 
 var JapaneseHolidays = /*#__PURE__*/function () {
   var _ref = _asyncToGenerator(function* (apiKey, targetMonth) {

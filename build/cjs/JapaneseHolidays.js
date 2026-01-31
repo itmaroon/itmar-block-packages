@@ -1,6 +1,7 @@
 'use strict';
 
 var _rollupPluginBabelHelpers = require('./_virtual/_rollupPluginBabelHelpers.js');
+var DateElm = require('./DateElm.js');
 
 var JapaneseHolidays = /*#__PURE__*/function () {
   var _ref = _rollupPluginBabelHelpers.asyncToGenerator(function* (apiKey, targetMonth) {
@@ -63,7 +64,7 @@ var JapaneseHolidays = /*#__PURE__*/function () {
     //祝日データの取得
     var fetchHolidays = /*#__PURE__*/function () {
       var _ref3 = _rollupPluginBabelHelpers.asyncToGenerator(function* () {
-        var periodObj = getPeriodQuery(targetMonth);
+        var periodObj = DateElm.getPeriodQuery(targetMonth);
         var response = yield window.gapi.client.calendar.events.list({
           calendarId: CALENDAR_ID,
           timeMin: periodObj.after,
