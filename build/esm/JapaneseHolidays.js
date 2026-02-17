@@ -1,6 +1,8 @@
 import { asyncToGenerator as _asyncToGenerator } from './_virtual/_rollupPluginBabelHelpers.js';
 import { getPeriodQuery } from './DateElm.js';
 
+//Google Calender APIから祝日データを取得するためのID
+var CALENDAR_ID = "japanese__ja@holiday.calendar.google.com";
 var JapaneseHolidays = /*#__PURE__*/function () {
   var _ref = _asyncToGenerator(function* (apiKey, targetMonth) {
     //Google API Client Libraryをプロジェクトに追加する(非同期で読み込み)

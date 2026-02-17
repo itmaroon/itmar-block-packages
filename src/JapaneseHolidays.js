@@ -1,5 +1,8 @@
 import { getPeriodQuery } from "./DateElm";
 
+//Google Calender APIから祝日データを取得するためのID
+const CALENDAR_ID = "japanese__ja@holiday.calendar.google.com";
+
 export const JapaneseHolidays = async (apiKey, targetMonth) => {
   //Google API Client Libraryをプロジェクトに追加する(非同期で読み込み)
   const loadGoogleAPI = () => {

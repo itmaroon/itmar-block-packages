@@ -24,4 +24,5 @@ export { checkCustomerLoginState, redirectCustomerAuthorize, sendRegistrationReq
 export { useRebuildChangeField } from './BrockInserter.js';
 export { default as MasonryControl } from './MasonryControl.js';
 export { slideBlockSwiperInit } from './SwiperControl.js';
+export { ensureCtx, getCtx, registerPickup, setState, subscribe } from './pickupStore.js';
 //# sourceMappingURL=index.js.map

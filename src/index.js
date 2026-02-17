@@ -134,3 +134,12 @@ export { default as MasonryControl } from "./MasonryControl";
 
 //インナーブロック挿入のカスタムフック
 export { slideBlockSwiperInit } from "./SwiperControl";
+
+//フロントエンドデータ共有関連のコンポーネント
+export {
+  ensureCtx,
+  registerPickup,
+  getCtx,
+  subscribe,
+  setState,
+} from "./pickupStore";

@@ -26,6 +26,7 @@ var shopfiApi = require('./shopfiApi.js');
 var BrockInserter = require('./BrockInserter.js');
 var MasonryControl = require('./MasonryControl.js');
 var SwiperControl = require('./SwiperControl.js');
+var pickupStore = require('./pickupStore.js');
 
 
 
@@ -112,4 +113,9 @@ exports.sendRegistrationRequest = shopfiApi.sendRegistrationRequest;
 exports.useRebuildChangeField = BrockInserter.useRebuildChangeField;
 exports.MasonryControl = MasonryControl.default;
 exports.slideBlockSwiperInit = SwiperControl.slideBlockSwiperInit;
+exports.ensureCtx = pickupStore.ensureCtx;
+exports.getCtx = pickupStore.getCtx;
+exports.registerPickup = pickupStore.registerPickup;
+exports.setState = pickupStore.setState;
+exports.subscribe = pickupStore.subscribe;
 //# sourceMappingURL=index.js.map

@@ -6,9 +6,6 @@ import {
   __experimentalNumberControl as NumberControl,
 } from "@wordpress/components";
 
-//Google Calender APIから祝日データを取得するためのID
-const CALENDAR_ID = "japanese__ja@holiday.calendar.google.com";
-
 //期間の設定から選択できる月の情報オブジェクトを配列にする関数
 export const generateDateArray = (dateObj, isMonth) => {
   const { startYear, startMonth, endYear, endMonth } = dateObj;

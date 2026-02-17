@@ -14,6 +14,9 @@ import {関数名又はコンポーネント名} from "itmar-block-packages"
 npm i @wordpress/scripts@^27.6.0 --save-dev
 
 ## 更新履歴
+= 2.1.0 =  
+- フロントエンドデータ共有ライブラリとしてpickupStoreを追加
+
 = 2.0.4 =  
 - JapaneseHolidaysのgetPeriodQueryのインポート漏れを修正
 
@@ -1447,5 +1450,119 @@ const display = displayFormated(
 - decimal が 1 以上のときは minimumFractionDigits / maximumFractionDigits が指定され、常に小数点以下を表示
 - decimal = 0 の場合は整数として表示
 
+## pickupStore
 
+複数の WordPress ブロック（複数の `view.js` / `viewScript`）から **共通の状態（state）** を扱うための、軽量なグローバルストアです。  
+`window.__itmar_pickup_store__` 上に `contexts: Map` を1つだけ持ち、`pickup_id`（任意の id）ごとに `ctx`（コンテキスト）を共有します。
+
+---
+
+### 特長
+
+- **id ごとに状態を共有**（`contexts: Map`）
+- **購読（subscribe）で state 変更通知**（初回は即時通知）
+- **部分更新（shallow merge）**で state を更新し購読者へ通知
+- `ctx.inflight.abort` など、通信中管理の置き場も用意
+
+---
+
+### インストール
+
+```bash
+npm i <your-package-name>
+```
+
+---
+
+### 基本コンセプト
+
+#### グローバルストアと contexts
+
+`pickupStore` は `window.__itmar_pickup_store__` に `{ contexts: new Map() }` を保持します。  
+この `contexts` により、**別ファイル・別ブロックでも同じ Map を共有**できます。
+
+#### ctx（コンテキスト）
+
+`ctx` は id ごとに作られる共有オブジェクトです。`state`・`dataset`・`listeners`・`cache`・`inflight` などを持ちます。
+
+---
+
+### API
+
+#### `ensureCtx(id)`
+
+**概要**: id の ctx を取得します。存在しなければ作成して返します。id が falsy の場合は `null`。
+
+- 引数: `id: string`
+- 戻り値: `ctx | null`
+
+---
+
+#### `registerPickup(pickupEl)`
+
+**概要**: DOM要素の `data-pickup_id` から id を取り、その id の ctx を確保した上で `ctx.pickupEl` と `ctx.dataset` を更新します。id が無ければ `null`。
+
+- 引数: `pickupEl: Element`
+- 戻り値: `ctx | null`
+
+---
+
+#### `getCtx(id)`
+
+**概要**: 既存の ctx を取得します（作成はしない）。無ければ `null`。
+
+- 引数: `id: string`
+- 戻り値: `ctx | null`
+
+---
+
+#### `subscribe(id, fn)`
+
+**概要**: ctx を購読します。登録直後に `fn(ctx)` が **1回即時実行**されます（初回通知）。解除関数を返します。
+
+- 引数:
+  - `id: string`
+  - `fn: (ctx) => void`
+- 戻り値: `() => void`（購読解除関数）
+
+---
+
+#### `setState(id, partial)`
+
+**概要**: `ctx.state` を `partial` で **浅くマージ**して更新し、購読者を全員呼びます。
+
+- 引数:
+  - `id: string`
+  - `partial: object`
+- 戻り値: `void`
+
+---
+
+### 使用例（registerPickup → subscribe → setState）
+
+```js
+import { registerPickup, subscribe, setState } from "./pickupStore";
+
+const pickups = document.querySelectorAll(".wp-block-itmar-pickup-posts");
+
+pickups.forEach((el) => {
+  const ctx = registerPickup(el); // data-pickup_id が必要
+  if (!ctx) return;
+
+  // 初期状態を投入
+  setState(ctx.id, { page: 0, total: 0 });
+
+  // 購読（初回は即時に1回呼ばれる）
+  const unsubscribe = subscribe(ctx.id, (ctxNow) => {
+    console.log("state:", ctxNow.state);
+  });
+
+  // 必要なら解除
+  // unsubscribe();
+});
+```
+
+> `registerPickup()` は `ctx.dataset = { ...pickupEl.dataset }` のように dataset をスナップショット保存します。
+
+---
 
