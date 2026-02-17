@@ -14,7 +14,7 @@ import {関数名又はコンポーネント名} from "itmar-block-packages"
 npm i @wordpress/scripts@^27.6.0 --save-dev
 
 ## 更新履歴
-= 2.1.0 =  
+= 2.1.1 =  
 - フロントエンドデータ共有ライブラリとしてpickupStoreを追加
 
 = 2.0.4 =  
