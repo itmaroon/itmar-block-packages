@@ -75,7 +75,7 @@ export function useIsIframeMobile() {
       if (iframeInstance && iframeInstance.contentWindow) {
         iframeInstance.contentWindow.removeEventListener(
           "resize",
-          checkIframeSize
+          checkIframeSize,
         );
       }
     };
@@ -185,7 +185,7 @@ export function useBlockAttributeChanges(
   blockName,
   className,
   modFlg = false,
-  excludeAttributes = {}
+  excludeAttributes = {},
 ) {
   const [latestAttributes, setLatestAttributes] = useState(null);
   //const [idleFlg, setIdleFlg] = useState(null);
@@ -200,13 +200,13 @@ export function useBlockAttributeChanges(
       const rootBlock = getBlock(clientId);
       return rootBlock ? getFlattenBlocks([rootBlock]) : [];
     },
-    [clientId]
+    [clientId],
   );
 
   const targetBlocks = flattenedBlocks.filter(
     (block) =>
       block.name === blockName &&
-      block.attributes.className?.includes(className)
+      block.attributes.className?.includes(className),
   );
 
   useEffect(() => {
@@ -224,7 +224,7 @@ export function useBlockAttributeChanges(
             }
             return acc;
           },
-          {}
+          {},
         );
 
         const filteredPrevAttributes = Object.keys(prevAttributes).reduce(
@@ -234,7 +234,7 @@ export function useBlockAttributeChanges(
             }
             return acc;
           },
-          {}
+          {},
         );
 
         //属性の変化を比較
@@ -284,7 +284,7 @@ export function useDuplicateBlockRemove(clientId, blockNames) {
   // clientIdに対応するインナーブロックを取得
   const innerBlocks = useSelect(
     (select) => select("core/block-editor").getBlocks(clientId),
-    [clientId]
+    [clientId],
   );
 
   // 前回の innerBlocks を保存するための ref
@@ -294,7 +294,7 @@ export function useDuplicateBlockRemove(clientId, blockNames) {
     const prevInnerBlocks = prevInnerBlocksRef.current;
     //先に保存したインナーブロックの中に対象となるブロックが存在しなければ何もしない
     const result = prevInnerBlocks.some((block) =>
-      blockNames.includes(block.name)
+      blockNames.includes(block.name),
     );
 
     if (result) {
@@ -304,8 +304,8 @@ export function useDuplicateBlockRemove(clientId, blockNames) {
         const newlyInsertedBlock = innerBlocks.find(
           (block) =>
             !prevInnerBlocks.some(
-              (prevBlock) => prevBlock.clientId === block.clientId
-            )
+              (prevBlock) => prevBlock.clientId === block.clientId,
+            ),
         );
 
         // 新しいブロックが blockNames に含まれている場合、削除
@@ -320,12 +320,12 @@ export function useDuplicateBlockRemove(clientId, blockNames) {
             "error", // 通知のタイプ（エラー）
             __(
               "A new block cannot be inserted because a block has already been placed.",
-              "block-collections"
+              "block-collections",
             ), // メッセージ
             {
               type: "snackbar", // 通知のスタイル
               isDismissible: true, // 通知を閉じることができるか
-            }
+            },
           );
         }
       }

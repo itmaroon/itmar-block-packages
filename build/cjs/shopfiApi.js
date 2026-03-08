@@ -124,9 +124,6 @@ function _sendRegistrationRequest() {
         var root = window.wpApiSettings && window.wpApiSettings.root || "/wp-json/";
         url = root.replace(/\/+$/, "/") + url.replace(/^\/+/, "");
       }
-    } else {
-      // admin-ajax の既定URL
-      if (!url) url = "/wp-admin/admin-ajax.php";
     }
     var fetchOptions = {
       method: "POST",

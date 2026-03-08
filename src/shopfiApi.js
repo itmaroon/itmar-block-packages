@@ -40,7 +40,7 @@ export async function redirectCustomerAuthorize(
   clientId,
   userMail,
   callbackUri,
-  redirectUri
+  redirectUri,
 ) {
   //呼び出し元の戻り先
   const statePayload = {
@@ -63,7 +63,7 @@ export async function redirectCustomerAuthorize(
   localStorage.setItem("shopify_redirect_uri", callbackUri); //ログアウトの処理で使用する
 
   const url = new URL(
-    `https://shopify.com/authentication/${shopId}/oauth/authorize`
+    `https://shopify.com/authentication/${shopId}/oauth/authorize`,
   );
   url.searchParams.append("scope", "openid email customer-account-api:full");
   url.searchParams.append("client_id", clientId);
@@ -106,7 +106,7 @@ export async function checkCustomerLoginState() {
 export async function sendRegistrationRequest(
   urlOrPath,
   data = {},
-  mode = "auto"
+  mode = "auto",
 ) {
   const isRestUrlLike = (u) =>
     u.startsWith("/wp-json") || !u.startsWith("/wp-admin");
@@ -128,9 +128,6 @@ export async function sendRegistrationRequest(
         (window.wpApiSettings && window.wpApiSettings.root) || "/wp-json/";
       url = root.replace(/\/+$/, "/") + url.replace(/^\/+/, "");
     }
-  } else {
-    // admin-ajax の既定URL
-    if (!url) url = "/wp-admin/admin-ajax.php";
   }
 
   const fetchOptions = {
