@@ -1,128 +1,124 @@
-var createRGB = inputStr => {
-  //１６進数変換の関数
-  function componentToHex(c) {
-    var hex = parseInt(c, 10).toString(16);
-    return hex.length === 1 ? "0" + hex : hex;
-  }
-  var resultStr;
-  var rgb = [];
-
-  // #000000 形式の場合
-  if (/^#[0-9a-fA-F]{6}$/.test(inputStr)) {
-    rgb = [inputStr.slice(1, 3), inputStr.slice(3, 5), inputStr.slice(5, 7)];
-  }
-  // rgb(0,0,0) 形式の場合
-  else if (resultStr = inputStr.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/)) {
-    rgb = [componentToHex(resultStr[1]), componentToHex(resultStr[2]), componentToHex(resultStr[3])];
-  } else {
-    // サポートされていない形式の場合はデフォルトの値を設定する
-    rgb = ["ff", "ff", "ff"];
-  }
-  return rgb;
-};
-function hslToRgb16(hue, saturation, lightness) {
-  var result = false;
-  if ((hue || hue === 0) && hue <= 360 && (saturation || saturation === 0) && saturation <= 100 && (lightness || lightness === 0) && lightness <= 100) {
-    var red = 0,
-      green = 0,
-      blue = 0,
-      q = 0,
-      p = 0,
-      hueToRgb;
-    hue = Number(hue) / 360;
-    saturation = Number(saturation) / 100;
-    lightness = Number(lightness) / 100;
-    if (saturation === 0) {
-      red = lightness;
-      green = lightness;
-      blue = lightness;
-    } else {
-      hueToRgb = function hueToRgb(p, q, t) {
-        if (t < 0) t += 1;
-        if (t > 1) t -= 1;
-        if (t < 1 / 6) {
-          p += (q - p) * 6 * t;
-        } else if (t < 1 / 2) {
-          p = q;
-        } else if (t < 2 / 3) {
-          p += (q - p) * (2 / 3 - t) * 6;
+const createRGB = (inputStr) => {
+    //１６進数変換の関数
+    const componentToHex = (c) => {
+        const hex = parseInt(String(c), 10).toString(16);
+        return hex.length === 1 ? "0" + hex : hex;
+    };
+    // デフォルト値（白）
+    if (!inputStr)
+        return ["ff", "ff", "ff"];
+    let rgb;
+    // #000000 形式の場合
+    if (/^#[0-9a-fA-F]{6}$/.test(inputStr)) {
+        rgb = [inputStr.slice(1, 3), inputStr.slice(3, 5), inputStr.slice(5, 7)];
+    }
+    // rgb(0,0,0) 形式の場合
+    else {
+        const match = inputStr.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
+        if (match) {
+            rgb = [
+                componentToHex(match[1]),
+                componentToHex(match[2]),
+                componentToHex(match[3]),
+            ];
         }
-        return p;
-      };
-      if (lightness < 0.5) {
-        q = lightness * (1 + saturation);
-      } else {
-        q = lightness + saturation - lightness * saturation;
-      }
-      p = 2 * lightness - q;
-      red = hueToRgb(p, q, hue + 1 / 3);
-      green = hueToRgb(p, q, hue);
-      blue = hueToRgb(p, q, hue - 1 / 3);
+        else {
+            // サポートされていない形式の場合は白を返す
+            rgb = ["ff", "ff", "ff"];
+        }
     }
-    result = "#".concat(Math.round(red * 255).toString(16).padStart(2, '0')).concat(Math.round(green * 255).toString(16).padStart(2, '0')).concat(Math.round(blue * 255).toString(16).padStart(2, '0'));
-  }
-  return result;
+    return rgb;
+};
+/**
+ * HSLを16進数カラーコード（#RRGGBB）に変換
+ */
+function hslToRgb16(hue, saturation, lightness) {
+    const h = Number(hue);
+    const s = Number(saturation);
+    const l = Number(lightness);
+    if (h >= 0 && h <= 360 && s >= 0 && s <= 100 && l >= 0 && l <= 100) {
+        let red = 0, green = 0, blue = 0;
+        const hNorm = h / 360;
+        const sNorm = s / 100;
+        const lNorm = l / 100;
+        if (sNorm === 0) {
+            red = green = blue = lNorm;
+        }
+        else {
+            const hueToRgb = (p, q, t) => {
+                if (t < 0)
+                    t += 1;
+                if (t > 1)
+                    t -= 1;
+                if (t < 1 / 6)
+                    return p + (q - p) * 6 * t;
+                if (t < 1 / 2)
+                    return q;
+                if (t < 2 / 3)
+                    return p + (q - p) * (2 / 3 - t) * 6;
+                return p;
+            };
+            const q = lNorm < 0.5 ? lNorm * (1 + sNorm) : lNorm + sNorm - lNorm * sNorm;
+            const p = 2 * lNorm - q;
+            red = hueToRgb(p, q, hNorm + 1 / 3);
+            green = hueToRgb(p, q, hNorm);
+            blue = hueToRgb(p, q, hNorm - 1 / 3);
+        }
+        const toHex = (c) => Math.round(c * 255)
+            .toString(16)
+            .padStart(2, "0");
+        return `#${toHex(red)}${toHex(green)}${toHex(blue)}`;
+    }
+    return false;
 }
+/**
+ * 16進数カラーコードをHSLオブジェクトに変換
+ */
 function rgb16ToHsl(strRgb16) {
-  var rgb = createRGB(strRgb16);
-  var red = rgb[0];
-  var green = rgb[1];
-  var blue = rgb[2];
-  var result = false;
-  if ((red || red === 0) && String(red).match(/^[0-9a-f]{2}$/i) && (green || green === 0) && String(green).match(/^[0-9a-f]{2}$/i) && (blue || blue === 0) && String(blue).match(/^[0-9a-f]{2}$/i)) {
-    var hue = 0,
-      saturation = 0,
-      lightness = 0,
-      max = 0,
-      min = 0,
-      diff = 0;
-    red = parseInt(red, 16) / 255;
-    green = parseInt(green, 16) / 255;
-    blue = parseInt(blue, 16) / 255;
-    max = Math.max(red, green, blue);
-    min = Math.min(red, green, blue);
-    lightness = (max + min) / 2;
-    if (max !== min) {
-      diff = max - min;
-      if (lightness > 0.5) {
-        saturation = diff / (2 - max - min);
-      } else {
-        saturation = diff / (max + min);
-      }
-      if (max === red) {
-        hue = (green - blue) / diff;
-      } else if (max === green) {
-        hue = 2 + (blue - red) / diff;
-      } else {
-        hue = 4 + (red - green) / diff;
-      }
-      hue /= 6;
+    const rgb = createRGB(strRgb16); // 先ほど定義した [string, string, string] を返す関数
+    const [rHex, gHex, bHex] = rgb;
+    const hexPattern = /^[0-9a-f]{2}$/i;
+    if (hexPattern.test(rHex) && hexPattern.test(gHex) && hexPattern.test(bHex)) {
+        let h = 0, s = 0;
+        const r = parseInt(rHex, 16) / 255;
+        const g = parseInt(gHex, 16) / 255;
+        const b = parseInt(bHex, 16) / 255;
+        const max = Math.max(r, g, b);
+        const min = Math.min(r, g, b);
+        const l = (max + min) / 2;
+        if (max !== min) {
+            const d = max - min;
+            s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+            if (max === r)
+                h = (g - b) / d + (g < b ? 6 : 0);
+            else if (max === g)
+                h = (b - r) / d + 2;
+            else
+                h = (r - g) / d + 4;
+            h /= 6;
+        }
+        return {
+            hue: Math.round(h * 360),
+            saturation: Math.round(s * 100),
+            lightness: Math.round(l * 100),
+        };
     }
-    result = {
-      hue: Math.round(hue * 360),
-      saturation: Math.round(saturation * 100),
-      lightness: Math.round(lightness * 100)
-    };
-  }
-  return result;
+    return false;
 }
+/**
+ * 16進数カラーコードをRGBオブジェクトに変換
+ */
 function HexToRGB(strRgb16) {
-  var rgb = createRGB(strRgb16);
-  var red = rgb[0];
-  var green = rgb[1];
-  var blue = rgb[2];
-  var result = false;
-  if ((red || red === 0) && String(red).match(/^[0-9a-f]{2}$/i) && (green || green === 0) && String(green).match(/^[0-9a-f]{2}$/i) && (blue || blue === 0) && String(blue).match(/^[0-9a-f]{2}$/i)) {
-    red = parseInt(red, 16);
-    green = parseInt(green, 16);
-    blue = parseInt(blue, 16);
-    result = {
-      red: Math.round(red),
-      green: Math.round(green),
-      blue: Math.round(blue)
-    };
-  }
-  return result;
+    const [rHex, gHex, bHex] = createRGB(strRgb16);
+    const hexPattern = /^[0-9a-f]{2}$/i;
+    if (hexPattern.test(rHex) && hexPattern.test(gHex) && hexPattern.test(bHex)) {
+        return {
+            red: parseInt(rHex, 16),
+            green: parseInt(gHex, 16),
+            blue: parseInt(bHex, 16),
+        };
+    }
+    return false;
 }
 
 export { HexToRGB, hslToRgb16, rgb16ToHsl };

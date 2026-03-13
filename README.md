@@ -1,19 +1,30 @@
 # 概要
 WordPressのカスタムブロックを作成するためのプラグインで活用するパッケージです。複数のプラグインで共通に使用する機能をパッケージにまとめました。
+v3.0.0 より完全な TypeScript 対応となり、開発時の型補完と安全性が大幅に向上しました。
 
 # 使用方法
-```
-import {関数名又はコンポーネント名} from "itmar-block-packages"
+```typescript
+import { 関数名又はコンポーネント名 } from "itmar-block-packages"
 ```
 名前付きインポートでお願いします。
 
 ## 必要条件
 このパッケージは WordPress ブロック開発のビルド環境（`@wordpress/scripts`）での利用を前提としています。  
-このパッケージを使用するには、`@wordpress/scripts`のバージョン^27.6.0以上を推奨します。以下のコマンドを実行して、`@wordpress/scripts`を更新してください：
+TypeScript で利用する場合、以下のバージョン以上を推奨します。
 
-npm i @wordpress/scripts@^27.6.0 --save-dev
+@wordpress/scripts: ^27.6.0 以上
+
+typescript: ^5.0.0 以上
 
 ## 更新履歴
+= 3.0.0 =
+
+完全 TypeScript 化: 全ソースコードを TypeScript で再構築し、型定義ファイル（.d.ts）を同梱。
+
+ビルド構成の最適化: Rollup により ESM (build/esm) と CJS (build/cjs) を出力。
+
+パッケージ構造の整理: peerDependencies を整理し、WordPress コアライブラリとの重複バンドルを防止。
+
 = 2.1.2 =  
 - sendRegistrationRequest内でフォールバックされていた"/wp-admin/admin-ajax.php" を削除
 

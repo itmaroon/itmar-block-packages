@@ -1,12 +1,20 @@
-function ToggleElement(props) {
-  var toggleOpen = () => {
-    props.onToggle && props.onToggle(!props.openFlg);
-  };
-  return /*#__PURE__*/React.createElement("div", {
-    className: "".concat(props.className, " ").concat(props.openFlg ? 'open' : ''),
-    style: props.style,
-    onClick: toggleOpen
-  }, props.children);
+import { createElement } from '@wordpress/element';
+
+/**
+ * クリックで開閉状態を切り替えるラッパーコンポーネント
+ */
+function ToggleElement({ openFlg, onToggle, className = "", style, children, }) {
+    const toggleOpen = () => {
+        // onToggle が存在する場合のみ実行
+        if (onToggle) {
+            onToggle(!openFlg);
+        }
+    };
+    return (createElement("div", { className: `${className} ${openFlg ? "open" : ""}`.trim(), style: style, onClick: toggleOpen, role: "button" // アクセシビリティへの配慮
+        , tabIndex: 0, onKeyDown: (e) => {
+            if (e.key === "Enter")
+                toggleOpen();
+        } }, children));
 }
 
 export { ToggleElement as default };

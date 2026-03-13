@@ -1,8 +1,6 @@
 import { nodeResolve } from "@rollup/plugin-node-resolve";
-//import commonjs from "@rollup/plugin-commonjs";
-import babel from "@rollup/plugin-babel";
-
-const extensions = [".js", ".jsx"];
+import typescript from "@rollup/plugin-typescript";
+const extensions = [".js", ".jsx", ".ts", ".tsx"];
 
 // WordPress/React関連はバンドルしない（利用側の@wordpress/scriptsに任せる）
 const external = (id) =>
@@ -15,21 +13,10 @@ const external = (id) =>
   id === "styled-components" ||
   id === "react-select";
 
-const babelConfig = {
-  extensions,
-  babelHelpers: "bundled",
-  exclude: "node_modules/**",
-  presets: [
-    ["@babel/preset-env", { modules: false, targets: { esmodules: true } }],
-    // JSXをJSへ変換（WP環境ならclassicが無難）
-    ["@babel/preset-react", { runtime: "classic" }],
-  ],
-};
-
 export default [
   // ESM（tree-shaking用）
   {
-    input: "src/index.js",
+    input: "src/index.ts",
     external,
     output: {
       dir: "build/esm",
@@ -37,13 +24,21 @@ export default [
       sourcemap: true,
       preserveModules: true,
       preserveModulesRoot: "src",
+      entryFileNames: "[name].js",
     },
-    plugins: [nodeResolve({ extensions }), babel(babelConfig)],
+    //plugins: [nodeResolve({ extensions }), babel(babelConfig)],
+    plugins: [
+      nodeResolve({ extensions }),
+      typescript({
+        tsconfig: "./tsconfig.json",
+        declarationDir: "build/esm/types", // ESM用の型定義
+      }),
+    ],
   },
 
   // CJS（互換用）
   {
-    input: "src/index.js",
+    input: "src/index.ts",
     external,
     output: {
       dir: "build/cjs",
@@ -52,7 +47,15 @@ export default [
       sourcemap: true,
       preserveModules: true,
       preserveModulesRoot: "src",
+      entryFileNames: "[name].js",
     },
-    plugins: [nodeResolve({ extensions }), babel(babelConfig)],
+    //plugins: [nodeResolve({ extensions }), babel(babelConfig)],
+    plugins: [
+      nodeResolve({ extensions }),
+      typescript({
+        tsconfig: "./tsconfig.json",
+        declarationDir: "build/cjs/types",
+      }),
+    ],
   },
 ];

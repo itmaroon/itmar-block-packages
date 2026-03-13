@@ -1,0 +1,283 @@
+import {
+  serializeBlockTree,
+  createBlockTree,
+  flattenBlocks,
+} from "./blockStore";
+import { createBlock, getBlockType } from "@wordpress/blocks";
+import { useEffect } from "@wordpress/element";
+import { useSelect, useDispatch } from "@wordpress/data";
+
+//フィールド生成用関数
+// 1. selectedField の型定義
+interface SelectedField {
+  block: string;
+  key: string;
+  label: string;
+}
+
+// 2. window オブジェクトの型を拡張（pluginOptionによる動的アクセスのため）
+interface Window {
+  [key: string]: any;
+}
+
+const createBlockAttr = (
+  selectedField: SelectedField,
+  pluginOption: string,
+) => {
+  // 3. blockAttributes を Record<string, any> とすることで、
+  // ブロックごとに異なるプロパティ（className, url, slideBlocksなど）を持てるようにします
+  let blockAttributes: Record<string, any> = {};
+
+  const pluginUrl = (window as any)[pluginOption]?.plugin_url || "";
+
+  switch (selectedField.block) {
+    case "itmar/design-title":
+      const block_class = selectedField.key.startsWith("tax_")
+        ? selectedField.key
+        : `sp_field_${selectedField.key}`;
+      blockAttributes = {
+        className: block_class,
+        headingContent: `[${selectedField.label}]`,
+      };
+
+      break;
+    case "core/paragraph":
+      blockAttributes = {
+        className: `itmar_ex_block sp_field_${selectedField.key}`,
+        content: `[${selectedField.label}]`,
+      };
+      break;
+    case "core/image":
+      blockAttributes = {
+        className: `itmar_ex_block sp_field_${selectedField.key}`,
+        url: `${pluginUrl}/assets/image/main_sample.png`,
+      };
+      break;
+    case "itmar/slide-mv":
+      const spaceAttributes = {
+        margin_val: {
+          type: "object",
+          default: {
+            top: "0em",
+            left: "0em",
+            bottom: "0em",
+            right: "0em",
+          },
+        },
+        padding_val: {
+          type: "object",
+          default: {
+            top: "0em",
+            left: "0em",
+            bottom: "0em",
+            right: "0em",
+          },
+        },
+      };
+
+      const imageBlock = createBlock("core/image", {
+        className: "itmar_ex_block",
+        url: `${pluginUrl}/assets/image/slide_sample.png`,
+        ...spaceAttributes,
+      });
+      //Design Blockの初期設定を取得
+      const blockType = getBlockType("itmar/design-group");
+      const defaultValBase =
+        (blockType?.attributes?.default_val as any)?.default ?? {};
+      const mobileValBase =
+        (blockType?.attributes?.mobile_val as any)?.default ?? {};
+      const slideBlock = createBlock(
+        "itmar/design-group",
+        {
+          default_val: {
+            ...defaultValBase,
+            width_val: "fit",
+          },
+          mobile_val: {
+            ...mobileValBase,
+            width_val: "fit",
+          },
+        },
+        [imageBlock],
+      );
+      //slideBlock をシリアライズ
+      const serializedSlide = serializeBlockTree(slideBlock);
+      // 同じスライドブロックを5つ複製（独立したブロックとして）
+      const slideBlocks = Array.from({ length: 5 }, () =>
+        createBlockTree(serializedSlide),
+      );
+      //子ブロック付きで返す
+      blockAttributes = {
+        attributes: { className: `sp_field_${selectedField.key}` },
+        slideBlocks: slideBlocks,
+      };
+      break;
+    default:
+      blockAttributes = {
+        className: `sp_field_${selectedField.key}`,
+        headingContent: `[${selectedField.label}]`,
+      };
+  }
+  return blockAttributes;
+};
+
+//表示フィールド変更によるインナーブロックの再構成
+// 引数の型を定義
+interface UseRebuildChangeFieldProps {
+  dispAttributeArray: any[];
+  selectedFields: { key: string; label: string; block: string }[];
+  pickupType: string;
+  dispTaxonomies: string[];
+  sectionCount: number;
+  domType: string;
+  clientId: string;
+  insertId: string;
+  pluginOption: string;
+}
+
+export const useRebuildChangeField = (
+  dispAttributeArray: any[], // 外部から渡される配列
+  selectedFields: { key: string; label: string; block: string }[],
+  pickupType: string,
+  dispTaxonomies: string[],
+  sectionCount: number,
+  domType: string,
+  clientId: string,
+  insertId: string,
+  pluginOption: string,
+) => {
+  // dispatch関数を取得
+  const { replaceInnerBlocks } = useDispatch("core/block-editor") as any;
+  const pickupBlock = useSelect(
+    (select) => (select("core/block-editor") as any).getBlock(clientId),
+    [clientId],
+  );
+
+  useEffect(() => {
+    //dispAttributeArray の個数調整
+    const blocksLength = dispAttributeArray.length;
+    if (blocksLength < sectionCount) {
+      // dispAttributeArrayの長さが短い場合、{}を追加する
+      const diff = sectionCount - blocksLength;
+      for (let i = 0; i < diff; i++) {
+        dispAttributeArray.push({});
+      }
+    } else {
+      // dispAttributeArrayの長さが長い場合、余分な要素を削除する
+      dispAttributeArray.splice(sectionCount);
+    }
+
+    // インナーブロックに差し込むブロック配列を生成
+    const blocksArray = dispAttributeArray.map((dispAttribute, unit_index) => {
+      // blocksAttributesArray属性で登録されたブロックのclassName一覧（sp_field_xxx を拾う）
+      const allBlocks = Array.isArray(dispAttribute.innerBlocks)
+        ? flattenBlocks(dispAttribute.innerBlocks) //階層になったブロックを平坦化
+        : [];
+
+      const existingKeys = allBlocks
+        .map((block) => block.attributes?.className)
+        .filter(Boolean)
+        .map((cls) => {
+          // sp_field_◯◯ か tax_◯◯ のどちらかにマッチ
+          const match = cls.match(/sp_field_([\w-]+)|(tax_[\w-]+)/);
+          if (!match) return null;
+
+          // match[1] があれば sp_field_ のほう → プレフィックス除去
+          // match[2] があれば tax_ のほう → そのまま返す
+          return match[1] ?? match[2];
+        })
+        .filter(Boolean);
+
+      // dispTaxonomies からオブジェクトを作って selectedFieldsに加えてnewSelectedFieldsを生成
+      const newSelectedFields = [
+        ...selectedFields,
+        ...dispTaxonomies.map((tax) => ({
+          key: `tax_${tax}`, // 例: "tax_category"
+          label: tax, // 例: "category"
+          block: "itmar/design-title",
+        })),
+      ];
+
+      //  newSelectedFieldsのうち未挿入のものだけ追加
+      const autoGeneratedBlocks = newSelectedFields
+        .filter((field) => !existingKeys.includes(field.key))
+        .map((field) => {
+          const attr = createBlockAttr(field, pluginOption);
+          const blockName = field.block;
+          const blockAttributes = attr?.attributes ?? attr;
+          const innerBlocks = Array.isArray(attr?.slideBlocks)
+            ? attr.slideBlocks
+            : [];
+
+          return createBlock(blockName, blockAttributes, innerBlocks);
+        });
+      // blocksAttributesArray属性で登録されたブロックの再構築
+      const selectedKeys = selectedFields.map((f) => f.key);
+
+      const filterBlocksRecursively = (blocks: any[]): any[] => {
+        return blocks
+          .map((block) => {
+            const className = block.attributes?.className || "";
+            // 1. まず sp_field_ のパターンを探す
+            let match = className.match(/sp_field_([a-zA-Z0-9_]+)/);
+            // 2. 見つからなければ tax_○○ をチェック
+            if (className.startsWith("tax_")) {
+              const name = className.slice("tax_".length); // "tax_category" → "category"
+
+              // dispTaxonomies に含まれないものだけ有効とする
+              if (!dispTaxonomies.includes(name)) {
+                // 正規表現の match 結果っぽい形の配列を自分で作る
+                // [0] に全体一致, [1] にグループ1 というイメージ
+                match = [`tax_${name}`, name];
+              }
+            }
+
+            // 再帰的に innerBlocks をフィルタ
+            const filteredInner = block.innerBlocks
+              ? filterBlocksRecursively(block.innerBlocks)
+              : [];
+
+            const isAutoGenerated = !!match;
+            const keep = !isAutoGenerated || selectedKeys.includes(match[1]);
+
+            if (!keep) return null;
+
+            // 構造を復元して返す
+            return {
+              ...block,
+              innerBlocks: filteredInner,
+            };
+          })
+          .filter(Boolean); // null を除去
+      };
+
+      const userBlocks = Array.isArray(dispAttribute.innerBlocks)
+        ? filterBlocksRecursively(dispAttribute.innerBlocks).map(
+            createBlockTree,
+          )
+        : [];
+
+      // autoGenerated（selectedFields） + userBlocks を合成
+      const innerBlocks = [...userBlocks, ...autoGeneratedBlocks];
+
+      const ret = createBlock(
+        "itmar/design-group",
+        {
+          ...dispAttribute.attributes,
+          className: `unit_design_${unit_index}`,
+          domType: domType,
+        },
+        innerBlocks,
+      );
+
+      return ret;
+    });
+
+    //挿入するブロックと自身のブロックが異なる場合（slide-mvにデータを入れる場合）
+    if (insertId !== clientId) {
+      blocksArray.push(pickupBlock);
+    }
+    // 既存のインナーブロックを一括置換
+    replaceInnerBlocks(insertId, blocksArray, false);
+  }, [selectedFields, pickupType, dispTaxonomies]);
+};

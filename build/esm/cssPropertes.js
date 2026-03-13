@@ -1,144 +1,192 @@
 // sideの最初の文字を大文字にする関数
-var capitalizeFirstLetter = string => {
-  return string.charAt(0).toUpperCase() + string.slice(1);
+const capitalizeFirstLetter = (string) => {
+    return string.charAt(0).toUpperCase() + string.slice(1);
 };
 // objectかどうか判定する関数
-var isObject = value => {
-  return value !== null && typeof value === "object" && !Array.isArray(value);
+const isObject = (value) => {
+    return value !== null && typeof value === "object" && !Array.isArray(value);
 };
-
-//角丸のパラメータを返す
-var radius_prm = radius => {
-  var ret_radius_prm = radius && Object.keys(radius).length === 1 ? radius.value : "".concat(radius && radius.topLeft || "", " ").concat(radius && radius.topRight || "", " ").concat(radius && radius.bottomRight || "", " ").concat(radius && radius.bottomLeft || "");
-  return ret_radius_prm;
+const radius_prm = (radius) => {
+    // radius が存在しない場合は空文字を返す
+    if (!radius)
+        return "";
+    const ret_radius_prm = Object.keys(radius).length === 1 && radius.value
+        ? radius.value
+        : `${radius.topLeft || ""} ${radius.topRight || ""} ${radius.bottomRight || ""} ${radius.bottomLeft || ""}`;
+    return ret_radius_prm.trim(); // 余計な空白を削除して返す
 };
-//スペースのパラメータを返す
-var space_prm = space => {
-  var ret_space_prm = space ? "".concat(space.top, " ").concat(space.right, " ").concat(space.bottom, " ").concat(space.left) : "";
-  return ret_space_prm;
+const space_prm = (space) => {
+    // spaceが存在しない、または空の場合は空文字を返す
+    if (!space)
+        return "";
+    // 各値が undefined の場合に備えてデフォルト値（"0" など）を置くのが安全です
+    const { top = "0", right = "0", bottom = "0", left = "0" } = space;
+    return `${top} ${right} ${bottom} ${left}`;
 };
-//positionのオブジェクトを返します
-var position_prm = (pos, type) => {
-  //値でポジションを設定
-  if (isObject(pos)) {
-    var resetVertBase = pos.vertBase === "top" ? "bottom" : "top";
-    var resetHorBase = pos.horBase === "left" ? "right" : "left";
-    var centerVert = "50%";
-    var centerHor = "50%";
-    var centerTrans = pos.isVertCenter && pos.isHorCenter ? "transform: translate(-50%, -50%);" : pos.isVertCenter ? "transform: translateY(-50%);" : pos.isHorCenter ? "transform: translateX(-50%);" : "";
-    var ret_pos_prm = pos && (type === "absolute" || type === "fixed" || type === "sticky") ? "\n    ".concat(pos.vertBase, ": ").concat(pos.isVertCenter ? centerVert : pos.vertValue, "; \n    ").concat(pos.horBase, ": ").concat(pos.isHorCenter ? centerHor : pos.horValue, ";\n    ").concat(centerTrans, "\n    ").concat(resetVertBase, ": auto;\n    ").concat(resetHorBase, ": auto;\n    ").concat(type === "fixed" || type === "sticky" ? "margin-block-start:0;z-index: 50;" : "z-index: auto;", "\n  ") : "";
-    return ret_pos_prm;
-    //縦横中央揃え
-  } else if (pos) {
-    var _ret_pos_prm = "top:50%;left: 50%;transform: translate(-50%, -50%);";
-    return _ret_pos_prm;
-  }
-  return null;
+const position_prm = (pos, type) => {
+    // 値がオブジェクト（詳細設定）の場合
+    if (isObject(pos)) {
+        const p = pos; // 型を確定させる
+        const resetVertBase = p.vertBase === "top" ? "bottom" : "top";
+        const resetHorBase = p.horBase === "left" ? "right" : "left";
+        const centerVert = "50%";
+        const centerHor = "50%";
+        const centerTrans = p.isVertCenter && p.isHorCenter
+            ? "transform: translate(-50%, -50%);"
+            : p.isVertCenter
+                ? "transform: translateY(-50%);"
+                : p.isHorCenter
+                    ? "transform: translateX(-50%);"
+                    : "";
+        const isValidType = type === "absolute" || type === "fixed" || type === "sticky";
+        if (isValidType) {
+            return `
+        ${p.vertBase}: ${p.isVertCenter ? centerVert : p.vertValue}; 
+        ${p.horBase}: ${p.isHorCenter ? centerHor : p.horValue};
+        ${centerTrans}
+        ${resetVertBase}: auto;
+        ${resetHorBase}: auto;
+        ${type === "fixed" || type === "sticky"
+                ? "margin-block-start:0;z-index: 50;"
+                : "z-index: auto;"}
+      `;
+        }
+        return "";
+        // オブジェクトではないが値がある場合（簡易的な中央揃えフラグなど）
+    }
+    else if (pos) {
+        return "top:50%;left: 50%;transform: translate(-50%, -50%);";
+    }
+    return null;
 };
 //ブロック幅を返す
-var max_width_prm = (width, free_val) => {
-  var ret_width_prm = width === "wideSize" ? "max-width: var(--wp--style--global--wide-size);" : width === "contentSize" ? "max-width: var(--wp--style--global--content-size);" : width === "free" ? "max-width: ".concat(free_val, ";") : width === "full" ? "max-width: 100%;" : "max-width: fit-content;";
-  return ret_width_prm;
+const max_width_prm = (width, free_val) => {
+    const ret_width_prm = width === "wideSize"
+        ? "max-width: var(--wp--style--global--wide-size);"
+        : width === "contentSize"
+            ? "max-width: var(--wp--style--global--content-size);"
+            : width === "free"
+                ? `max-width: ${free_val};`
+                : width === "full"
+                    ? "max-width: 100%;"
+                    : "max-width: fit-content;";
+    return ret_width_prm;
 };
-var width_prm = (width, free_val) => {
-  var ret_width_prm = width === "wideSize" ? " width: var(--wp--style--global--wide-size);" : width === "contentSize" ? " width: var(--wp--style--global--content-size);" : width === "free" ? " width: ".concat(free_val, "; ") : width === "full" ? " width: 100%;" : width === "fit" ? " width: fit-content;" : " width: auto;";
-  return ret_width_prm;
+const width_prm = (width, free_val) => {
+    const ret_width_prm = width === "wideSize"
+        ? " width: var(--wp--style--global--wide-size);"
+        : width === "contentSize"
+            ? " width: var(--wp--style--global--content-size);"
+            : width === "free"
+                ? ` width: ${free_val}; `
+                : width === "full"
+                    ? " width: 100%;"
+                    : width === "fit"
+                        ? " width: fit-content;"
+                        : " width: auto;";
+    return ret_width_prm;
 };
-var height_prm = (height, free_val) => {
-  var ret_height_prm = height === "fit" ? " height: fit-content;" : height === "full" ? " height: 100%; " : height === "free" ? " height: ".concat(free_val, "; ") : "height: auto;";
-  return ret_height_prm;
+const height_prm = (height, free_val) => {
+    const ret_height_prm = height === "fit"
+        ? " height: fit-content;"
+        : height === "full"
+            ? ` height: 100%; `
+            : height === "free"
+                ? ` height: ${free_val}; `
+                : "height: auto;";
+    return ret_height_prm;
 };
 //配置を返す
-var align_prm = function align_prm(align) {
-  var camelFLg = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
-  //css用
-  var ret_align_prm = align === "center" ? "margin-left: auto; margin-right: auto;" : align === "right" ? "margin-left: auto; margin-right: 0;" : "margin-right: auto; margin-left: 0;";
-  //インナースタイル用
-  var camel_align_prm = align === "center" ? {
-    marginLeft: "auto",
-    marginRight: "auto"
-  } : align === "right" ? {
-    marginLeft: "auto"
-  } : {};
-  return camelFLg ? camel_align_prm : ret_align_prm;
+const align_prm = (align, camelFLg = false) => {
+    //css用
+    const ret_align_prm = align === "center"
+        ? "margin-left: auto; margin-right: auto;"
+        : align === "right"
+            ? "margin-left: auto; margin-right: 0;"
+            : "margin-right: auto; margin-left: 0;";
+    //インナースタイル用
+    const camel_align_prm = align === "center"
+        ? { marginLeft: "auto", marginRight: "auto" }
+        : align === "right"
+            ? { marginLeft: "auto" }
+            : {};
+    return camelFLg ? camel_align_prm : ret_align_prm;
 };
-
 //スタイルオブジェクト変換関数
-var convertToScss = styleObject => {
-  var scss = "";
-  for (var prop in styleObject) {
-    if (styleObject.hasOwnProperty(prop)) {
-      var scssProp = prop.replace(/([A-Z])/g, "-$1").toLowerCase();
-      scss += "".concat(scssProp, ": ").concat(styleObject[prop], ";\n");
-    }
-  }
-  return scss;
-};
-var borderProperty = borderObj => {
-  if (borderObj) {
-    //borderObjがundefinedでない
-    var keys = ["top", "bottom", "left", "right"];
-    var ret_prop = null;
-    var doesKeyExist = keys.some(key => key in borderObj);
-    if (doesKeyExist) {
-      //'top', 'bottom', 'left', 'right'が別設定
-      var cssObj = {};
-      for (var side in borderObj) {
-        var sideData = borderObj[side];
-        var startsWithZero = String(sideData.width || "").match(/^0/);
-        if (startsWithZero) {
-          //widthが０ならCSS設定しない
-          continue;
+const convertToScss = (styleObject) => {
+    let scss = "";
+    for (const prop in styleObject) {
+        if (styleObject.hasOwnProperty(prop)) {
+            const scssProp = prop.replace(/([A-Z])/g, "-$1").toLowerCase();
+            scss += `${scssProp}: ${styleObject[prop]};\n`;
         }
-        var border_style = sideData.style || "solid";
-        var camelCaseSide = "border".concat(capitalizeFirstLetter(side));
-        cssObj[camelCaseSide] = "".concat(sideData.width, " ").concat(border_style, " ").concat(sideData.color);
-      }
-      ret_prop = cssObj;
-      return ret_prop;
-    } else {
-      //同一のボーダー
-      var _startsWithZero = String(borderObj.width || "").match(/^0/);
-      if (_startsWithZero) {
-        //widthが０ならnullを返す
-        return null;
-      }
-      var _border_style = borderObj.style || "solid";
-      ret_prop = {
-        border: "".concat(borderObj.width, " ").concat(_border_style, " ").concat(borderObj.color)
-      };
-      return ret_prop;
     }
-  } else {
-    return null;
-  }
+    return scss;
 };
-
+/**
+ * ボーダー設定オブジェクトをCSSプロパティオブジェクトに変換する
+ */
+const borderProperty = (borderObj) => {
+    if (!borderObj)
+        return null;
+    const sides = ["top", "bottom", "left", "right"];
+    // 指定されたキーのいずれかが存在するかチェック
+    const hasSideSettings = sides.some((side) => side in borderObj);
+    if (hasSideSettings) {
+        // 1. Record<string, string> と定義することで、動的なキー代入を許可します
+        const cssObj = {};
+        for (const side in borderObj) {
+            const sideData = borderObj[side];
+            // 幅が 0（0px, 0remなど）で始まる場合はスキップ
+            if (String(sideData?.width || "").startsWith("0")) {
+                continue;
+            }
+            const borderStyle = sideData?.style || "solid";
+            // 2. キーを camelCase に変換（例: top -> borderTop）
+            const camelCaseSide = `border${capitalizeFirstLetter(side)}`;
+            cssObj[camelCaseSide] =
+                `${sideData.width} ${borderStyle} ${sideData.color}`;
+        }
+        // すべての辺が幅0で cssObj が空になった場合は null を返す
+        return Object.keys(cssObj).length > 0 ? cssObj : null;
+    }
+    else {
+        // 同一のボーダー設定の場合
+        if (String(borderObj.width || "").startsWith("0")) {
+            return null;
+        }
+        const borderStyle = borderObj.style || "solid";
+        return {
+            border: `${borderObj.width} ${borderStyle} ${borderObj.color}`,
+        };
+    }
+};
 //角丸の設定
-var radiusProperty = radiusObj => {
-  var ret_prop = radiusObj && Object.keys(radiusObj).length === 1 ? radiusObj.value : "".concat(radiusObj && radiusObj.topLeft || "", " ").concat(radiusObj && radiusObj.topRight || "", " ").concat(radiusObj && radiusObj.bottomRight || "", " ").concat(radiusObj && radiusObj.bottomLeft || "");
-  var ret_val = {
-    borderRadius: ret_prop
-  };
-  return ret_val;
+const radiusProperty = (radiusObj) => {
+    if (!radiusObj)
+        return {};
+    const ret_prop = radiusObj && Object.keys(radiusObj).length === 1
+        ? radiusObj.value
+        : `${(radiusObj && radiusObj.topLeft) || ""} ${(radiusObj && radiusObj.topRight) || ""} ${(radiusObj && radiusObj.bottomRight) || ""} ${(radiusObj && radiusObj.bottomLeft) || ""}`;
+    const ret_val = { borderRadius: ret_prop };
+    return ret_val;
 };
-
 //マージンの設定
-var marginProperty = marginObj => {
-  var ret_prop = "".concat(marginObj.top, " ").concat(marginObj.right, " ").concat(marginObj.bottom, " ").concat(marginObj.left);
-  var ret_val = {
-    margin: ret_prop
-  };
-  return ret_val;
+const marginProperty = (marginObj) => {
+    if (!marginObj)
+        return {};
+    const ret_prop = `${marginObj.top} ${marginObj.right} ${marginObj.bottom} ${marginObj.left}`;
+    const ret_val = { margin: ret_prop };
+    return ret_val;
 };
 //パディングの設定
-function paddingProperty(paddingObj) {
-  var ret_prop = "".concat(paddingObj.top, " ").concat(paddingObj.right, " ").concat(paddingObj.bottom, " ").concat(paddingObj.left);
-  var ret_val = {
-    padding: ret_prop
-  };
-  return ret_val;
-}
+const paddingProperty = (paddingObj) => {
+    if (!paddingObj)
+        return {};
+    const ret_prop = `${paddingObj.top} ${paddingObj.right} ${paddingObj.bottom} ${paddingObj.left}`;
+    const ret_val = { padding: ret_prop };
+    return ret_val;
+};
 
 export { align_prm, borderProperty, convertToScss, height_prm, marginProperty, max_width_prm, paddingProperty, position_prm, radiusProperty, radius_prm, space_prm, width_prm };
 //# sourceMappingURL=cssPropertes.js.map

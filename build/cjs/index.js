@@ -1,6 +1,6 @@
 'use strict';
 
-var customFooks = require('./customFooks.js');
+var customHooks = require('./customHooks.js');
 var wordpressApi = require('./wordpressApi.js');
 var cssPropertes = require('./cssPropertes.js');
 var ShadowStyle = require('./ShadowStyle.js');
@@ -30,15 +30,15 @@ var pickupStore = require('./pickupStore.js');
 
 
 
-exports.useBlockAttributeChanges = customFooks.useBlockAttributeChanges;
-exports.useDeepCompareEffect = customFooks.useDeepCompareEffect;
-exports.useDuplicateBlockRemove = customFooks.useDuplicateBlockRemove;
-exports.useElementBackgroundColor = customFooks.useElementBackgroundColor;
-exports.useElementStyleObject = customFooks.useElementStyleObject;
-exports.useElementWidth = customFooks.useElementWidth;
-exports.useFontawesomeIframe = customFooks.useFontawesomeIframe;
-exports.useIsIframeMobile = customFooks.useIsIframeMobile;
-exports.useIsMobile = customFooks.useIsMobile;
+exports.useBlockAttributeChanges = customHooks.useBlockAttributeChanges;
+exports.useDeepCompareEffect = customHooks.useDeepCompareEffect;
+exports.useDuplicateBlockRemove = customHooks.useDuplicateBlockRemove;
+exports.useElementBackgroundColor = customHooks.useElementBackgroundColor;
+exports.useElementStyleObject = customHooks.useElementStyleObject;
+exports.useElementWidth = customHooks.useElementWidth;
+exports.useFontawesomeIframe = customHooks.useFontawesomeIframe;
+exports.useIsIframeMobile = customHooks.useIsIframeMobile;
+exports.useIsMobile = customHooks.useIsMobile;
 exports.ArchiveSelectControl = wordpressApi.ArchiveSelectControl;
 exports.FieldChoiceControl = wordpressApi.FieldChoiceControl;
 exports.PageSelectControl = wordpressApi.PageSelectControl;
