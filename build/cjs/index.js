@@ -1,5 +1,6 @@
 'use strict';
 
+var element = require('@wordpress/element');
 var customHooks = require('./customHooks.js');
 var wordpressApi = require('./wordpressApi.js');
 var cssPropertes = require('./cssPropertes.js');
@@ -28,7 +29,9 @@ var MasonryControl = require('./MasonryControl.js');
 var SwiperControl = require('./SwiperControl.js');
 var pickupStore = require('./pickupStore.js');
 
-
+// itmaroon-block-packages/src/index.ts
+// 初期値を null で作成
+const BookingActionContext = element.createContext(null);
 
 exports.useBlockAttributeChanges = customHooks.useBlockAttributeChanges;
 exports.useDeepCompareEffect = customHooks.useDeepCompareEffect;
@@ -118,4 +121,5 @@ exports.getCtx = pickupStore.getCtx;
 exports.registerPickup = pickupStore.registerPickup;
 exports.setState = pickupStore.setState;
 exports.subscribe = pickupStore.subscribe;
+exports.BookingActionContext = BookingActionContext;
 //# sourceMappingURL=index.js.map

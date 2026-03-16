@@ -1,3 +1,15 @@
+// itmaroon-block-packages/src/index.ts
+import { createContext } from "@wordpress/element";
+
+// 型の定義
+export interface BookingActionContextType {
+  onCellClick: (tag: string, row: number, col: number) => void;
+}
+
+// 初期値を null で作成
+export const BookingActionContext =
+  createContext<BookingActionContextType | null>(null);
+
 //カスタムフック（一般）
 export {
   useIsIframeMobile,
