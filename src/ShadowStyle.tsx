@@ -298,7 +298,7 @@ const ShadowStyle = ({ shadowStyle, onChange }: ShadowStyleProps) => {
   useEffect(() => {
     const shadowElm = ShadowElm(shadowState);
     if (shadowElm) onChange(shadowElm, shadowState);
-  }, [shadowState, onChange]);
+  }, [shadowState]);
 
   // ヘルパー: ステートの一部を更新
   const updateState = (partial: Partial<ShadowState>) => {

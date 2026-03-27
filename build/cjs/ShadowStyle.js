@@ -165,7 +165,7 @@ const ShadowStyle = ({ shadowStyle, onChange }) => {
         const shadowElm = ShadowElm(shadowState);
         if (shadowElm)
             onChange(shadowElm, shadowState);
-    }, [shadowState, onChange]);
+    }, [shadowState]);
     // ヘルパー: ステートの一部を更新
     const updateState = (partial) => {
         setShadowState((prev) => ({ ...prev, ...partial }));
