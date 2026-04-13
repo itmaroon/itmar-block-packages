@@ -55,7 +55,7 @@ export {
 } from "./cssPropertes";
 
 //ボックスシャドーを設定するコントロール
-export { default as ShadowStyle, ShadowElm } from "./ShadowStyle";
+export { default as ShadowStyle, ShadowElm, ShadowState } from "./ShadowStyle";
 
 //疑似要素を設定するコントロール
 export { default as PseudoElm, Arrow } from "./PseudoElm";

@@ -355,45 +355,268 @@ const ChoiceControl = (props: ChoiceControlProps) => {
         ))}
 
       {/* フィールド表示セクション (標準フィールド + カスタムフィールド) */}
-      {(type === "field" || type === "imgField") &&
+      {type === "field" &&
         choices.map((choice, index) => {
-          const isImgMode = type === "imgField";
+          //metaの対象カスタムフィールドが含まれるかのフラグ
+          const metaFlg =
+            choice.meta &&
+            !Object.keys(choice.meta).every(
+              (key) => key === "_acf_changed" || key === "footnotes",
+            );
+          //acfの対象カスタムフィールドが含まれるかのフラグ
+          const acfFlg =
+            choice.acf &&
+            typeof choice.acf === "object" &&
+            !Array.isArray(choice.acf);
+
           return (
             <div key={index} className="field_section">
-              {/* 共通の標準フィールド群 (タイトル、日付等は field モードのみ) */}
-              {!isImgMode && choice.title && (
+              {choice.title && (
                 <ToggleControl
+                  className="field_choice"
                   label={__("Title", "block-collections")}
-                  checked={choiceItems.includes("title")}
-                  onChange={(checked) =>
-                    props.onChange(
-                      handleChoiceChange(checked, "title", choiceItems),
-                    )
-                  }
+                  checked={choiceItems.some(
+                    (choiceField) => choiceField === "title",
+                  )}
+                  onChange={(checked) => {
+                    const newChoiceFields = handleChoiceChange(
+                      checked,
+                      "title",
+                      choiceItems,
+                    );
+                    props.onChange(newChoiceFields);
+                  }}
+                />
+              )}
+              {choice.content && (
+                <ToggleControl
+                  className="field_choice"
+                  label={__("Content", "block-collections")}
+                  checked={choiceItems.some(
+                    (choiceField) => choiceField === "content",
+                  )}
+                  onChange={(checked) => {
+                    const newChoiceFields = handleChoiceChange(
+                      checked,
+                      "content",
+                      choiceItems,
+                    );
+                    props.onChange(newChoiceFields);
+                  }}
+                />
+              )}
+              {choice.date && (
+                <ToggleControl
+                  className="field_choice"
+                  label={__("Date", "block-collections")}
+                  checked={choiceItems.some(
+                    (choiceField) => choiceField === "date",
+                  )}
+                  onChange={(checked) => {
+                    const newChoiceFields = handleChoiceChange(
+                      checked,
+                      "date",
+                      choiceItems,
+                    );
+                    props.onChange(newChoiceFields);
+                  }}
+                />
+              )}
+              {choice.excerpt && (
+                <ToggleControl
+                  className="field_choice"
+                  label={__("Excerpt", "block-collections")}
+                  checked={choiceItems.some(
+                    (choiceField) => choiceField === "excerpt",
+                  )}
+                  onChange={(checked) => {
+                    const newChoiceFields = handleChoiceChange(
+                      checked,
+                      "excerpt",
+                      choiceItems,
+                    );
+                    props.onChange(newChoiceFields);
+                  }}
+                />
+              )}
+              {(choice.featured_media || choice.featured_media === 0) && (
+                <ToggleControl
+                  className="field_choice"
+                  label={__("Featured Image", "block-collections")}
+                  checked={choiceItems.some(
+                    (choiceField) => choiceField === "featured_media",
+                  )}
+                  onChange={(checked) => {
+                    const newChoiceFields = handleChoiceChange(
+                      checked,
+                      "featured_media",
+                      choiceItems,
+                    );
+                    props.onChange(newChoiceFields);
+                  }}
+                />
+              )}
+              {choice.link && (
+                <div className="itmar_custom_field_set">
+                  <ToggleControl
+                    className="field_choice"
+                    label={__("Single Page Link", "block-collections")}
+                    checked={choiceItems.some(
+                      (choiceField) => choiceField === "link",
+                    )}
+                    onChange={(checked) => {
+                      const newChoiceFields = handleChoiceChange(
+                        checked,
+                        "link",
+                        choiceItems,
+                      );
+                      props.onChange(newChoiceFields);
+                    }}
+                  />
+                  <ComboboxControl
+                    options={[
+                      {
+                        value: "itmar/design-button",
+                        label: "itmar/design-button",
+                      },
+                      {
+                        value: "itmar/design-title",
+                        label: "itmar/design-title",
+                      },
+                    ]}
+                    value={blockMap["link"]}
+                    onChange={(newValue) => {
+                      const newBlockMap = {
+                        ...blockMap,
+                        link: newValue ?? "",
+                      };
+                      props.onBlockMapChange(newBlockMap);
+                    }}
+                  />
+                  <p>
+                    {__(
+                      "If no block is specified, a link will be set to the parent block, Design Group.",
+                      "block-collections",
+                    )}
+                  </p>
+                </div>
+              )}
+              {(metaFlg || acfFlg) && (
+                <>
+                  <div className="custom_field_label">
+                    {__("Custom Field", "block-collections")}
+                  </div>
+                  <div className="custom_field_area">
+                    {dispCustumFields({
+                      // meta はそのまま
+                      ...Object.entries(choice.meta).reduce(
+                        (acc, [key, value]) => ({
+                          ...acc,
+                          [`meta_${key}`]: value,
+                        }),
+                        {},
+                      ),
+                      // acf は「同名で _source があるもののベース側を除く」
+                      ...Object.entries(choice.acf)
+                        .filter(([key]) => !key.endsWith("_source"))
+                        .reduce(
+                          (acc, [key, value]) => ({
+                            ...acc,
+                            [`acf_${key}`]: value,
+                          }),
+                          {},
+                        ),
+                    })}
+                  </div>
+                </>
+              )}
+            </div>
+          );
+        })}
+      {type === "imgField" &&
+        choices.map((choice, index) => {
+          //metaの対象カスタムフィールドが含まれるかのフラグ
+          const metaFlg =
+            choice.meta &&
+            !Object.keys(choice.meta).every(
+              (key) => key === "_acf_changed" || key === "footnotes",
+            );
+          //acfの対象カスタムフィールドが含まれるかのフラグ
+          const acfFlg =
+            choice.acf &&
+            typeof choice.acf === "object" &&
+            !Array.isArray(choice.acf);
+
+          return (
+            <div key={index} className="field_section">
+              {choice.content && (
+                <ToggleControl
+                  className="field_choice"
+                  label={__("Content", "block-collections")}
+                  checked={choiceItems.some(
+                    (choiceField) => choiceField === "content",
+                  )}
+                  onChange={(checked) => {
+                    const newChoiceFields = handleChoiceChange(
+                      checked,
+                      "content",
+                      choiceItems,
+                    );
+                    props.onChange(newChoiceFields);
+                  }}
+                />
+              )}
+              {(choice.featured_media || choice.featured_media === 0) && (
+                <ToggleControl
+                  className="field_choice"
+                  label={__("Featured Image", "block-collections")}
+                  checked={choiceItems.some(
+                    (choiceField) => choiceField === "featured_media",
+                  )}
+                  onChange={(checked) => {
+                    const newChoiceFields = handleChoiceChange(
+                      checked,
+                      "featured_media",
+                      choiceItems,
+                    );
+                    props.onChange(newChoiceFields);
+                  }}
                 />
               )}
 
-              {/* ... 他の ToggleControl (date, excerpt, featured_media 等) も同様に label を内部プロパティに移動 ... */}
-
-              {/* カスタムフィールド (Meta / ACF) の表示 */}
-              <div className="custom_field_area">
-                {dispCustumFields(
-                  {
-                    ...Object.entries(choice.meta || {}).reduce(
-                      (acc, [k, v]) => ({ ...acc, [`meta_${k}`]: v }),
-                      {},
-                    ),
-                    ...Object.entries(choice.acf || {})
-                      .filter(([k]) => !k.endsWith("_source"))
-                      .reduce(
-                        (acc, [k, v]) => ({ ...acc, [`acf_${k}`]: v }),
-                        {},
-                      ),
-                  },
-                  "",
-                  isImgMode,
-                )}
-              </div>
+              {(metaFlg || acfFlg) && (
+                <>
+                  <div className="custom_field_label">
+                    {__("Custom Field", "block-collections")}
+                  </div>
+                  <div className="custom_field_area">
+                    {dispCustumFields(
+                      {
+                        // meta はそのまま
+                        ...Object.entries(choice.meta).reduce(
+                          (acc, [key, value]) => ({
+                            ...acc,
+                            [`meta_${key}`]: value,
+                          }),
+                          {},
+                        ),
+                        // acf は「同名で _source があるもののベース側を除く」
+                        ...Object.entries(choice.acf)
+                          .filter(([key]) => !key.endsWith("_source"))
+                          .reduce(
+                            (acc, [key, value]) => ({
+                              ...acc,
+                              [`acf_${key}`]: value,
+                            }),
+                            {},
+                          ),
+                      },
+                      "",
+                      true,
+                    )}
+                  </div>
+                </>
+              )}
             </div>
           );
         })}
@@ -678,10 +901,11 @@ export const restFieldes = async (rest_base: string): Promise<any[]> => {
     "acf",
   ];
   const fieldsParam = selectedFields.join(",");
-
-  return await apiFetch<any[]>({
+  const ret_data = await apiFetch<any[]>({
     path: `/wp/v2/${rest_base}?_fields=${fieldsParam}&per_page=1&order=desc`,
   });
+
+  return ret_data;
 };
 
 // --- 各コンポーネントの型定義 ---
@@ -739,5 +963,3 @@ export const ImageFieldChoiceControl = (
     fetchFunction={restFieldes}
   />
 );
-
-

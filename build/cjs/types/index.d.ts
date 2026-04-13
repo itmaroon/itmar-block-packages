@@ -5,7 +5,7 @@ export declare const BookingActionContext: import("@types/react").Context<Bookin
 export { useIsIframeMobile, useElementBackgroundColor, useElementStyleObject, useElementWidth, useIsMobile, useDeepCompareEffect, useFontawesomeIframe, useBlockAttributeChanges, useDuplicateBlockRemove, } from "./customHooks";
 export { fetchPagesOptions, fetchArchiveOptions, restFetchData, restTaxonomies, restFieldes, termToDispObj, PageSelectControl, ArchiveSelectControl, PostSelectControl, TermChoiceControl, FieldChoiceControl, } from "./wordpressApi";
 export { space_prm, max_width_prm, width_prm, height_prm, align_prm, position_prm, radius_prm, convertToScss, borderProperty, radiusProperty, marginProperty, paddingProperty, } from "./cssPropertes";
-export { default as ShadowStyle, ShadowElm } from "./ShadowStyle";
+export { default as ShadowStyle, ShadowElm, ShadowState } from "./ShadowStyle";
 export { default as PseudoElm, Arrow } from "./PseudoElm";
 export { SingleImageSelect, MultiImageSelect, getMediaType, getImageAspectRatio, getVideoAspectRatio, } from "./mediaUpload";
 export { default as DraggableBox, useDraggingMove } from "./DraggableBox";

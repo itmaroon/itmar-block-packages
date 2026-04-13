@@ -19,6 +19,8 @@ typescript: ^5.0.0 以上
 ## 更新履歴
 = 3.0.4 =
 ShadowStyleで発生していた無限ループを解消
+ShadowStateをインターフェースとしてエクスポート
+FieldChoiceControlの不具合を修正
 
 = 3.0.3 =
 ブロック間の通信をおこなうインターフェースを付加

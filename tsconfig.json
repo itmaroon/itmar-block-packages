@@ -21,7 +21,8 @@
     "forceConsistentCasingInFileNames": true,
     "baseUrl": ".",
     "paths": {
-    "*": ["node_modules/*", "src/types/*"]
+    "*": ["node_modules/*", "src/types/*"],
+    
     }
   },
   "include": ["src/**/*"],

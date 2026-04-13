@@ -104,7 +104,7 @@ function isGradient(
 }
 
 // 1. ShadowState の型定義
-interface ShadowState {
+export interface ShadowState {
   shadowType: "nomal" | "newmor" | "claymor" | "glassmor";
   spread: number;
   lateral: number;

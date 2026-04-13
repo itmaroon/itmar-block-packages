@@ -1,5 +1,5 @@
 type CornerDirection = "top_left" | "top_right" | "bottom_left" | "bottom_right" | "right_bottom" | "top";
-interface ShadowState {
+export interface ShadowState {
     shadowType: "nomal" | "newmor" | "claymor" | "glassmor";
     spread: number;
     lateral: number;
