@@ -15,5 +15,5 @@ interface DraggableBoxProps {
         y: string;
     }) => void;
 }
-export default function DraggableBox({ attributes, onPositionChange, }: DraggableBoxProps): JSX.Element;
+export default function DraggableBox({ attributes, onPositionChange, }: DraggableBoxProps): import("react/jsx-runtime").JSX.Element;
 export {};

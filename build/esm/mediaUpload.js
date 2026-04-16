@@ -1,4 +1,4 @@
-import { createElement } from '@wordpress/element';
+import { jsxs, jsx } from 'react/jsx-runtime';
 import { MediaUploadCheck, MediaUpload } from '@wordpress/block-editor';
 import { __ } from '@wordpress/i18n';
 import { PanelBody, Button } from '@wordpress/components';
@@ -8,47 +8,37 @@ function SingleImageSelect({ attributes, onSelectChange, }) {
     //URL の配列から画像を生成
     const getImage = (image) => {
         //メディアオブジェクトの配列をループ処理
-        return (createElement("figure", null,
-            createElement("img", { src: image.url, className: "image", alt: "\u30A2\u30C3\u30D7\u30ED\u30FC\u30C9\u753B\u50CF" })));
+        return (jsx("figure", { children: jsx("img", { src: image.url, className: "image", alt: "\u30A2\u30C3\u30D7\u30ED\u30FC\u30C9\u753B\u50CF" }) }));
     };
     //メディアライブラリを開くボタンをレンダリングする関数
     const getImageButton = (open) => {
         if (media) {
-            return (createElement("div", { onClick: open, className: "block-container" }, getImage(media)));
+            return (jsx("div", { onClick: open, className: "block-container", children: getImage(media) }));
         }
         else {
-            return (createElement("div", { className: "button-container" },
-                createElement(Button, { onClick: open, className: "button button-large" }, __("Sel", "itmar_mv_blocks"))));
+            return (jsx("div", { className: "button-container", children: jsx(Button, { onClick: open, className: "button button-large", children: __("Sel", "itmar_mv_blocks") }) }));
         }
     };
-    return (createElement(MediaUploadCheck, null,
-        createElement(MediaUpload, { onSelect: (newMedia) => onSelectChange(newMedia), allowedTypes: ["image"], value: mediaID, render: ({ open }) => getImageButton(open) })));
+    return (jsx(MediaUploadCheck, { children: jsx(MediaUpload, { onSelect: (newMedia) => onSelectChange(newMedia), allowedTypes: ["image"], value: mediaID, render: ({ open }) => getImageButton(open) }) }));
 }
 function MultiImageSelect({ attributes, label, onSelectChange, onAllDelete, }) {
     const { mediaID, media = [] } = attributes; // media が undefined の場合に備えてデフォルト値を設定
     //URL の配列から画像を生成
     const getImages = (mediaItems) => {
         //メディアオブジェクトの配列をループ処理
-        return mediaItems.map((image, index) => (createElement("figure", { key: image.id || index },
-            createElement("img", { src: image.url, className: "image", alt: image.alt || "アップロード画像" }),
-            createElement("figcaption", { className: "block-image-caption" }, image.caption ? image.caption : ""))));
+        return mediaItems.map((image, index) => (jsxs("figure", { children: [jsx("img", { src: image.url, className: "image", alt: image.alt || "アップロード画像" }), jsx("figcaption", { className: "block-image-caption", children: image.caption ? image.caption : "" })] }, image.id || index)));
     };
     //メディアライブラリを開くボタンをレンダリングする関数
     const getImageButton = (open) => {
         if (media.length > 0) {
-            return (createElement("div", { key: "media-container", onClick: open, className: "block-container" }, getImages(media)));
+            return (jsx("div", { onClick: open, className: "block-container", children: getImages(media) }, "media-container"));
         }
         else {
-            return (createElement("div", { key: "media-container", className: "button-container" },
-                createElement(Button, { onClick: open, className: "button button-large" }, __("Image Upload", "slide-blocks"))));
+            return (jsx("div", { className: "button-container", children: jsx(Button, { onClick: open, className: "button button-large", children: __("Image Upload", "slide-blocks") }) }, "media-container"));
         }
     };
-    return (createElement(PanelBody, { title: label, initialOpen: true, className: "itmar_image_display" },
-        createElement(MediaUploadCheck, null,
-            createElement(MediaUpload, { multiple: true, gallery: true, onSelect: (newMedia) => onSelectChange(newMedia), allowedTypes: ["image"], value: mediaID, render: ({ open }) => getImageButton(open) })),
-        media.length != 0 && ( //メディアオブジェクト（配列の長さ）で判定
-        createElement(MediaUploadCheck, null,
-            createElement(Button, { onClick: onAllDelete, variant: "secondary", isDestructive: true, className: "removeImage" }, __("Delete All", "slide-blocks"))))));
+    return (jsxs(PanelBody, { title: label, initialOpen: true, className: "itmar_image_display", children: [jsx(MediaUploadCheck, { children: jsx(MediaUpload, { multiple: true, gallery: true, onSelect: (newMedia) => onSelectChange(newMedia), allowedTypes: ["image"], value: mediaID, render: ({ open }) => getImageButton(open) }) }), media.length != 0 && ( //メディアオブジェクト（配列の長さ）で判定
+            jsx(MediaUploadCheck, { children: jsx(Button, { onClick: onAllDelete, variant: "secondary", isDestructive: true, className: "removeImage", children: __("Delete All", "slide-blocks") }) }))] }));
 }
 //静止画か動画かを判定する関数
 function getMediaType(url) {

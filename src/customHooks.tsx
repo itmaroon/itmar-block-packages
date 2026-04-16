@@ -1,12 +1,30 @@
-import { useRef, useEffect, useState, RefObject } from "@wordpress/element";
-import { DependencyList, EffectCallback } from "react";
+import {
+  useRef,
+  useEffect,
+  useState,
+  useMemo,
+  RefObject,
+} from "@wordpress/element";
 import { useSelect, useDispatch } from "@wordpress/data";
-import { BlockInstance } from "@wordpress/blocks";
 import isEqual from "lodash/isEqual";
+import { StyleSheetManager } from "styled-components";
+import { createPortal } from "react-dom";
+
 import { __ } from "@wordpress/i18n";
 
+interface BlockInstance {
+  attributes: Record<string, any>;
+  innerBlocks: BlockInstance[];
+  name: string;
+  isValid: boolean;
+  clientId: string;
+}
+
 //useRefで参照したDOM要素の大きさを取得するカスタムフック
-export function useElementWidth() {
+export function useElementWidth(): {
+  ref: RefObject<HTMLDivElement | null>;
+  width: number;
+} {
   const ref = useRef(null);
   const [width, setWidth] = useState(0);
 
@@ -26,7 +44,7 @@ export function useElementWidth() {
     };
   }, []);
 
-  return [ref, width];
+  return { ref, width };
 }
 
 //ViewPortの大きさでモバイルを判断(767px以下がモバイル)するカスタムフック
@@ -152,10 +170,10 @@ export function useElementStyleObject(
 
 //たくさんの要素をもつオブジェクトや配列の内容の変化で発火するuseEffect
 export function useDeepCompareEffect(
-  callback: EffectCallback,
-  dependencies: DependencyList,
+  callback: () => void | (() => void), // EffectCallback の中身を直接書く
+  dependencies: any[], // DependencyList の中身を直接書く
 ): void {
-  const dependenciesRef = useRef<DependencyList>(undefined);
+  const dependenciesRef = useRef<any[]>();
 
   if (!isEqual(dependencies, dependenciesRef.current)) {
     dependenciesRef.current = dependencies;
@@ -370,4 +388,30 @@ export function useDuplicateBlockRemove(
     // 現在の innerBlocks を次回用に保存
     prevInnerBlocksRef.current = innerBlocks;
   }, [innerBlocks, blockNames, removeBlock, createNotice]);
+}
+
+//iframeにスタイルをわたすReactコンポーネントを作る
+export function useStyleIframe<T>(
+  StyleComp: React.ComponentType<{ attributes: T; children?: React.ReactNode }>,
+  attributes: T,
+) {
+  const iframeDocument = useMemo(() => {
+    const iframeInstance = document.getElementsByName("editor-canvas")[0] as
+      | HTMLIFrameElement
+      | undefined;
+    return (
+      iframeInstance?.contentDocument || iframeInstance?.contentWindow?.document
+    );
+  }, []);
+
+  if (!iframeDocument) return null;
+
+  // createPortal を使い、StyleSheetManager ごと iframe の head 内（またはダミー要素）へ飛ばします
+  // これにより、元の DOM ツリー（Editコンポーネント内）には一切の div が残りません
+  return createPortal(
+    <StyleSheetManager target={iframeDocument.head}>
+      <StyleComp attributes={attributes} />
+    </StyleSheetManager>,
+    iframeDocument.head, // 描画先を head にすることで、div が出ても画面には影響しません
+  );
 }

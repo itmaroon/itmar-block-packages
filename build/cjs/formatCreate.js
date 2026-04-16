@@ -1,6 +1,6 @@
 'use strict';
 
-var element = require('@wordpress/element');
+var jsxRuntime = require('react/jsx-runtime');
 var i18n = require('@wordpress/i18n');
 var components = require('@wordpress/components');
 var date = require('@wordpress/date');
@@ -57,29 +57,23 @@ const FormatSelectControl = ({ titleType, userFormat, freeStrFormat, decimal, on
     const options = isDate
         ? dateFormats
         : plaineFormats.map((f) => ({ label: f.label, value: f.key }));
-    return (element.createElement(components.PanelBody, { title: i18n.__("Display Format Setting", "block-collections") },
-        (isPlaine || isDate) && (element.createElement(element.Fragment, null,
-            element.createElement(components.SelectControl, { label: i18n.__("Select Format", "block-collections"), value: userFormat, options: options, onChange: (newFormat) => onFormatChange({
-                    userFormat: newFormat,
-                    freeStrFormat,
-                    decimal,
-                }) }),
-            userFormat?.startsWith("str_") && (element.createElement(components.TextControl, { label: i18n.__("String Format", "block-collections"), value: freeStrFormat, onChange: (newFormat) => onFormatChange({
-                    userFormat,
+    return (jsxRuntime.jsxs(components.PanelBody, { title: i18n.__("Display Format Setting", "block-collections"), children: [(isPlaine || isDate) && (jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [jsxRuntime.jsx(components.SelectControl, { label: i18n.__("Select Format", "block-collections"), value: userFormat, options: options, onChange: (newFormat) => onFormatChange({
+                            userFormat: newFormat,
+                            freeStrFormat,
+                            decimal,
+                        }) }), userFormat?.startsWith("str_") && (jsxRuntime.jsx(components.TextControl, { label: i18n.__("String Format", "block-collections"), value: freeStrFormat, onChange: (newFormat) => onFormatChange({
+                            userFormat,
+                            freeStrFormat: newFormat,
+                            decimal,
+                        }) })), userFormat?.startsWith("num_") && (jsxRuntime.jsx(components.PanelRow, { className: "itmar_post_blocks_pannel", children: jsxRuntime.jsx(components.RangeControl, { value: decimal, label: i18n.__("Decimal Num", "query-blocks"), max: 5, min: 0, onChange: (val) => onFormatChange({
+                                userFormat,
+                                freeStrFormat,
+                                decimal: val ?? 0,
+                            }) }) }))] })), isUser && (jsxRuntime.jsx(components.TextControl, { label: i18n.__("User Format", "block-collections"), value: freeStrFormat, onChange: (newFormat) => onFormatChange({
+                    userFormat: "str_free",
                     freeStrFormat: newFormat,
                     decimal,
-                }) })),
-            userFormat?.startsWith("num_") && (element.createElement(components.PanelRow, { className: "itmar_post_blocks_pannel" },
-                element.createElement(components.RangeControl, { value: decimal, label: i18n.__("Decimal Num", "query-blocks"), max: 5, min: 0, onChange: (val) => onFormatChange({
-                        userFormat,
-                        freeStrFormat,
-                        decimal: val ?? 0,
-                    }) }))))),
-        isUser && (element.createElement(components.TextControl, { label: i18n.__("User Format", "block-collections"), value: freeStrFormat, onChange: (newFormat) => onFormatChange({
-                userFormat: "str_free",
-                freeStrFormat: newFormat,
-                decimal,
-            }) }))));
+                }) }))] }));
 };
 /**
  * 値を指定されたフォーマットで整形して返す

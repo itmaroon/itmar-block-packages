@@ -1,5 +1,6 @@
 'use strict';
 
+var jsxRuntime = require('react/jsx-runtime');
 var element = require('@wordpress/element');
 var i18n = require('@wordpress/i18n');
 var _ = require('lodash');
@@ -48,7 +49,7 @@ const SelectControl = (props) => {
         props.search,
     ]);
     const selectedInfo = options.find((info) => info.slug === selectedSlug);
-    return (element.createElement(components.ComboboxControl, { label: label, options: options, value: selectedInfo ? selectedInfo.value : undefined, onChange: (newValue) => {
+    return (jsxRuntime.jsx(components.ComboboxControl, { label: label, options: options, value: selectedInfo ? selectedInfo.value : undefined, onChange: (newValue) => {
             const newInfo = options.find((info) => info.value === newValue);
             props.onChange(newInfo);
         } }));
@@ -142,9 +143,7 @@ const ChoiceControl = (props) => {
             if (typeof value === "object" &&
                 !Array.isArray(value) &&
                 value !== null) {
-                return (element.createElement("div", { className: "group_area", key: fieldName },
-                    element.createElement("div", { className: "group_label" }, fieldLabel),
-                    element.createElement("div", { className: "field_group" }, dispCustumFields(value, fieldName, isImage))));
+                return (jsxRuntime.jsxs("div", { className: "group_area", children: [jsxRuntime.jsx("div", { className: "group_label", children: fieldLabel }), jsxRuntime.jsx("div", { className: "field_group", children: dispCustumFields(value, fieldName, isImage) })] }, fieldName));
             }
             else {
                 if (key === "meta__acf_changed" || key === "meta_footnotes")
@@ -156,140 +155,114 @@ const ChoiceControl = (props) => {
                     { value: "core/image", label: "core/image" },
                     { value: "itmar/slide-mv", label: "itmar/slide-mv" },
                 ];
-                return (element.createElement("div", { className: "itmar_custom_field_set", key: fieldName },
-                    element.createElement(components.ToggleControl, { className: "field_choice", label: fieldLabel, checked: choiceItems.some((choiceField) => choiceField === fieldName), onChange: (checked) => {
-                            const newItems = handleChoiceChange(checked, fieldName, choiceItems);
-                            props.onChange(newItems);
-                        } }),
-                    !isImage && (element.createElement(components.ComboboxControl, { options: options, value: blockMap[fieldName] || "itmar/design-title", onChange: (newValue) => {
-                            props.onBlockMapChange({
-                                ...blockMap,
-                                [fieldName]: newValue || "",
-                            });
-                        } }))));
+                return (jsxRuntime.jsxs("div", { className: "itmar_custom_field_set", children: [jsxRuntime.jsx(components.ToggleControl, { className: "field_choice", label: fieldLabel, checked: choiceItems.some((choiceField) => choiceField === fieldName), onChange: (checked) => {
+                                const newItems = handleChoiceChange(checked, fieldName, choiceItems);
+                                props.onChange(newItems);
+                            } }), !isImage && (jsxRuntime.jsx(components.ComboboxControl, { options: options, value: blockMap[fieldName] || "itmar/design-title", onChange: (newValue) => {
+                                props.onBlockMapChange({
+                                    ...blockMap,
+                                    [fieldName]: newValue || "",
+                                });
+                            } }))] }, fieldName));
             }
         });
     };
-    return (element.createElement("div", { className: `${type}_section` },
-        type === "taxonomy" &&
-            choices.map((choice, index) => (element.createElement("div", { key: index, className: "term_section" },
-                element.createElement("div", { className: "tax_label" },
-                    choice.name,
-                    element.createElement(components.ToggleControl, { label: i18n.__("Display", "block-collections"), checked: dispTaxonomies.some((tax) => tax === choice.slug), onChange: (checked) => {
-                            const newTax = handleChoiceChange(checked, choice.slug, dispTaxonomies);
-                            props.onSetDispTax(newTax);
-                        } })),
-                choice.terms?.map((term, tIndex) => (element.createElement(components.CheckboxControl, { key: tIndex, label: term.name, checked: choiceItems.some((c) => c.taxonomy === choice.slug && c.term.id === term.id), onChange: (checked) => {
-                        const target = {
-                            taxonomy: choice.slug,
-                            term: { id: term.id, slug: term.slug, name: term.name },
-                        };
-                        props.onChange(handleChoiceChange(checked, target, choiceItems));
-                    } })))))),
-        type === "field" &&
-            choices.map((choice, index) => {
-                //metaの対象カスタムフィールドが含まれるかのフラグ
-                const metaFlg = choice.meta &&
-                    !Object.keys(choice.meta).every((key) => key === "_acf_changed" || key === "footnotes");
-                //acfの対象カスタムフィールドが含まれるかのフラグ
-                const acfFlg = choice.acf &&
-                    typeof choice.acf === "object" &&
-                    !Array.isArray(choice.acf);
-                return (element.createElement("div", { key: index, className: "field_section" },
-                    choice.title && (element.createElement(components.ToggleControl, { className: "field_choice", label: i18n.__("Title", "block-collections"), checked: choiceItems.some((choiceField) => choiceField === "title"), onChange: (checked) => {
-                            const newChoiceFields = handleChoiceChange(checked, "title", choiceItems);
-                            props.onChange(newChoiceFields);
-                        } })),
-                    choice.content && (element.createElement(components.ToggleControl, { className: "field_choice", label: i18n.__("Content", "block-collections"), checked: choiceItems.some((choiceField) => choiceField === "content"), onChange: (checked) => {
-                            const newChoiceFields = handleChoiceChange(checked, "content", choiceItems);
-                            props.onChange(newChoiceFields);
-                        } })),
-                    choice.date && (element.createElement(components.ToggleControl, { className: "field_choice", label: i18n.__("Date", "block-collections"), checked: choiceItems.some((choiceField) => choiceField === "date"), onChange: (checked) => {
-                            const newChoiceFields = handleChoiceChange(checked, "date", choiceItems);
-                            props.onChange(newChoiceFields);
-                        } })),
-                    choice.excerpt && (element.createElement(components.ToggleControl, { className: "field_choice", label: i18n.__("Excerpt", "block-collections"), checked: choiceItems.some((choiceField) => choiceField === "excerpt"), onChange: (checked) => {
-                            const newChoiceFields = handleChoiceChange(checked, "excerpt", choiceItems);
-                            props.onChange(newChoiceFields);
-                        } })),
-                    (choice.featured_media || choice.featured_media === 0) && (element.createElement(components.ToggleControl, { className: "field_choice", label: i18n.__("Featured Image", "block-collections"), checked: choiceItems.some((choiceField) => choiceField === "featured_media"), onChange: (checked) => {
-                            const newChoiceFields = handleChoiceChange(checked, "featured_media", choiceItems);
-                            props.onChange(newChoiceFields);
-                        } })),
-                    choice.link && (element.createElement("div", { className: "itmar_custom_field_set" },
-                        element.createElement(components.ToggleControl, { className: "field_choice", label: i18n.__("Single Page Link", "block-collections"), checked: choiceItems.some((choiceField) => choiceField === "link"), onChange: (checked) => {
-                                const newChoiceFields = handleChoiceChange(checked, "link", choiceItems);
-                                props.onChange(newChoiceFields);
-                            } }),
-                        element.createElement(components.ComboboxControl, { options: [
-                                {
-                                    value: "itmar/design-button",
-                                    label: "itmar/design-button",
-                                },
-                                {
-                                    value: "itmar/design-title",
-                                    label: "itmar/design-title",
-                                },
-                            ], value: blockMap["link"], onChange: (newValue) => {
-                                const newBlockMap = {
-                                    ...blockMap,
-                                    link: newValue ?? "",
+    return (jsxRuntime.jsxs("div", { className: `${type}_section`, children: [type === "taxonomy" &&
+                choices.map((choice, index) => (jsxRuntime.jsxs("div", { className: "term_section", children: [jsxRuntime.jsxs("div", { className: "tax_label", children: [choice.name, jsxRuntime.jsx(components.ToggleControl, { label: i18n.__("Display", "block-collections"), checked: dispTaxonomies.some((tax) => tax === choice.slug), onChange: (checked) => {
+                                        const newTax = handleChoiceChange(checked, choice.slug, dispTaxonomies);
+                                        props.onSetDispTax(newTax);
+                                    } })] }), choice.terms?.map((term, tIndex) => (jsxRuntime.jsx(components.CheckboxControl, { label: term.name, checked: choiceItems.some((c) => c.taxonomy === choice.slug && c.term.id === term.id), onChange: (checked) => {
+                                const target = {
+                                    taxonomy: choice.slug,
+                                    term: { id: term.id, slug: term.slug, name: term.name },
                                 };
-                                props.onBlockMapChange(newBlockMap);
-                            } }),
-                        element.createElement("p", null, i18n.__("If no block is specified, a link will be set to the parent block, Design Group.", "block-collections")))),
-                    (metaFlg || acfFlg) && (element.createElement(element.Fragment, null,
-                        element.createElement("div", { className: "custom_field_label" }, i18n.__("Custom Field", "block-collections")),
-                        element.createElement("div", { className: "custom_field_area" }, dispCustumFields({
-                            // meta はそのまま
-                            ...Object.entries(choice.meta).reduce((acc, [key, value]) => ({
-                                ...acc,
-                                [`meta_${key}`]: value,
-                            }), {}),
-                            // acf は「同名で _source があるもののベース側を除く」
-                            ...Object.entries(choice.acf)
-                                .filter(([key]) => !key.endsWith("_source"))
-                                .reduce((acc, [key, value]) => ({
-                                ...acc,
-                                [`acf_${key}`]: value,
-                            }), {}),
-                        }))))));
-            }),
-        type === "imgField" &&
-            choices.map((choice, index) => {
-                //metaの対象カスタムフィールドが含まれるかのフラグ
-                const metaFlg = choice.meta &&
-                    !Object.keys(choice.meta).every((key) => key === "_acf_changed" || key === "footnotes");
-                //acfの対象カスタムフィールドが含まれるかのフラグ
-                const acfFlg = choice.acf &&
-                    typeof choice.acf === "object" &&
-                    !Array.isArray(choice.acf);
-                return (element.createElement("div", { key: index, className: "field_section" },
-                    choice.content && (element.createElement(components.ToggleControl, { className: "field_choice", label: i18n.__("Content", "block-collections"), checked: choiceItems.some((choiceField) => choiceField === "content"), onChange: (checked) => {
-                            const newChoiceFields = handleChoiceChange(checked, "content", choiceItems);
-                            props.onChange(newChoiceFields);
-                        } })),
-                    (choice.featured_media || choice.featured_media === 0) && (element.createElement(components.ToggleControl, { className: "field_choice", label: i18n.__("Featured Image", "block-collections"), checked: choiceItems.some((choiceField) => choiceField === "featured_media"), onChange: (checked) => {
-                            const newChoiceFields = handleChoiceChange(checked, "featured_media", choiceItems);
-                            props.onChange(newChoiceFields);
-                        } })),
-                    (metaFlg || acfFlg) && (element.createElement(element.Fragment, null,
-                        element.createElement("div", { className: "custom_field_label" }, i18n.__("Custom Field", "block-collections")),
-                        element.createElement("div", { className: "custom_field_area" }, dispCustumFields({
-                            // meta はそのまま
-                            ...Object.entries(choice.meta).reduce((acc, [key, value]) => ({
-                                ...acc,
-                                [`meta_${key}`]: value,
-                            }), {}),
-                            // acf は「同名で _source があるもののベース側を除く」
-                            ...Object.entries(choice.acf)
-                                .filter(([key]) => !key.endsWith("_source"))
-                                .reduce((acc, [key, value]) => ({
-                                ...acc,
-                                [`acf_${key}`]: value,
-                            }), {}),
-                        }, "", true))))));
-            })));
+                                props.onChange(handleChoiceChange(checked, target, choiceItems));
+                            } }, tIndex)))] }, index))), type === "field" &&
+                choices.map((choice, index) => {
+                    //metaの対象カスタムフィールドが含まれるかのフラグ
+                    const metaFlg = choice.meta &&
+                        !Object.keys(choice.meta).every((key) => key === "_acf_changed" || key === "footnotes");
+                    //acfの対象カスタムフィールドが含まれるかのフラグ
+                    const acfFlg = choice.acf &&
+                        typeof choice.acf === "object" &&
+                        !Array.isArray(choice.acf);
+                    return (jsxRuntime.jsxs("div", { className: "field_section", children: [choice.title && (jsxRuntime.jsx(components.ToggleControl, { className: "field_choice", label: i18n.__("Title", "block-collections"), checked: choiceItems.some((choiceField) => choiceField === "title"), onChange: (checked) => {
+                                    const newChoiceFields = handleChoiceChange(checked, "title", choiceItems);
+                                    props.onChange(newChoiceFields);
+                                } })), choice.content && (jsxRuntime.jsx(components.ToggleControl, { className: "field_choice", label: i18n.__("Content", "block-collections"), checked: choiceItems.some((choiceField) => choiceField === "content"), onChange: (checked) => {
+                                    const newChoiceFields = handleChoiceChange(checked, "content", choiceItems);
+                                    props.onChange(newChoiceFields);
+                                } })), choice.date && (jsxRuntime.jsx(components.ToggleControl, { className: "field_choice", label: i18n.__("Date", "block-collections"), checked: choiceItems.some((choiceField) => choiceField === "date"), onChange: (checked) => {
+                                    const newChoiceFields = handleChoiceChange(checked, "date", choiceItems);
+                                    props.onChange(newChoiceFields);
+                                } })), choice.excerpt && (jsxRuntime.jsx(components.ToggleControl, { className: "field_choice", label: i18n.__("Excerpt", "block-collections"), checked: choiceItems.some((choiceField) => choiceField === "excerpt"), onChange: (checked) => {
+                                    const newChoiceFields = handleChoiceChange(checked, "excerpt", choiceItems);
+                                    props.onChange(newChoiceFields);
+                                } })), (choice.featured_media || choice.featured_media === 0) && (jsxRuntime.jsx(components.ToggleControl, { className: "field_choice", label: i18n.__("Featured Image", "block-collections"), checked: choiceItems.some((choiceField) => choiceField === "featured_media"), onChange: (checked) => {
+                                    const newChoiceFields = handleChoiceChange(checked, "featured_media", choiceItems);
+                                    props.onChange(newChoiceFields);
+                                } })), choice.link && (jsxRuntime.jsxs("div", { className: "itmar_custom_field_set", children: [jsxRuntime.jsx(components.ToggleControl, { className: "field_choice", label: i18n.__("Single Page Link", "block-collections"), checked: choiceItems.some((choiceField) => choiceField === "link"), onChange: (checked) => {
+                                            const newChoiceFields = handleChoiceChange(checked, "link", choiceItems);
+                                            props.onChange(newChoiceFields);
+                                        } }), jsxRuntime.jsx(components.ComboboxControl, { options: [
+                                            {
+                                                value: "itmar/design-button",
+                                                label: "itmar/design-button",
+                                            },
+                                            {
+                                                value: "itmar/design-title",
+                                                label: "itmar/design-title",
+                                            },
+                                        ], value: blockMap["link"], onChange: (newValue) => {
+                                            const newBlockMap = {
+                                                ...blockMap,
+                                                link: newValue ?? "",
+                                            };
+                                            props.onBlockMapChange(newBlockMap);
+                                        } }), jsxRuntime.jsx("p", { children: i18n.__("If no block is specified, a link will be set to the parent block, Design Group.", "block-collections") })] })), (metaFlg || acfFlg) && (jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [jsxRuntime.jsx("div", { className: "custom_field_label", children: i18n.__("Custom Field", "block-collections") }), jsxRuntime.jsx("div", { className: "custom_field_area", children: dispCustumFields({
+                                            // meta はそのまま
+                                            ...Object.entries(choice.meta).reduce((acc, [key, value]) => ({
+                                                ...acc,
+                                                [`meta_${key}`]: value,
+                                            }), {}),
+                                            // acf は「同名で _source があるもののベース側を除く」
+                                            ...Object.entries(choice.acf)
+                                                .filter(([key]) => !key.endsWith("_source"))
+                                                .reduce((acc, [key, value]) => ({
+                                                ...acc,
+                                                [`acf_${key}`]: value,
+                                            }), {}),
+                                        }) })] }))] }, index));
+                }), type === "imgField" &&
+                choices.map((choice, index) => {
+                    //metaの対象カスタムフィールドが含まれるかのフラグ
+                    const metaFlg = choice.meta &&
+                        !Object.keys(choice.meta).every((key) => key === "_acf_changed" || key === "footnotes");
+                    //acfの対象カスタムフィールドが含まれるかのフラグ
+                    const acfFlg = choice.acf &&
+                        typeof choice.acf === "object" &&
+                        !Array.isArray(choice.acf);
+                    return (jsxRuntime.jsxs("div", { className: "field_section", children: [choice.content && (jsxRuntime.jsx(components.ToggleControl, { className: "field_choice", label: i18n.__("Content", "block-collections"), checked: choiceItems.some((choiceField) => choiceField === "content"), onChange: (checked) => {
+                                    const newChoiceFields = handleChoiceChange(checked, "content", choiceItems);
+                                    props.onChange(newChoiceFields);
+                                } })), (choice.featured_media || choice.featured_media === 0) && (jsxRuntime.jsx(components.ToggleControl, { className: "field_choice", label: i18n.__("Featured Image", "block-collections"), checked: choiceItems.some((choiceField) => choiceField === "featured_media"), onChange: (checked) => {
+                                    const newChoiceFields = handleChoiceChange(checked, "featured_media", choiceItems);
+                                    props.onChange(newChoiceFields);
+                                } })), (metaFlg || acfFlg) && (jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [jsxRuntime.jsx("div", { className: "custom_field_label", children: i18n.__("Custom Field", "block-collections") }), jsxRuntime.jsx("div", { className: "custom_field_area", children: dispCustumFields({
+                                            // meta はそのまま
+                                            ...Object.entries(choice.meta).reduce((acc, [key, value]) => ({
+                                                ...acc,
+                                                [`meta_${key}`]: value,
+                                            }), {}),
+                                            // acf は「同名で _source があるもののベース側を除く」
+                                            ...Object.entries(choice.acf)
+                                                .filter(([key]) => !key.endsWith("_source"))
+                                                .reduce((acc, [key, value]) => ({
+                                                ...acc,
+                                                [`acf_${key}`]: value,
+                                            }), {}),
+                                        }, "", true) })] }))] }, index));
+                })] }));
 };
 const fetchPagesOptions = async (home_url) => {
     const allPages = [];
@@ -478,23 +451,23 @@ const restFieldes = async (rest_base) => {
 /**
  * 固定ページ選択用
  */
-const PageSelectControl = (props) => element.createElement(SelectControl, { ...props, fetchOptions: fetchPagesOptions });
+const PageSelectControl = (props) => jsxRuntime.jsx(SelectControl, { ...props, fetchOptions: fetchPagesOptions });
 /**
  * アーカイブ（投稿タイプ）選択用
  */
-const ArchiveSelectControl = (props) => element.createElement(SelectControl, { ...props, fetchOptions: fetchArchiveOptions });
+const ArchiveSelectControl = (props) => jsxRuntime.jsx(SelectControl, { ...props, fetchOptions: fetchArchiveOptions });
 /**
  * 投稿（各投稿タイプの中身）選択用
  */
-const PostSelectControl = (props) => element.createElement(SelectControl, { ...props, fetchOptions: fetchPostOptions });
+const PostSelectControl = (props) => jsxRuntime.jsx(SelectControl, { ...props, fetchOptions: fetchPostOptions });
 /**
  * タクソノミー・ターム選択用
  */
-const TermChoiceControl = (props) => element.createElement(ChoiceControl, { ...props, fetchFunction: restTaxonomies });
+const TermChoiceControl = (props) => jsxRuntime.jsx(ChoiceControl, { ...props, fetchFunction: restTaxonomies });
 /**
  * カスタムフィールド（ACF/Meta）選択用
  */
-const FieldChoiceControl = (props) => (element.createElement(ChoiceControl, { ...props, type: "field" // フィールド用であることを固定
+const FieldChoiceControl = (props) => (jsxRuntime.jsx(ChoiceControl, { ...props, type: "field" // フィールド用であることを固定
     , fetchFunction: restFieldes }));
 
 exports.ArchiveSelectControl = ArchiveSelectControl;

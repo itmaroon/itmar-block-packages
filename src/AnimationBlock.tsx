@@ -1,6 +1,5 @@
 import { __ } from "@wordpress/i18n";
-import { css, keyframes } from "styled-components";
-import { createElement, Fragment } from "@wordpress/element";
+import { css } from "styled-components";
 
 import {
   PanelBody,
@@ -62,7 +61,7 @@ export default function AnimationBlock(props: AnimationBlockProps) {
         <ToggleControl
           label={__("Is Animation", "block-collections")}
           checked={is_anime}
-          onChange={(newVal) => {
+          onChange={(newVal: boolean) => {
             props.onChange({ is_anime: newVal });
           }}
         />

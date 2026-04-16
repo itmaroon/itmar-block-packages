@@ -1,8 +1,8 @@
 export interface BookingActionContextType {
     onCellClick: (tag: string, row: number, col: number) => void;
 }
-export declare const BookingActionContext: import("@types/react").Context<BookingActionContextType | null>;
-export { useIsIframeMobile, useElementBackgroundColor, useElementStyleObject, useElementWidth, useIsMobile, useDeepCompareEffect, useFontawesomeIframe, useBlockAttributeChanges, useDuplicateBlockRemove, } from "./customHooks";
+export declare const BookingActionContext: any;
+export { useIsIframeMobile, useElementBackgroundColor, useElementStyleObject, useElementWidth, useIsMobile, useDeepCompareEffect, useFontawesomeIframe, useBlockAttributeChanges, useDuplicateBlockRemove, useStyleIframe, } from "./customHooks";
 export { fetchPagesOptions, fetchArchiveOptions, restFetchData, restTaxonomies, restFieldes, termToDispObj, PageSelectControl, ArchiveSelectControl, PostSelectControl, TermChoiceControl, FieldChoiceControl, } from "./wordpressApi";
 export { space_prm, max_width_prm, width_prm, height_prm, align_prm, position_prm, radius_prm, convertToScss, borderProperty, radiusProperty, marginProperty, paddingProperty, } from "./cssPropertes";
 export { default as ShadowStyle, ShadowElm, ShadowState } from "./ShadowStyle";
@@ -29,3 +29,4 @@ export { useRebuildChangeField } from "./BrockInserter";
 export { default as MasonryControl } from "./MasonryControl";
 export { slideBlockSwiperInit } from "./SwiperControl";
 export { ensureCtx, registerPickup, getCtx, subscribe, setState, } from "./pickupStore";
+export { styleComponentApply } from "./styleComponentApply";

@@ -21,6 +21,7 @@ export {
   useFontawesomeIframe,
   useBlockAttributeChanges,
   useDuplicateBlockRemove,
+  useStyleIframe,
 } from "./customHooks";
 
 //WordPressデータを取得するためのRestAPI
@@ -155,3 +156,6 @@ export {
   subscribe,
   setState,
 } from "./pickupStore";
+
+//フロントエンドにstyle_conponentが生成したスタイルを送る
+export { styleComponentApply } from "./styleComponentApply";

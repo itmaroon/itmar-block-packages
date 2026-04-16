@@ -1,4 +1,3 @@
-import { createElement, Fragment } from "@wordpress/element";
 import { __ } from "@wordpress/i18n";
 import { nanoid } from "nanoid/non-secure";
 import {
@@ -80,7 +79,15 @@ export const generateMonthCalendar = (
   const date = new Date(year, month - 1, 1);
   const lastDay = new Date(year, month, 0).getDate();
 
-  const calendar = [];
+  // 1. まず、オブジェクトの型（Interface）を定義する
+  interface CalendarDay {
+    date: number;
+    weekday: number;
+    holiday?: string; // ? を付けることで「あってもなくても良い」とする
+  }
+
+  // 2. 配列を初期化する際に、その型を指定する
+  const calendar: CalendarDay[] = [];
 
   for (let day = 1; day <= lastDay; day++) {
     date.setDate(day);
@@ -393,7 +400,7 @@ export const generateGridAreas = (
   totalDays: number,
   isMonday: boolean,
 ): string => {
-  let areas = [];
+  const areas: string[] = [];
   let currentDay = 1;
   //月曜日を先頭に持ってくる場合の係数
   const mondayFirstDay = firstDayOfMonth - 1 < 0 ? 6 : firstDayOfMonth - 1;
@@ -401,7 +408,7 @@ export const generateGridAreas = (
   const modifyFirstDay = isMonday ? mondayFirstDay : firstDayOfMonth;
 
   //曜日ラベル
-  let weekLabels = [];
+  const weekLabels: string[] = [];
   let week_index;
   for (let i = 0; i < 7; i++) {
     week_index = isMonday ? i + 1 : i; //月曜日を先頭に持ってくる場合の補正
@@ -412,7 +419,7 @@ export const generateGridAreas = (
 
   for (let i = 0; i < 6; i++) {
     // 6週分のループ
-    let week = [];
+    const week: string[] = [];
     for (let j = 0; j < 7; j++) {
       // 1週間の7日分のループ
       if ((i === 0 && j < modifyFirstDay) || currentDay > totalDays) {

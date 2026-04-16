@@ -115,7 +115,7 @@ export default function MasonryControl(
   // ---------------------------
   // 2) Masonry / imagesLoaded を iframe-aware に取得
   // ---------------------------
-  let win = null;
+  let win: Window | null = null;
 
   if (gridEl.ownerDocument && gridEl.ownerDocument.defaultView) {
     // サイトエディタ・ブロックエディタの iframe 内ならこっち

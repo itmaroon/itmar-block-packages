@@ -1,9 +1,16 @@
-import { createElement, Fragment } from "@wordpress/element";
 import { useState, useRef } from "@wordpress/element";
 import { __ } from "@wordpress/i18n";
 import { ProgressBar, Button } from "@wordpress/components";
-import { parse, serialize, BlockInstance } from "@wordpress/blocks";
+import { parse, serialize } from "@wordpress/blocks";
 import apiFetch from "@wordpress/api-fetch";
+
+interface BlockInstance {
+  attributes: Record<string, any>;
+  innerBlocks: BlockInstance[];
+  name: string;
+  isValid: boolean;
+  clientId: string;
+}
 
 //特定の投稿タイプの投稿に含まれる本ブロックの属性を書き換える
 

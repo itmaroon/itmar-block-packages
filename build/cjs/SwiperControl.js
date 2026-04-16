@@ -1,6 +1,6 @@
 'use strict';
 
-var swiperCore = require('./node_modules/swiper/shared/swiper-core.js');
+var Swiper = require('swiper');
 
 // 2. 外部変数の宣言（管理用のSetとMap）
 const linkedPairs = new Set();
@@ -248,7 +248,7 @@ function slideBlockSwiperInit(swiperElement) {
         swiperOptions = { ...swiperOptions, ...effectOption[currentEffect] };
     }
     // ここが $swiperElement[0] -> el に変わる
-    const instance = new swiperCore.S(el, swiperOptions);
+    const instance = new Swiper(el, swiperOptions);
     const swiperObj = {
         instance,
         swiper_id,

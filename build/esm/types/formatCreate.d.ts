@@ -10,7 +10,7 @@ interface FormatSelectControlProps {
     decimal: number;
     onFormatChange: (settings: FormatSettings) => void;
 }
-export declare const FormatSelectControl: ({ titleType, userFormat, freeStrFormat, decimal, onFormatChange, }: FormatSelectControlProps) => JSX.Element;
+export declare const FormatSelectControl: ({ titleType, userFormat, freeStrFormat, decimal, onFormatChange, }: FormatSelectControlProps) => import("react/jsx-runtime").JSX.Element;
 /**
  * 値を指定されたフォーマットで整形して返す
  */

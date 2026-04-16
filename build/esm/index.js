@@ -1,5 +1,5 @@
 import { createContext } from '@wordpress/element';
-export { useBlockAttributeChanges, useDeepCompareEffect, useDuplicateBlockRemove, useElementBackgroundColor, useElementStyleObject, useElementWidth, useFontawesomeIframe, useIsIframeMobile, useIsMobile } from './customHooks.js';
+export { useBlockAttributeChanges, useDeepCompareEffect, useDuplicateBlockRemove, useElementBackgroundColor, useElementStyleObject, useElementWidth, useFontawesomeIframe, useIsIframeMobile, useIsMobile, useStyleIframe } from './customHooks.js';
 export { ArchiveSelectControl, FieldChoiceControl, PageSelectControl, PostSelectControl, TermChoiceControl, fetchArchiveOptions, fetchPagesOptions, restFetchData, restFieldes, restTaxonomies, termToDispObj } from './wordpressApi.js';
 export { align_prm, borderProperty, convertToScss, height_prm, marginProperty, max_width_prm, paddingProperty, position_prm, radiusProperty, radius_prm, space_prm, width_prm } from './cssPropertes.js';
 export { ShadowElm, default as ShadowStyle } from './ShadowStyle.js';
@@ -26,6 +26,7 @@ export { useRebuildChangeField } from './BrockInserter.js';
 export { default as MasonryControl } from './MasonryControl.js';
 export { slideBlockSwiperInit } from './SwiperControl.js';
 export { ensureCtx, getCtx, registerPickup, setState, subscribe } from './pickupStore.js';
+export { styleComponentApply } from './styleComponentApply.js';
 
 // itmaroon-block-packages/src/index.ts
 // 初期値を null で作成

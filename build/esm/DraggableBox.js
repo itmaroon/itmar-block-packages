@@ -1,6 +1,7 @@
-import { createElement, Fragment, useRef, useEffect } from '@wordpress/element';
+import { jsx, Fragment, jsxs } from 'react/jsx-runtime';
 import { __ } from '@wordpress/i18n';
 import { PanelBody, PanelRow, __experimentalUnitControl, Button } from '@wordpress/components';
+import { useRef, useEffect } from '@wordpress/element';
 
 const useDraggingMove = (isMovable, blockRef, // ReactのRef型を指定
 position, onPositionChange) => {
@@ -95,13 +96,7 @@ function DraggableBox({ attributes, onPositionChange, }) {
     const resetPos = () => {
         onPositionChange({ x: "0px", y: "0px" });
     };
-    return (createElement(Fragment, null,
-        createElement(PanelBody, { title: __("Position Setting", "block-collections"), initialOpen: true },
-            createElement(PanelRow, { className: "distance_row" },
-                createElement(__experimentalUnitControl, { dragDirection: "e", onChange: (value) => chagePosition(value, "x"), label: __("Vertical", "block-collections"), value: position?.x || 0 }),
-                createElement(__experimentalUnitControl, { dragDirection: "e", onChange: (value) => chagePosition(value, "y"), label: __("Horizen", "block-collections"), value: position?.y || 0 })),
-            createElement(PanelRow, { className: "reset_row" },
-                createElement(Button, { variant: "secondary", onClick: () => resetPos() }, __("Reset", "block-collections"))))));
+    return (jsx(Fragment, { children: jsxs(PanelBody, { title: __("Position Setting", "block-collections"), initialOpen: true, children: [jsxs(PanelRow, { className: "distance_row", children: [jsx(__experimentalUnitControl, { dragDirection: "e", onChange: (value) => chagePosition(value, "x"), label: __("Vertical", "block-collections"), value: position?.x || 0 }), jsx(__experimentalUnitControl, { dragDirection: "e", onChange: (value) => chagePosition(value, "y"), label: __("Horizen", "block-collections"), value: position?.y || 0 })] }), jsx(PanelRow, { className: "reset_row", children: jsx(Button, { variant: "secondary", onClick: () => resetPos(), children: __("Reset", "block-collections") }) })] }) }));
 }
 
 export { DraggableBox as default, useDraggingMove };

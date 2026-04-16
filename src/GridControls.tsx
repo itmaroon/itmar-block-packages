@@ -1,4 +1,3 @@
-import { createElement, Fragment } from "@wordpress/element";
 import { ReactNode, MouseEvent } from "react";
 import {
   Button,
@@ -142,7 +141,7 @@ const GridControls = ({
       .fill(0)
       .map(() => new Array(colCount).fill(false));
 
-    let rows = [];
+    let rows: ReactNode[] = [];
     // 列単位入力行を追加
     let headerCells = [<th key="header-corner"></th>]; // 左上の角の空白セル
     for (let c = 0; c < colCount; c++) {
@@ -170,7 +169,7 @@ const GridControls = ({
 
     // 各行とセルの生成
     for (let r = 0; r < rowCount; r++) {
-      let cells = [];
+      let cells: ReactNode[] = [];
       // 行行単位入力を追加
       cells.push(
         <th key={`row-header-${r}`}>

@@ -1,4 +1,4 @@
-import { createElement } from '@wordpress/element';
+import { jsx } from 'react/jsx-runtime';
 import { __ } from '@wordpress/i18n';
 import { css } from 'styled-components';
 import { RadioControl } from '@wordpress/components';
@@ -34,7 +34,7 @@ const Arrow = ({ direction = "down" }) => css `
 `;
 //擬似要素の出力を選択させるインスペクターコントロール
 const PseudoElm = ({ direction, onChange }) => {
-    return (createElement(RadioControl, { selected: direction, options: [
+    return (jsx(RadioControl, { selected: direction, options: [
             { label: __("Upper", "itmar_block_collections"), value: "upper" },
             { label: __("Left", "itmar_block_collections"), value: "left" },
             { label: __("Right", "itmar_block_collections"), value: "right" },

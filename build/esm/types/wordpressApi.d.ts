@@ -75,25 +75,25 @@ export declare const restFieldes: (rest_base: string) => Promise<any[]>;
 /**
  * 固定ページ選択用
  */
-export declare const PageSelectControl: (props: Omit<SelectControlProps, "fetchOptions">) => JSX.Element;
+export declare const PageSelectControl: (props: Omit<SelectControlProps, "fetchOptions">) => import("react/jsx-runtime").JSX.Element;
 /**
  * アーカイブ（投稿タイプ）選択用
  */
-export declare const ArchiveSelectControl: (props: Omit<SelectControlProps, "fetchOptions">) => JSX.Element;
+export declare const ArchiveSelectControl: (props: Omit<SelectControlProps, "fetchOptions">) => import("react/jsx-runtime").JSX.Element;
 /**
  * 投稿（各投稿タイプの中身）選択用
  */
-export declare const PostSelectControl: (props: Omit<SelectControlProps, "fetchOptions">) => JSX.Element;
+export declare const PostSelectControl: (props: Omit<SelectControlProps, "fetchOptions">) => import("react/jsx-runtime").JSX.Element;
 /**
  * タクソノミー・ターム選択用
  */
-export declare const TermChoiceControl: (props: Omit<ChoiceControlProps, "fetchFunction">) => JSX.Element;
+export declare const TermChoiceControl: (props: Omit<ChoiceControlProps, "fetchFunction">) => import("react/jsx-runtime").JSX.Element;
 /**
  * カスタムフィールド（ACF/Meta）選択用
  */
-export declare const FieldChoiceControl: (props: Omit<ChoiceControlProps, "fetchFunction" | "type">) => JSX.Element;
+export declare const FieldChoiceControl: (props: Omit<ChoiceControlProps, "fetchFunction" | "type">) => import("react/jsx-runtime").JSX.Element;
 /**
  * 画像系カスタムフィールド選択用
  */
-export declare const ImageFieldChoiceControl: (props: Omit<ChoiceControlProps, "fetchFunction" | "type">) => JSX.Element;
+export declare const ImageFieldChoiceControl: (props: Omit<ChoiceControlProps, "fetchFunction" | "type">) => import("react/jsx-runtime").JSX.Element;
 export {};

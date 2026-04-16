@@ -13,5 +13,5 @@ interface TypographyControlsProps {
     isMobile: boolean;
     onChange: (newStyle: FontStyle) => void;
 }
-declare const TypographyControls: ({ title, fontStyle, initialOpen, isMobile, onChange, }: TypographyControlsProps) => JSX.Element;
+declare const TypographyControls: ({ title, fontStyle, initialOpen, isMobile, onChange, }: TypographyControlsProps) => import("react/jsx-runtime").JSX.Element;
 export default TypographyControls;

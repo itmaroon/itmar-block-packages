@@ -9,5 +9,5 @@ interface ToggleElementProps {
 /**
  * クリックで開閉状態を切り替えるラッパーコンポーネント
  */
-export default function ToggleElement({ openFlg, onToggle, className, style, children, }: ToggleElementProps): JSX.Element;
+export default function ToggleElement({ openFlg, onToggle, className, style, children, }: ToggleElementProps): import("react/jsx-runtime").JSX.Element;
 export {};

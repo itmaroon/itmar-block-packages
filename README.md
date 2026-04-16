@@ -1588,3 +1588,138 @@ pickups.forEach((el) => {
 
 ---
 
+### `useStyleIframe(StyleComp, attributes)`
+
+#### 説明
+
+WordPressブロックエディタの編集画面（iframe内）に対して、`styled-components` のスタイルを安全に注入するためのカスタムフック兼コンポーネントです。
+`createPortal` と `StyleSheetManager` を組み合わせることで、エディタの canvas（iframe）の `head` 内に直接スタイル定義を飛ばし、エディタ上での正確なプレビューを実現します。
+
+#### 引数
+
+| 名前 | 型 | 説明 |
+|------|----|------|
+| `StyleComp` | `React.ComponentType` | スタイル定義のみを含むReactコンポーネント |
+| `attributes` | `T` (Generic) | ブロックの属性オブジェクト（`StyleComp` に渡されます） |
+
+#### 戻り値
+
+React Portal要素（`React.ReactPortal | null`）
+※エディタのiframeが見つからない場合は `null` を返します。
+
+---
+
+### 使用例
+
+#### 1. スタイル定義用コンポーネントの作成
+まず、`styled-components` を使って、スタイルだけを定義するコンポーネントを用意します。
+
+```tsx
+import styled from 'styled-components';
+
+// 外部に書き出したいスタイル定義
+const StyleComp = ({ attributes }) => (
+    <style>
+        {`
+            .my-custom-block {
+                color: ${attributes.color};
+                font-size: ${attributes.fontSize}px;
+            }
+        `}
+    </style>
+);
+
+#### 2. Editコンポーネントでの使用例
+ブロックの `Edit` 関数内で呼び出します。戻り値をJSX内に配置するだけで、スタイルがiframeに注入されます。
+
+```tsx
+import { useStyleIframe } from 'itmar-block-packages';
+
+export default function Edit({ attributes }) {
+    // スタイルをiframeのheadに注入するポータルを取得
+    const stylePortal = useStyleIframe(StyleComp, attributes);
+
+    return (
+        <>
+            {/* これを配置するだけでiframeのheadにスタイルが飛びます */}
+            {stylePortal}
+
+            <div className="my-custom-block">
+                エディタ上でのプレビュー表示
+            </div>
+        </>
+    );
+}
+
+### 注意事項・ルール
+
+✅ **iframeの自動検知**
+- Gutenbergの標準的なiframe名である `"editor-canvas"` を自動で検索し、その `head` 要素をターゲットにします。
+
+✅ **DOMを汚さない設計**
+- `createPortal` を使用して `document.head` に描画するため、ブロックのコンテンツエリア（`div` 等の中）に不要なスタイルタグや空の `div` が残ることはありません。
+
+✅ **動的なスタイル更新**
+- `attributes` が更新されるたびに `useMemo` と React の再レンダリングが連動し、エディタ上のスタイルもリアルタイムに反映されます。
+
+✅ **安全なフォールバック**
+- サイトエディタや古いWordPress環境など、iframeが存在しないケースでは何も描画（`null` を返却）しないため、エラーでエディタ全体が白くなる心配がありません。
+
+### `styleComponentApply(StyleComp, blockSelector)`
+
+#### 説明
+
+WordPressのフロントエンド表示時において、`styled-components` で定義されたスタイルを動的に生成し、該当するブロックに適用します。
+ブロックの `save` 関数で出力された特定のセレクター（`.itmar-wrap` 等）を自動で探し出し、生成されたユニークなクラス名とスタイルタグを注入します。
+
+#### 引数
+
+| 名前 | 型 | 説明 |
+|------|----|------|
+| `StyleComp` | `React.ComponentType` | スタイル定義のみを含むReactコンポーネント |
+| `blockSelector` | `string` | 対象となるブロックを特定するためのCSSセレクター |
+
+### 使用例
+
+#### 1. ブロックの `save.tsx` での準備
+この関数は `data-attributes` 属性からデータを読み取るため、`save` 関数で属性をJSONとして出力しておく必要があります。
+
+```tsx
+export default function save({ attributes }) {
+    return (
+        <div 
+            className="wp-block-my-custom-block" 
+            data-attributes={JSON.stringify(attributes)}
+        >
+            <div className="itmar-wrap">
+                {/* ここにスタイルが適用されます */}
+                コンテンツ
+            </div>
+        </div>
+    );
+}
+#### 2. フロントエンド（front.ts 等）での実行
+ブロックが表示されるフロントエンドのスクリプトで、この関数を呼び出します。
+```tsx
+import { styleComponentApply } from 'itmar-block-packages';
+import { StyleComp } from './edit'; // スタイル定義コンポーネント
+
+// DOMの読み込み完了後に実行
+window.addEventListener('load', () => {
+    styleComponentApply(StyleComp, '.wp-block-my-custom-block');
+});
+```
+
+### 注意事項・ルール
+
+✅ **ハイドレーション不要のスタイル注入**
+- `styled-components` の `ServerStyleSheet` をブラウザ上でエミュレートすることで、Reactのフルハイドレーションを行わずに、軽量にスタイルだけを適用します。
+
+✅ **ユニークなクラス名の継承**
+- `styled-components` が生成する `sc-xxxx` のようなユニークなクラス名を自動で抽出し、対象要素（`.itmar-wrap` またはルート要素）の `classList` に追加します。
+
+✅ **data-attributes への依存**
+- 実行には要素に `data-attributes` 属性が付与されている必要があります。属性が存在しない要素は自動的にスキップされます。
+
+✅ **安全なスタイル注入**
+- 生成されたスタイルタグは `document.head` に集約して追加されるため、DOM構造を壊すことなくページ全体のスタイルを管理できます。

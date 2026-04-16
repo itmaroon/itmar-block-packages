@@ -1,4 +1,3 @@
-import { createElement, Fragment } from "@wordpress/element";
 import { __ } from "@wordpress/i18n";
 import { useState, useEffect, RefObject } from "@wordpress/element";
 
@@ -11,7 +10,6 @@ import {
   Icon,
   ToolbarGroup,
   ToolbarItem,
-  RangeControl,
   TextControl,
   RadioControl,
   ToggleControl,

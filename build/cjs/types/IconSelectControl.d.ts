@@ -13,5 +13,5 @@ interface IconControlProps {
     setPosition?: boolean;
     onChange: (newStyle: IconStyle) => void;
 }
-declare const _default: ({ iconStyle, setPosition, onChange }: IconControlProps) => JSX.Element;
+declare const _default: ({ iconStyle, setPosition, onChange }: IconControlProps) => import("react/jsx-runtime").JSX.Element;
 export default _default;

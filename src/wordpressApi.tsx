@@ -1,5 +1,3 @@
-import React from "react";
-import { createElement, Fragment } from "@wordpress/element";
 import { useState, useEffect } from "@wordpress/element";
 import { __ } from "@wordpress/i18n";
 import _ from "lodash";
@@ -81,14 +79,18 @@ const SelectControl = (props: SelectControlProps) => {
     props.search,
   ]);
 
-  const selectedInfo = options.find((info) => info.slug === selectedSlug);
+  const selectedInfo = options.find(
+    (info: SelectOption) => info.slug === selectedSlug,
+  );
   return (
     <ComboboxControl
       label={label}
       options={options}
       value={selectedInfo ? selectedInfo.value : undefined}
       onChange={(newValue) => {
-        const newInfo = options.find((info) => info.value === newValue);
+        const newInfo = options.find(
+          (info: SelectOption) => info.value === newValue,
+        );
         props.onChange(newInfo);
       }}
     />
@@ -242,11 +244,7 @@ const ChoiceControl = (props: ChoiceControlProps) => {
   }
 
   //階層化されたカスタムフィールドのフィールド名を表示する関数
-  const dispCustumFields = (
-    obj: any,
-    prefix = "",
-    isImage = false,
-  ): React.ReactNode => {
+  const dispCustumFields = (obj: any, prefix = "", isImage = false) => {
     return Object.entries(obj).map(([key, value]) => {
       const fieldName = prefix ? `${prefix}.${key}` : key; //prefixはグループ名
 
@@ -284,7 +282,7 @@ const ChoiceControl = (props: ChoiceControlProps) => {
               checked={choiceItems.some(
                 (choiceField) => choiceField === fieldName,
               )}
-              onChange={(checked) => {
+              onChange={(checked: boolean) => {
                 const newItems = handleChoiceChange(
                   checked,
                   fieldName,
@@ -322,7 +320,7 @@ const ChoiceControl = (props: ChoiceControlProps) => {
               <ToggleControl
                 label={__("Display", "block-collections")}
                 checked={dispTaxonomies.some((tax) => tax === choice.slug)}
-                onChange={(checked) => {
+                onChange={(checked: boolean) => {
                   const newTax = handleChoiceChange(
                     checked,
                     choice.slug,
@@ -779,7 +777,7 @@ export const fetchPostOptions = async (
   const search = props.search ? String(props.search) : "";
   const restBase = props.restBase || "";
 
-  const allPosts = [];
+  const allPosts: any[] = [];
   const maxPagesSafety = 50; // 念のための安全上限
 
   for (let page = 1; page <= maxPagesSafety; page++) {

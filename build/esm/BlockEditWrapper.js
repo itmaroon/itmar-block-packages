@@ -1,8 +1,8 @@
-import { createElement, Suspense } from '@wordpress/element';
+import { jsx } from 'react/jsx-runtime';
+import { Suspense } from '@wordpress/element';
 
 function BlockEditWrapper({ lazyComponent: LazyComponent, ...props }) {
-    return (createElement(Suspense, { fallback: createElement("div", null, "Loading...") },
-        createElement(LazyComponent, { ...props })));
+    return (jsx(Suspense, { fallback: jsx("div", { children: "Loading..." }), children: jsx(LazyComponent, { ...props }) }));
 }
 
 export { BlockEditWrapper as default };

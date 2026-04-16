@@ -23,5 +23,5 @@ interface GridControlsProps {
     clientId: string;
     onChange: (newAttrs: Partial<GridAttributes>) => void;
 }
-declare const GridControls: ({ attributes, clientId, onChange, }: GridControlsProps) => JSX.Element;
+declare const GridControls: ({ attributes, clientId, onChange, }: GridControlsProps) => import("react/jsx-runtime").JSX.Element;
 export default GridControls;

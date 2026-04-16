@@ -1,4 +1,4 @@
-import { createElement, Fragment } from '@wordpress/element';
+import { jsxs, jsx, Fragment } from 'react/jsx-runtime';
 import { PanelBody, __experimentalUnitControl, PanelRow, RadioControl, ToggleControl } from '@wordpress/components';
 import Select from 'react-select';
 import { __ } from '@wordpress/i18n';
@@ -41,40 +41,32 @@ const TypographyControls = ({ title, fontStyle, initialOpen = true, isMobile, on
         }),
     };
     // 内部コンポーネント FontSelect
-    const FontSelect = ({ label, value, onSelectChange, }) => (createElement(Fragment, null,
-        label && (createElement("label", { className: "components-base-control__label" }, label)),
-        createElement(Select, { options: fontFamilyOptions, value: fontFamilyOptions.find((option) => option.value === value), onChange: (newValue) => {
-                onSelectChange(newValue.value);
-            }, styles: customStyles })));
-    return (createElement(PanelBody, { title: title, initialOpen: initialOpen },
-        createElement(__experimentalUnitControl, { label: !isMobile
-                ? __("Size(desktop)", "block-collections")
-                : __("Size(mobile)", "block-collections"), value: !isMobile ? default_fontSize : mobile_fontSize, units: units, onChange: (newValue) => {
-                const safeValue = newValue !== undefined && newValue !== "" ? newValue : "0px";
-                const set_size = !isMobile
-                    ? { default_fontSize: safeValue }
-                    : { mobile_fontSize: safeValue };
-                onChange({ ...fontStyle, ...set_size });
-            } }),
-        createElement(FontSelect, { label: __("font family", "block-collections"), value: fontFamily, onSelectChange: (newValue) => {
-                onChange({ ...fontStyle, fontFamily: newValue });
-            } }),
-        createElement("label", { className: "components-base-control__label" }, __("font weight", "block-collections")),
-        createElement(PanelRow, { className: "itmar_weight_row" },
-            createElement(RadioControl, { selected: fontWeight, options: [
-                    { label: "LIGHT", value: "300" },
-                    { label: "REGULAR", value: "400" },
-                    { label: "MEDIUM", value: "500" },
-                    { label: "S-BOLD", value: "600" },
-                    { label: "BOLD", value: "700" },
-                    { label: "BLACK", value: "900" },
-                ], onChange: (newValue) => {
-                    const newStyle = { ...fontStyle, fontWeight: newValue };
-                    onChange(newStyle);
-                } })),
-        createElement(ToggleControl, { label: __("Italic display", "block-collections"), checked: isItalic, onChange: (newValue) => {
-                onChange({ ...fontStyle, isItalic: newValue });
-            } })));
+    const FontSelect = ({ label, value, onSelectChange, }) => (jsxs(Fragment, { children: [label && (jsx("label", { className: "components-base-control__label", children: label })), jsx(Select, { options: fontFamilyOptions, value: fontFamilyOptions.find((option) => option.value === value), onChange: (newValue) => {
+                    onSelectChange(newValue.value);
+                }, styles: customStyles })] }));
+    return (jsxs(PanelBody, { title: title, initialOpen: initialOpen, children: [jsx(__experimentalUnitControl, { label: !isMobile
+                    ? __("Size(desktop)", "block-collections")
+                    : __("Size(mobile)", "block-collections"), value: !isMobile ? default_fontSize : mobile_fontSize, units: units, onChange: (newValue) => {
+                    const safeValue = newValue !== undefined && newValue !== "" ? newValue : "0px";
+                    const set_size = !isMobile
+                        ? { default_fontSize: safeValue }
+                        : { mobile_fontSize: safeValue };
+                    onChange({ ...fontStyle, ...set_size });
+                } }), jsx(FontSelect, { label: __("font family", "block-collections"), value: fontFamily, onSelectChange: (newValue) => {
+                    onChange({ ...fontStyle, fontFamily: newValue });
+                } }), jsx("label", { className: "components-base-control__label", children: __("font weight", "block-collections") }), jsx(PanelRow, { className: "itmar_weight_row", children: jsx(RadioControl, { selected: fontWeight, options: [
+                        { label: "LIGHT", value: "300" },
+                        { label: "REGULAR", value: "400" },
+                        { label: "MEDIUM", value: "500" },
+                        { label: "S-BOLD", value: "600" },
+                        { label: "BOLD", value: "700" },
+                        { label: "BLACK", value: "900" },
+                    ], onChange: (newValue) => {
+                        const newStyle = { ...fontStyle, fontWeight: newValue };
+                        onChange(newStyle);
+                    } }) }), jsx(ToggleControl, { label: __("Italic display", "block-collections"), checked: isItalic, onChange: (newValue) => {
+                    onChange({ ...fontStyle, isItalic: newValue });
+                } })] }));
 };
 
 export { TypographyControls as default };

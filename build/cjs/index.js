@@ -28,6 +28,7 @@ var BrockInserter = require('./BrockInserter.js');
 var MasonryControl = require('./MasonryControl.js');
 var SwiperControl = require('./SwiperControl.js');
 var pickupStore = require('./pickupStore.js');
+var styleComponentApply = require('./styleComponentApply.js');
 
 // itmaroon-block-packages/src/index.ts
 // 初期値を null で作成
@@ -42,6 +43,7 @@ exports.useElementWidth = customHooks.useElementWidth;
 exports.useFontawesomeIframe = customHooks.useFontawesomeIframe;
 exports.useIsIframeMobile = customHooks.useIsIframeMobile;
 exports.useIsMobile = customHooks.useIsMobile;
+exports.useStyleIframe = customHooks.useStyleIframe;
 exports.ArchiveSelectControl = wordpressApi.ArchiveSelectControl;
 exports.FieldChoiceControl = wordpressApi.FieldChoiceControl;
 exports.PageSelectControl = wordpressApi.PageSelectControl;
@@ -121,5 +123,6 @@ exports.getCtx = pickupStore.getCtx;
 exports.registerPickup = pickupStore.registerPickup;
 exports.setState = pickupStore.setState;
 exports.subscribe = pickupStore.subscribe;
+exports.styleComponentApply = styleComponentApply.styleComponentApply;
 exports.BookingActionContext = BookingActionContext;
 //# sourceMappingURL=index.js.map

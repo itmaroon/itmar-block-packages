@@ -1,4 +1,4 @@
-import { createElement, Fragment } from '@wordpress/element';
+import { jsxs, Fragment, jsx } from 'react/jsx-runtime';
 import { __ } from '@wordpress/i18n';
 import { PanelBody, SelectControl, TextControl, PanelRow, RangeControl } from '@wordpress/components';
 import { getSettings, format } from '@wordpress/date';
@@ -55,29 +55,23 @@ const FormatSelectControl = ({ titleType, userFormat, freeStrFormat, decimal, on
     const options = isDate
         ? dateFormats
         : plaineFormats.map((f) => ({ label: f.label, value: f.key }));
-    return (createElement(PanelBody, { title: __("Display Format Setting", "block-collections") },
-        (isPlaine || isDate) && (createElement(Fragment, null,
-            createElement(SelectControl, { label: __("Select Format", "block-collections"), value: userFormat, options: options, onChange: (newFormat) => onFormatChange({
-                    userFormat: newFormat,
-                    freeStrFormat,
-                    decimal,
-                }) }),
-            userFormat?.startsWith("str_") && (createElement(TextControl, { label: __("String Format", "block-collections"), value: freeStrFormat, onChange: (newFormat) => onFormatChange({
-                    userFormat,
+    return (jsxs(PanelBody, { title: __("Display Format Setting", "block-collections"), children: [(isPlaine || isDate) && (jsxs(Fragment, { children: [jsx(SelectControl, { label: __("Select Format", "block-collections"), value: userFormat, options: options, onChange: (newFormat) => onFormatChange({
+                            userFormat: newFormat,
+                            freeStrFormat,
+                            decimal,
+                        }) }), userFormat?.startsWith("str_") && (jsx(TextControl, { label: __("String Format", "block-collections"), value: freeStrFormat, onChange: (newFormat) => onFormatChange({
+                            userFormat,
+                            freeStrFormat: newFormat,
+                            decimal,
+                        }) })), userFormat?.startsWith("num_") && (jsx(PanelRow, { className: "itmar_post_blocks_pannel", children: jsx(RangeControl, { value: decimal, label: __("Decimal Num", "query-blocks"), max: 5, min: 0, onChange: (val) => onFormatChange({
+                                userFormat,
+                                freeStrFormat,
+                                decimal: val ?? 0,
+                            }) }) }))] })), isUser && (jsx(TextControl, { label: __("User Format", "block-collections"), value: freeStrFormat, onChange: (newFormat) => onFormatChange({
+                    userFormat: "str_free",
                     freeStrFormat: newFormat,
                     decimal,
-                }) })),
-            userFormat?.startsWith("num_") && (createElement(PanelRow, { className: "itmar_post_blocks_pannel" },
-                createElement(RangeControl, { value: decimal, label: __("Decimal Num", "query-blocks"), max: 5, min: 0, onChange: (val) => onFormatChange({
-                        userFormat,
-                        freeStrFormat,
-                        decimal: val ?? 0,
-                    }) }))))),
-        isUser && (createElement(TextControl, { label: __("User Format", "block-collections"), value: freeStrFormat, onChange: (newFormat) => onFormatChange({
-                userFormat: "str_free",
-                freeStrFormat: newFormat,
-                decimal,
-            }) }))));
+                }) }))] }));
 };
 /**
  * 値を指定されたフォーマットで整形して返す

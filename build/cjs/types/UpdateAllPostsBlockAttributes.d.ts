@@ -6,5 +6,5 @@ interface UpdateAllPostsProps {
     onProcessEnd: () => void;
     onProcessCancel: () => void;
 }
-export default function UpdateAllPostsBlockAttributes({ postType, blockName, newAttributes, onProcessStart, onProcessEnd, onProcessCancel, }: UpdateAllPostsProps): JSX.Element;
+export default function UpdateAllPostsBlockAttributes({ postType, blockName, newAttributes, onProcessStart, onProcessEnd, onProcessCancel, }: UpdateAllPostsProps): import("react/jsx-runtime").JSX.Element;
 export {};

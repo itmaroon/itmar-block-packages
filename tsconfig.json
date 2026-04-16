@@ -3,26 +3,25 @@
     "target": "ESNext",
     "module": "ESNext",
     "lib": ["DOM", "DOM.Iterable", "ESNext"],
-    //"jsx": "react-jsx",
-    "noEmit": true, // Rollupがファイルを書き出すので、TS自体には書き出させない             
-    "jsx": "react",
-    "jsxFactory": "createElement",
-    "jsxFragmentFactory": "Fragment",
-    "moduleResolution": "node",
-    "declaration": true, // 型定義ファイル(.d.ts)を出力
+    "noEmit": false,           // Rollup 経由で型定義を出力させるために false に
+    "declaration": true,       // 型定義を出力する
+    "emitDeclarationOnly": true, // TSは型定義だけを担当し、JS本体は Rollup に任せる
+    /* ------------- */ 
+    "jsx": "react-jsx",
+    "moduleResolution": "bundler",
     "declarationDir": "build/types",// 型定義の保存先
-    "emitDeclarationOnly": false, // 型とJS両方出力する設定（Rollup側で制御）
+    "rootDir": "src",
     "sourceMap": true,
     //"outDir": "build",
     "strict": true,
+    "noImplicitAny": false,// ここを false にすると、引数の型省略が許されるようになります
     "esModuleInterop": true,
     "skipLibCheck": true,
     "types": [],
     "forceConsistentCasingInFileNames": true,
-    "baseUrl": ".",
     "paths": {
-    "*": ["node_modules/*", "src/types/*"],
-    
+      "react": ["./node_modules/react"],
+      "react-dom": ["./node_modules/react-dom"]
     }
   },
   "include": ["src/**/*"],

@@ -1,8 +1,11 @@
 'use strict';
 
+var jsxRuntime = require('react/jsx-runtime');
 var element = require('@wordpress/element');
 var data = require('@wordpress/data');
 var isEqual = require('lodash/isEqual');
+var styledComponents = require('styled-components');
+var reactDom = require('react-dom');
 var i18n = require('@wordpress/i18n');
 
 //useRefで参照したDOM要素の大きさを取得するカスタムフック
@@ -22,7 +25,7 @@ function useElementWidth() {
             resizeObserver.disconnect();
         };
     }, []);
-    return [ref, width];
+    return { ref, width };
 }
 //ViewPortの大きさでモバイルを判断(767px以下がモバイル)するカスタムフック
 function useIsMobile() {
@@ -112,8 +115,9 @@ function useElementStyleObject(blockRef, style) {
     return styleObject;
 }
 //たくさんの要素をもつオブジェクトや配列の内容の変化で発火するuseEffect
-function useDeepCompareEffect(callback, dependencies) {
-    const dependenciesRef = element.useRef(undefined);
+function useDeepCompareEffect(callback, // EffectCallback の中身を直接書く
+dependencies) {
+    const dependenciesRef = element.useRef();
     if (!isEqual(dependencies, dependenciesRef.current)) {
         dependenciesRef.current = dependencies;
     }
@@ -264,6 +268,18 @@ function useDuplicateBlockRemove(clientId, blockNames) {
         prevInnerBlocksRef.current = innerBlocks;
     }, [innerBlocks, blockNames, removeBlock, createNotice]);
 }
+//iframeにスタイルをわたすReactコンポーネントを作る
+function useStyleIframe(StyleComp, attributes) {
+    const iframeDocument = element.useMemo(() => {
+        const iframeInstance = document.getElementsByName("editor-canvas")[0];
+        return (iframeInstance?.contentDocument || iframeInstance?.contentWindow?.document);
+    }, []);
+    if (!iframeDocument)
+        return null;
+    // createPortal を使い、StyleSheetManager ごと iframe の head 内（またはダミー要素）へ飛ばします
+    // これにより、元の DOM ツリー（Editコンポーネント内）には一切の div が残りません
+    return reactDom.createPortal(jsxRuntime.jsx(styledComponents.StyleSheetManager, { target: iframeDocument.head, children: jsxRuntime.jsx(StyleComp, { attributes: attributes }) }), iframeDocument.head);
+}
 
 exports.useBlockAttributeChanges = useBlockAttributeChanges;
 exports.useDeepCompareEffect = useDeepCompareEffect;
@@ -274,4 +290,5 @@ exports.useElementWidth = useElementWidth;
 exports.useFontawesomeIframe = useFontawesomeIframe;
 exports.useIsIframeMobile = useIsIframeMobile;
 exports.useIsMobile = useIsMobile;
+exports.useStyleIframe = useStyleIframe;
 //# sourceMappingURL=customHooks.js.map

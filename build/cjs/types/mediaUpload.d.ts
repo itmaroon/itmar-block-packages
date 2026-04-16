@@ -12,7 +12,7 @@ interface SingleImageSelectProps {
     };
     onSelectChange: (media: MediaObject) => void;
 }
-export declare function SingleImageSelect({ attributes, onSelectChange, }: SingleImageSelectProps): JSX.Element;
+export declare function SingleImageSelect({ attributes, onSelectChange, }: SingleImageSelectProps): import("react/jsx-runtime").JSX.Element;
 interface MultiImageSelectProps {
     attributes: {
         mediaID: number[];
@@ -22,7 +22,7 @@ interface MultiImageSelectProps {
     onSelectChange: (media: MediaObject[]) => void;
     onAllDelete: () => void;
 }
-export declare function MultiImageSelect({ attributes, label, onSelectChange, onAllDelete, }: MultiImageSelectProps): JSX.Element;
+export declare function MultiImageSelect({ attributes, label, onSelectChange, onAllDelete, }: MultiImageSelectProps): import("react/jsx-runtime").JSX.Element;
 export declare function getMediaType(url: string): "image" | "video" | undefined;
 export declare function getImageAspectRatio(url: string): Promise<unknown>;
 export declare function getVideoAspectRatio(url: string): Promise<unknown>;

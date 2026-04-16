@@ -36,7 +36,7 @@ interface PeriodCtrlProps {
         dateSpan: DateRange;
     }) => void;
 }
-export declare const PeriodCtrl: ({ startYear, endYear, dateSpan, isMonth, onChange, }: PeriodCtrlProps) => JSX.Element;
+export declare const PeriodCtrl: ({ startYear, endYear, dateSpan, isMonth, onChange, }: PeriodCtrlProps) => import("react/jsx-runtime").JSX.Element;
 interface PeriodQuery {
     after: string;
     before: string;

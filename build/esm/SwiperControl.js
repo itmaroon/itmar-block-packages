@@ -1,4 +1,4 @@
-import { S as Swiper } from './node_modules/swiper/shared/swiper-core.js';
+import Swiper from 'swiper';
 
 // 2. 外部変数の宣言（管理用のSetとMap）
 const linkedPairs = new Set();

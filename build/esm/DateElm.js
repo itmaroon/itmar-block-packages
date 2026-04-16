@@ -1,6 +1,6 @@
-import { createElement } from '@wordpress/element';
+import { jsxs, jsx } from 'react/jsx-runtime';
 import { __ } from '@wordpress/i18n';
-import { nanoid } from './node_modules/nanoid/non-secure/index.js';
+import { nanoid } from 'nanoid/non-secure';
 import { PanelBody, PanelRow, __experimentalNumberControl } from '@wordpress/components';
 
 //期間の設定から選択できる月の情報オブジェクトを配列にする関数
@@ -37,6 +37,7 @@ const generateMonthCalendar = (dateString, holidays = null) => {
     const [year, month] = dateString.split("/").map(Number);
     const date = new Date(year, month - 1, 1);
     const lastDay = new Date(year, month, 0).getDate();
+    // 2. 配列を初期化する際に、その型を指定する
     const calendar = [];
     for (let day = 1; day <= lastDay; day++) {
         date.setDate(day);
@@ -68,47 +69,39 @@ const generateMonthCalendar = (dateString, holidays = null) => {
     return calendar;
 };
 const PeriodCtrl = ({ startYear, endYear, dateSpan, isMonth, onChange, }) => {
-    return (createElement(PanelBody, { title: __("Period Setting", "block-collections"), initialOpen: true, className: "form_setteing_ctrl" },
-        createElement("label", null, __("Start of period", "block-collections")),
-        createElement(PanelRow, { className: "itmar_date_span" },
-            createElement(__experimentalNumberControl, { label: __("Year", "block-collections"), labelPosition: "side", max: endYear, min: startYear, onChange: (newValue) => {
-                    const newSpanObj = {
-                        dateSpan: {
-                            ...dateSpan,
-                            startYear: Number(newValue),
-                        },
-                    };
-                    onChange(newSpanObj);
-                }, value: dateSpan.startYear }),
-            isMonth && (createElement(__experimentalNumberControl, { label: __("Month", "block-collections"), labelPosition: "side", max: 12, min: 1, onChange: (newValue) => {
-                    const newSpanObj = {
-                        dateSpan: {
-                            ...dateSpan,
-                            startMonth: Number(newValue),
-                        },
-                    };
-                    onChange(newSpanObj);
-                }, value: dateSpan.startMonth }))),
-        createElement("label", null, __("End of period", "block-collections")),
-        createElement(PanelRow, { className: "itmar_date_span" },
-            createElement(__experimentalNumberControl, { label: __("Year", "block-collections"), labelPosition: "side", max: endYear, min: startYear, onChange: (newValue) => {
-                    const newSpanObj = {
-                        dateSpan: {
-                            ...dateSpan,
-                            endYear: Number(newValue),
-                        },
-                    };
-                    onChange(newSpanObj);
-                }, value: dateSpan.endYear }),
-            createElement(__experimentalNumberControl, { label: __("Month", "block-collections"), labelPosition: "side", max: 12, min: 1, onChange: (newValue) => {
-                    const newSpanObj = {
-                        dateSpan: {
-                            ...dateSpan,
-                            endMonth: Number(newValue),
-                        },
-                    };
-                    onChange(newSpanObj);
-                }, value: dateSpan.endMonth }))));
+    return (jsxs(PanelBody, { title: __("Period Setting", "block-collections"), initialOpen: true, className: "form_setteing_ctrl", children: [jsx("label", { children: __("Start of period", "block-collections") }), jsxs(PanelRow, { className: "itmar_date_span", children: [jsx(__experimentalNumberControl, { label: __("Year", "block-collections"), labelPosition: "side", max: endYear, min: startYear, onChange: (newValue) => {
+                            const newSpanObj = {
+                                dateSpan: {
+                                    ...dateSpan,
+                                    startYear: Number(newValue),
+                                },
+                            };
+                            onChange(newSpanObj);
+                        }, value: dateSpan.startYear }), isMonth && (jsx(__experimentalNumberControl, { label: __("Month", "block-collections"), labelPosition: "side", max: 12, min: 1, onChange: (newValue) => {
+                            const newSpanObj = {
+                                dateSpan: {
+                                    ...dateSpan,
+                                    startMonth: Number(newValue),
+                                },
+                            };
+                            onChange(newSpanObj);
+                        }, value: dateSpan.startMonth }))] }), jsx("label", { children: __("End of period", "block-collections") }), jsxs(PanelRow, { className: "itmar_date_span", children: [jsx(__experimentalNumberControl, { label: __("Year", "block-collections"), labelPosition: "side", max: endYear, min: startYear, onChange: (newValue) => {
+                            const newSpanObj = {
+                                dateSpan: {
+                                    ...dateSpan,
+                                    endYear: Number(newValue),
+                                },
+                            };
+                            onChange(newSpanObj);
+                        }, value: dateSpan.endYear }), jsx(__experimentalNumberControl, { label: __("Month", "block-collections"), labelPosition: "side", max: 12, min: 1, onChange: (newValue) => {
+                            const newSpanObj = {
+                                dateSpan: {
+                                    ...dateSpan,
+                                    endMonth: Number(newValue),
+                                },
+                            };
+                            onChange(newSpanObj);
+                        }, value: dateSpan.endMonth })] })] }));
 };
 const getPeriodQuery = (dateString) => {
     if (!dateString) {
@@ -239,14 +232,14 @@ const WEEK_NAMES = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
  * @param isMonday 月曜始まりにするかどうか
  */
 const generateGridAreas = (firstDayOfMonth, totalDays, isMonday) => {
-    let areas = [];
+    const areas = [];
     let currentDay = 1;
     //月曜日を先頭に持ってくる場合の係数
     const mondayFirstDay = firstDayOfMonth - 1 < 0 ? 6 : firstDayOfMonth - 1;
     //先頭曜日の選択
     const modifyFirstDay = isMonday ? mondayFirstDay : firstDayOfMonth;
     //曜日ラベル
-    let weekLabels = [];
+    const weekLabels = [];
     let week_index;
     for (let i = 0; i < 7; i++) {
         week_index = isMonday ? i + 1 : i; //月曜日を先頭に持ってくる場合の補正
@@ -257,7 +250,7 @@ const generateGridAreas = (firstDayOfMonth, totalDays, isMonday) => {
     areas.push(weekLabels.join(" "));
     for (let i = 0; i < 6; i++) {
         // 6週分のループ
-        let week = [];
+        const week = [];
         for (let j = 0; j < 7; j++) {
             // 1週間の7日分のループ
             if ((i === 0 && j < modifyFirstDay) || currentDay > totalDays) {

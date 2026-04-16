@@ -7,5 +7,5 @@ interface ArrowProps {
     direction?: ArrowDirection;
 }
 export declare const Arrow: ({ direction }: ArrowProps) => import("styled-components").RuleSet<object>;
-declare const PseudoElm: ({ direction, onChange }: PseudoElmProps) => JSX.Element;
+declare const PseudoElm: ({ direction, onChange }: PseudoElmProps) => import("react/jsx-runtime").JSX.Element;
 export default PseudoElm;

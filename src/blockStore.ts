@@ -1,6 +1,13 @@
 import { useSelect } from "@wordpress/data";
 import { store as blockEditorStore } from "@wordpress/block-editor";
-import { createBlock, BlockInstance } from "@wordpress/blocks";
+import { createBlock } from "@wordpress/blocks";
+interface BlockInstance {
+  attributes: Record<string, any>;
+  innerBlocks: BlockInstance[];
+  name: string;
+  isValid: boolean;
+  clientId: string;
+}
 
 export const useTargetBlocks = (
   clientId: string,

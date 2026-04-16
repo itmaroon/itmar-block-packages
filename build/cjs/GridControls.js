@@ -2,18 +2,19 @@
 
 Object.defineProperty(exports, '__esModule', { value: true });
 
-var element = require('@wordpress/element');
+var jsxRuntime = require('react/jsx-runtime');
 var components = require('@wordpress/components');
 var data = require('@wordpress/data');
+var element = require('@wordpress/element');
 var i18n = require('@wordpress/i18n');
 var icons = require('@wordpress/icons');
 
 //上よせアイコン
-const upper = element.createElement(components.Icon, { icon: icons.justifyLeft, className: "rotate-icon" });
+const upper = jsxRuntime.jsx(components.Icon, { icon: icons.justifyLeft, className: "rotate-icon" });
 //中央よせのアイコン
-const middle = element.createElement(components.Icon, { icon: icons.justifyCenter, className: "rotate-icon" });
+const middle = jsxRuntime.jsx(components.Icon, { icon: icons.justifyCenter, className: "rotate-icon" });
 //下よせのアイコン
-const lower = element.createElement(components.Icon, { icon: icons.justifyRight, className: "rotate-icon" });
+const lower = jsxRuntime.jsx(components.Icon, { icon: icons.justifyRight, className: "rotate-icon" });
 // アイコンと文字列キーのマッピングを作成
 const alignIconMap = {
     left: icons.justifyLeft,
@@ -55,7 +56,7 @@ const StopPropagationWrapper = ({ children }) => {
         // イベントの伝播を阻止
         event.stopPropagation();
     };
-    return (element.createElement("div", { className: "itmar_event_stopper", onClick: handleClick }, children));
+    return (jsxRuntime.jsx("div", { className: "itmar_event_stopper", onClick: handleClick, children: children }));
 };
 const GridControls = ({ attributes, clientId, onChange, }) => {
     const { gridElms, rowNum, colNum, rowGap, colGap, rowUnit, colUnit } = attributes;
@@ -72,10 +73,9 @@ const GridControls = ({ attributes, clientId, onChange, }) => {
             .map(() => new Array(colCount).fill(false));
         let rows = [];
         // 列単位入力行を追加
-        let headerCells = [element.createElement("th", { key: "header-corner" })]; // 左上の角の空白セル
+        let headerCells = [jsxRuntime.jsx("th", {}, "header-corner")]; // 左上の角の空白セル
         for (let c = 0; c < colCount; c++) {
-            headerCells.push(element.createElement("th", { key: `header-${c}` },
-                element.createElement(components.__experimentalInputControl, { value: colUnit ? colUnit[c] : "", type: "text", isPressEnterToChange: true, onChange: (newValue) => {
+            headerCells.push(jsxRuntime.jsx("th", { children: jsxRuntime.jsx(components.__experimentalInputControl, { value: colUnit ? colUnit[c] : "", type: "text", isPressEnterToChange: true, onChange: (newValue) => {
                         // 2. newValue が undefined の可能性を考慮してガードを入れる
                         const safeValue = newValue ?? "";
                         const newArray = [
@@ -84,15 +84,14 @@ const GridControls = ({ attributes, clientId, onChange, }) => {
                             ...colUnit.slice(c + 1),
                         ];
                         setUnitColArray(newArray);
-                    } })));
+                    } }) }, `header-${c}`));
         }
-        rows.push(element.createElement("tr", { key: "header-row" }, headerCells));
+        rows.push(jsxRuntime.jsx("tr", { children: headerCells }, "header-row"));
         // 各行とセルの生成
         for (let r = 0; r < rowCount; r++) {
             let cells = [];
             // 行行単位入力を追加
-            cells.push(element.createElement("th", { key: `row-header-${r}` },
-                element.createElement(components.__experimentalInputControl, { value: rowUnit ? rowUnit[r] : "", type: "text", isPressEnterToChange: true, onChange: (newValue) => {
+            cells.push(jsxRuntime.jsx("th", { children: jsxRuntime.jsx(components.__experimentalInputControl, { value: rowUnit ? rowUnit[r] : "", type: "text", isPressEnterToChange: true, onChange: (newValue) => {
                         // newValue が undefined の可能性を考慮してガードを入れる
                         const safeValue = newValue ?? "";
                         const newArray = [
@@ -101,7 +100,7 @@ const GridControls = ({ attributes, clientId, onChange, }) => {
                             ...rowUnit.slice(r + 1),
                         ];
                         setUnitRowArray(newArray);
-                    } })));
+                    } }) }, `row-header-${r}`));
             // 各行に対するセルを生成
             for (let c = 0; c < colCount; c++) {
                 if (occupied[r][c]) {
@@ -128,30 +127,28 @@ const GridControls = ({ attributes, clientId, onChange, }) => {
                     }
                 }
                 //セルを生成
-                cells.push(element.createElement("td", { key: `cell-${r}-${c}`, ...cellSpan, className: isCellSelected(r, c) ? "selected" : "", style: setElm
+                cells.push(jsxRuntime.jsx("td", { ...cellSpan, className: isCellSelected(r, c) ? "selected" : "", style: setElm
                         ? {
                             backgroundColor: `var(--wp--custom--color--area-${setElm.index})`,
                         }
-                        : undefined, onClick: () => detectCellPosition(r, c) }, setElm && (element.createElement(StopPropagationWrapper, null,
-                    element.createElement(components.ToolbarDropdownMenu, { label: i18n.__("Lateral Alignment", "block-collections"), icon: setElm.elm.latAlign
-                            ? alignIconMap[setElm.elm.latAlign]
-                            : alignIconMap["left"], controls: ["left", "center", "right"].map((align) => ({
-                            icon: alignIconMap[align],
-                            title: i18n.__(align.charAt(0).toUpperCase() + align.slice(1), "block-collections"),
-                            isActive: setElm.elm.latAlign === align,
-                            onClick: () => updateAlignment(setElm.index, align, "latAlign"),
-                        })) }),
-                    element.createElement(components.ToolbarDropdownMenu, { label: i18n.__("Vertical Alignment", "block-collections"), icon: setElm.elm.vertAlign
-                            ? alignIconMap[setElm.elm.vertAlign]
-                            : alignIconMap["upper"], controls: ["upper", "middle", "lower"].map((align) => ({
-                            icon: alignIconMap[align],
-                            title: i18n.__(align.charAt(0).toUpperCase() + align.slice(1), "block-collections"),
-                            isActive: setElm.elm.vertAlign === align,
-                            onClick: () => updateAlignment(setElm.index, align, "vertAlign"),
-                        })) })))));
+                        : undefined, onClick: () => detectCellPosition(r, c), children: setElm && (jsxRuntime.jsxs(StopPropagationWrapper, { children: [jsxRuntime.jsx(components.ToolbarDropdownMenu, { label: i18n.__("Lateral Alignment", "block-collections"), icon: setElm.elm.latAlign
+                                    ? alignIconMap[setElm.elm.latAlign]
+                                    : alignIconMap["left"], controls: ["left", "center", "right"].map((align) => ({
+                                    icon: alignIconMap[align],
+                                    title: i18n.__(align.charAt(0).toUpperCase() + align.slice(1), "block-collections"),
+                                    isActive: setElm.elm.latAlign === align,
+                                    onClick: () => updateAlignment(setElm.index, align, "latAlign"),
+                                })) }), jsxRuntime.jsx(components.ToolbarDropdownMenu, { label: i18n.__("Vertical Alignment", "block-collections"), icon: setElm.elm.vertAlign
+                                    ? alignIconMap[setElm.elm.vertAlign]
+                                    : alignIconMap["upper"], controls: ["upper", "middle", "lower"].map((align) => ({
+                                    icon: alignIconMap[align],
+                                    title: i18n.__(align.charAt(0).toUpperCase() + align.slice(1), "block-collections"),
+                                    isActive: setElm.elm.vertAlign === align,
+                                    onClick: () => updateAlignment(setElm.index, align, "vertAlign"),
+                                })) })] })) }, `cell-${r}-${c}`));
             }
             // 行の追加
-            rows.push(element.createElement("tr", { key: `row-${r}` }, cells));
+            rows.push(jsxRuntime.jsx("tr", { children: cells }, `row-${r}`));
         }
         return rows;
     };
@@ -280,41 +277,29 @@ const GridControls = ({ attributes, clientId, onChange, }) => {
             firstFlgRef.current = false;
         }
     }, [rowCount, colCount]);
-    return (element.createElement(element.Fragment, null,
-        element.createElement(components.PanelRow, { className: "distance_row" },
-            element.createElement(components.__experimentalNumberControl, { onChange: (newValue) => {
-                    const input_val = typeof newValue === "number" ? newValue : Number(newValue);
-                    setRowCount(input_val);
-                }, label: i18n.__("Number of Row ", "block-collections"), value: rowCount, min: 2 }),
-            element.createElement(components.__experimentalNumberControl, { onChange: (newValue) => {
-                    const input_val = typeof newValue === "number" ? newValue : Number(newValue);
-                    setColCount(input_val);
-                }, label: i18n.__("Number of Colum", "block-collections"), value: colCount })),
-        element.createElement(components.PanelRow, { className: "distance_row" },
-            element.createElement(components.__experimentalUnitControl, { onChange: (newValue) => {
-                    newValue = newValue != "" ? newValue : "0px";
-                    const newStyle = { ...attributes, rowGap: newValue };
-                    onChange(newStyle);
-                }, label: i18n.__("Row Gap", "block-collections"), value: rowGap, units: units }),
-            element.createElement(components.__experimentalUnitControl, { onChange: (newValue) => {
-                    newValue = newValue != "" ? newValue : "0px";
-                    const newStyle = { ...attributes, colGap: newValue };
-                    onChange(newStyle);
-                }, label: i18n.__("Colum Gap", "block-collections"), value: colGap, units: units })),
-        element.createElement(components.PanelRow, { className: "distance_row" },
-            element.createElement("p", null, i18n.__("Element placement", "block-collections")),
-            element.createElement(components.Button, { variant: "secondary", onClick: clear_placement }, i18n.__("Clear", "block-collections"))),
-        element.createElement(components.PanelRow, { className: "grid_table" },
-            element.createElement("table", null, renderRows())),
-        element.createElement(components.ComboboxControl, { label: i18n.__("InnerBlock Name", "block-collections"), options: blockNames, value: selBlock ? selBlock.value : null, onChange: (sel_id) => {
-                const matchedBlock = blockNames.find((block) => block.value === sel_id);
-                if (matchedBlock) {
-                    setSelBlock(matchedBlock);
-                }
-                else {
-                    setSelBlock(null);
-                }
-            } })));
+    return (jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [jsxRuntime.jsxs(components.PanelRow, { className: "distance_row", children: [jsxRuntime.jsx(components.__experimentalNumberControl, { onChange: (newValue) => {
+                            const input_val = typeof newValue === "number" ? newValue : Number(newValue);
+                            setRowCount(input_val);
+                        }, label: i18n.__("Number of Row ", "block-collections"), value: rowCount, min: 2 }), jsxRuntime.jsx(components.__experimentalNumberControl, { onChange: (newValue) => {
+                            const input_val = typeof newValue === "number" ? newValue : Number(newValue);
+                            setColCount(input_val);
+                        }, label: i18n.__("Number of Colum", "block-collections"), value: colCount })] }), jsxRuntime.jsxs(components.PanelRow, { className: "distance_row", children: [jsxRuntime.jsx(components.__experimentalUnitControl, { onChange: (newValue) => {
+                            newValue = newValue != "" ? newValue : "0px";
+                            const newStyle = { ...attributes, rowGap: newValue };
+                            onChange(newStyle);
+                        }, label: i18n.__("Row Gap", "block-collections"), value: rowGap, units: units }), jsxRuntime.jsx(components.__experimentalUnitControl, { onChange: (newValue) => {
+                            newValue = newValue != "" ? newValue : "0px";
+                            const newStyle = { ...attributes, colGap: newValue };
+                            onChange(newStyle);
+                        }, label: i18n.__("Colum Gap", "block-collections"), value: colGap, units: units })] }), jsxRuntime.jsxs(components.PanelRow, { className: "distance_row", children: [jsxRuntime.jsx("p", { children: i18n.__("Element placement", "block-collections") }), jsxRuntime.jsx(components.Button, { variant: "secondary", onClick: clear_placement, children: i18n.__("Clear", "block-collections") })] }), jsxRuntime.jsx(components.PanelRow, { className: "grid_table", children: jsxRuntime.jsx("table", { children: renderRows() }) }), jsxRuntime.jsx(components.ComboboxControl, { label: i18n.__("InnerBlock Name", "block-collections"), options: blockNames, value: selBlock ? selBlock.value : null, onChange: (sel_id) => {
+                    const matchedBlock = blockNames.find((block) => block.value === sel_id);
+                    if (matchedBlock) {
+                        setSelBlock(matchedBlock);
+                    }
+                    else {
+                        setSelBlock(null);
+                    }
+                } })] }));
 };
 
 exports.default = GridControls;

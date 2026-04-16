@@ -2,7 +2,7 @@
 
 Object.defineProperty(exports, '__esModule', { value: true });
 
-var element = require('@wordpress/element');
+var jsxRuntime = require('react/jsx-runtime');
 
 /**
  * クリックで開閉状態を切り替えるラッパーコンポーネント
@@ -14,11 +14,11 @@ function ToggleElement({ openFlg, onToggle, className = "", style, children, }) 
             onToggle(!openFlg);
         }
     };
-    return (element.createElement("div", { className: `${className} ${openFlg ? "open" : ""}`.trim(), style: style, onClick: toggleOpen, role: "button" // アクセシビリティへの配慮
+    return (jsxRuntime.jsx("div", { className: `${className} ${openFlg ? "open" : ""}`.trim(), style: style, onClick: toggleOpen, role: "button" // アクセシビリティへの配慮
         , tabIndex: 0, onKeyDown: (e) => {
             if (e.key === "Enter")
                 toggleOpen();
-        } }, children));
+        }, children: children }));
 }
 
 exports.default = ToggleElement;

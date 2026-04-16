@@ -1,15 +1,16 @@
-import { createElement, useState, useRef, useEffect, Fragment } from '@wordpress/element';
+import { jsx, jsxs, Fragment } from 'react/jsx-runtime';
 import { Icon, PanelRow, __experimentalNumberControl, __experimentalUnitControl, Button, ComboboxControl, __experimentalInputControl, ToolbarDropdownMenu } from '@wordpress/components';
 import { useSelect, dispatch } from '@wordpress/data';
+import { useState, useRef, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { justifyLeft, justifyCenter, justifyRight } from '@wordpress/icons';
 
 //上よせアイコン
-const upper = createElement(Icon, { icon: justifyLeft, className: "rotate-icon" });
+const upper = jsx(Icon, { icon: justifyLeft, className: "rotate-icon" });
 //中央よせのアイコン
-const middle = createElement(Icon, { icon: justifyCenter, className: "rotate-icon" });
+const middle = jsx(Icon, { icon: justifyCenter, className: "rotate-icon" });
 //下よせのアイコン
-const lower = createElement(Icon, { icon: justifyRight, className: "rotate-icon" });
+const lower = jsx(Icon, { icon: justifyRight, className: "rotate-icon" });
 // アイコンと文字列キーのマッピングを作成
 const alignIconMap = {
     left: justifyLeft,
@@ -51,7 +52,7 @@ const StopPropagationWrapper = ({ children }) => {
         // イベントの伝播を阻止
         event.stopPropagation();
     };
-    return (createElement("div", { className: "itmar_event_stopper", onClick: handleClick }, children));
+    return (jsx("div", { className: "itmar_event_stopper", onClick: handleClick, children: children }));
 };
 const GridControls = ({ attributes, clientId, onChange, }) => {
     const { gridElms, rowNum, colNum, rowGap, colGap, rowUnit, colUnit } = attributes;
@@ -68,10 +69,9 @@ const GridControls = ({ attributes, clientId, onChange, }) => {
             .map(() => new Array(colCount).fill(false));
         let rows = [];
         // 列単位入力行を追加
-        let headerCells = [createElement("th", { key: "header-corner" })]; // 左上の角の空白セル
+        let headerCells = [jsx("th", {}, "header-corner")]; // 左上の角の空白セル
         for (let c = 0; c < colCount; c++) {
-            headerCells.push(createElement("th", { key: `header-${c}` },
-                createElement(__experimentalInputControl, { value: colUnit ? colUnit[c] : "", type: "text", isPressEnterToChange: true, onChange: (newValue) => {
+            headerCells.push(jsx("th", { children: jsx(__experimentalInputControl, { value: colUnit ? colUnit[c] : "", type: "text", isPressEnterToChange: true, onChange: (newValue) => {
                         // 2. newValue が undefined の可能性を考慮してガードを入れる
                         const safeValue = newValue ?? "";
                         const newArray = [
@@ -80,15 +80,14 @@ const GridControls = ({ attributes, clientId, onChange, }) => {
                             ...colUnit.slice(c + 1),
                         ];
                         setUnitColArray(newArray);
-                    } })));
+                    } }) }, `header-${c}`));
         }
-        rows.push(createElement("tr", { key: "header-row" }, headerCells));
+        rows.push(jsx("tr", { children: headerCells }, "header-row"));
         // 各行とセルの生成
         for (let r = 0; r < rowCount; r++) {
             let cells = [];
             // 行行単位入力を追加
-            cells.push(createElement("th", { key: `row-header-${r}` },
-                createElement(__experimentalInputControl, { value: rowUnit ? rowUnit[r] : "", type: "text", isPressEnterToChange: true, onChange: (newValue) => {
+            cells.push(jsx("th", { children: jsx(__experimentalInputControl, { value: rowUnit ? rowUnit[r] : "", type: "text", isPressEnterToChange: true, onChange: (newValue) => {
                         // newValue が undefined の可能性を考慮してガードを入れる
                         const safeValue = newValue ?? "";
                         const newArray = [
@@ -97,7 +96,7 @@ const GridControls = ({ attributes, clientId, onChange, }) => {
                             ...rowUnit.slice(r + 1),
                         ];
                         setUnitRowArray(newArray);
-                    } })));
+                    } }) }, `row-header-${r}`));
             // 各行に対するセルを生成
             for (let c = 0; c < colCount; c++) {
                 if (occupied[r][c]) {
@@ -124,30 +123,28 @@ const GridControls = ({ attributes, clientId, onChange, }) => {
                     }
                 }
                 //セルを生成
-                cells.push(createElement("td", { key: `cell-${r}-${c}`, ...cellSpan, className: isCellSelected(r, c) ? "selected" : "", style: setElm
+                cells.push(jsx("td", { ...cellSpan, className: isCellSelected(r, c) ? "selected" : "", style: setElm
                         ? {
                             backgroundColor: `var(--wp--custom--color--area-${setElm.index})`,
                         }
-                        : undefined, onClick: () => detectCellPosition(r, c) }, setElm && (createElement(StopPropagationWrapper, null,
-                    createElement(ToolbarDropdownMenu, { label: __("Lateral Alignment", "block-collections"), icon: setElm.elm.latAlign
-                            ? alignIconMap[setElm.elm.latAlign]
-                            : alignIconMap["left"], controls: ["left", "center", "right"].map((align) => ({
-                            icon: alignIconMap[align],
-                            title: __(align.charAt(0).toUpperCase() + align.slice(1), "block-collections"),
-                            isActive: setElm.elm.latAlign === align,
-                            onClick: () => updateAlignment(setElm.index, align, "latAlign"),
-                        })) }),
-                    createElement(ToolbarDropdownMenu, { label: __("Vertical Alignment", "block-collections"), icon: setElm.elm.vertAlign
-                            ? alignIconMap[setElm.elm.vertAlign]
-                            : alignIconMap["upper"], controls: ["upper", "middle", "lower"].map((align) => ({
-                            icon: alignIconMap[align],
-                            title: __(align.charAt(0).toUpperCase() + align.slice(1), "block-collections"),
-                            isActive: setElm.elm.vertAlign === align,
-                            onClick: () => updateAlignment(setElm.index, align, "vertAlign"),
-                        })) })))));
+                        : undefined, onClick: () => detectCellPosition(r, c), children: setElm && (jsxs(StopPropagationWrapper, { children: [jsx(ToolbarDropdownMenu, { label: __("Lateral Alignment", "block-collections"), icon: setElm.elm.latAlign
+                                    ? alignIconMap[setElm.elm.latAlign]
+                                    : alignIconMap["left"], controls: ["left", "center", "right"].map((align) => ({
+                                    icon: alignIconMap[align],
+                                    title: __(align.charAt(0).toUpperCase() + align.slice(1), "block-collections"),
+                                    isActive: setElm.elm.latAlign === align,
+                                    onClick: () => updateAlignment(setElm.index, align, "latAlign"),
+                                })) }), jsx(ToolbarDropdownMenu, { label: __("Vertical Alignment", "block-collections"), icon: setElm.elm.vertAlign
+                                    ? alignIconMap[setElm.elm.vertAlign]
+                                    : alignIconMap["upper"], controls: ["upper", "middle", "lower"].map((align) => ({
+                                    icon: alignIconMap[align],
+                                    title: __(align.charAt(0).toUpperCase() + align.slice(1), "block-collections"),
+                                    isActive: setElm.elm.vertAlign === align,
+                                    onClick: () => updateAlignment(setElm.index, align, "vertAlign"),
+                                })) })] })) }, `cell-${r}-${c}`));
             }
             // 行の追加
-            rows.push(createElement("tr", { key: `row-${r}` }, cells));
+            rows.push(jsx("tr", { children: cells }, `row-${r}`));
         }
         return rows;
     };
@@ -276,41 +273,29 @@ const GridControls = ({ attributes, clientId, onChange, }) => {
             firstFlgRef.current = false;
         }
     }, [rowCount, colCount]);
-    return (createElement(Fragment, null,
-        createElement(PanelRow, { className: "distance_row" },
-            createElement(__experimentalNumberControl, { onChange: (newValue) => {
-                    const input_val = typeof newValue === "number" ? newValue : Number(newValue);
-                    setRowCount(input_val);
-                }, label: __("Number of Row ", "block-collections"), value: rowCount, min: 2 }),
-            createElement(__experimentalNumberControl, { onChange: (newValue) => {
-                    const input_val = typeof newValue === "number" ? newValue : Number(newValue);
-                    setColCount(input_val);
-                }, label: __("Number of Colum", "block-collections"), value: colCount })),
-        createElement(PanelRow, { className: "distance_row" },
-            createElement(__experimentalUnitControl, { onChange: (newValue) => {
-                    newValue = newValue != "" ? newValue : "0px";
-                    const newStyle = { ...attributes, rowGap: newValue };
-                    onChange(newStyle);
-                }, label: __("Row Gap", "block-collections"), value: rowGap, units: units }),
-            createElement(__experimentalUnitControl, { onChange: (newValue) => {
-                    newValue = newValue != "" ? newValue : "0px";
-                    const newStyle = { ...attributes, colGap: newValue };
-                    onChange(newStyle);
-                }, label: __("Colum Gap", "block-collections"), value: colGap, units: units })),
-        createElement(PanelRow, { className: "distance_row" },
-            createElement("p", null, __("Element placement", "block-collections")),
-            createElement(Button, { variant: "secondary", onClick: clear_placement }, __("Clear", "block-collections"))),
-        createElement(PanelRow, { className: "grid_table" },
-            createElement("table", null, renderRows())),
-        createElement(ComboboxControl, { label: __("InnerBlock Name", "block-collections"), options: blockNames, value: selBlock ? selBlock.value : null, onChange: (sel_id) => {
-                const matchedBlock = blockNames.find((block) => block.value === sel_id);
-                if (matchedBlock) {
-                    setSelBlock(matchedBlock);
-                }
-                else {
-                    setSelBlock(null);
-                }
-            } })));
+    return (jsxs(Fragment, { children: [jsxs(PanelRow, { className: "distance_row", children: [jsx(__experimentalNumberControl, { onChange: (newValue) => {
+                            const input_val = typeof newValue === "number" ? newValue : Number(newValue);
+                            setRowCount(input_val);
+                        }, label: __("Number of Row ", "block-collections"), value: rowCount, min: 2 }), jsx(__experimentalNumberControl, { onChange: (newValue) => {
+                            const input_val = typeof newValue === "number" ? newValue : Number(newValue);
+                            setColCount(input_val);
+                        }, label: __("Number of Colum", "block-collections"), value: colCount })] }), jsxs(PanelRow, { className: "distance_row", children: [jsx(__experimentalUnitControl, { onChange: (newValue) => {
+                            newValue = newValue != "" ? newValue : "0px";
+                            const newStyle = { ...attributes, rowGap: newValue };
+                            onChange(newStyle);
+                        }, label: __("Row Gap", "block-collections"), value: rowGap, units: units }), jsx(__experimentalUnitControl, { onChange: (newValue) => {
+                            newValue = newValue != "" ? newValue : "0px";
+                            const newStyle = { ...attributes, colGap: newValue };
+                            onChange(newStyle);
+                        }, label: __("Colum Gap", "block-collections"), value: colGap, units: units })] }), jsxs(PanelRow, { className: "distance_row", children: [jsx("p", { children: __("Element placement", "block-collections") }), jsx(Button, { variant: "secondary", onClick: clear_placement, children: __("Clear", "block-collections") })] }), jsx(PanelRow, { className: "grid_table", children: jsx("table", { children: renderRows() }) }), jsx(ComboboxControl, { label: __("InnerBlock Name", "block-collections"), options: blockNames, value: selBlock ? selBlock.value : null, onChange: (sel_id) => {
+                    const matchedBlock = blockNames.find((block) => block.value === sel_id);
+                    if (matchedBlock) {
+                        setSelBlock(matchedBlock);
+                    }
+                    else {
+                        setSelBlock(null);
+                    }
+                } })] }));
 };
 
 export { GridControls as default };

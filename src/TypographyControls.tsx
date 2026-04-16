@@ -159,7 +159,7 @@ const TypographyControls = ({
       <ToggleControl
         label={__("Italic display", "block-collections")}
         checked={isItalic}
-        onChange={(newValue) => {
+        onChange={(newValue: boolean) => {
           onChange({ ...fontStyle, isItalic: newValue });
         }}
       />

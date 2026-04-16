@@ -1,6 +1,9 @@
-import { useRef, useState, useEffect } from '@wordpress/element';
+import { jsx } from 'react/jsx-runtime';
+import { useRef, useState, useEffect, useMemo } from '@wordpress/element';
 import { useDispatch, useSelect } from '@wordpress/data';
 import isEqual from 'lodash/isEqual';
+import { StyleSheetManager } from 'styled-components';
+import { createPortal } from 'react-dom';
 import { __ } from '@wordpress/i18n';
 
 //useRefで参照したDOM要素の大きさを取得するカスタムフック
@@ -20,7 +23,7 @@ function useElementWidth() {
             resizeObserver.disconnect();
         };
     }, []);
-    return [ref, width];
+    return { ref, width };
 }
 //ViewPortの大きさでモバイルを判断(767px以下がモバイル)するカスタムフック
 function useIsMobile() {
@@ -110,8 +113,9 @@ function useElementStyleObject(blockRef, style) {
     return styleObject;
 }
 //たくさんの要素をもつオブジェクトや配列の内容の変化で発火するuseEffect
-function useDeepCompareEffect(callback, dependencies) {
-    const dependenciesRef = useRef(undefined);
+function useDeepCompareEffect(callback, // EffectCallback の中身を直接書く
+dependencies) {
+    const dependenciesRef = useRef();
     if (!isEqual(dependencies, dependenciesRef.current)) {
         dependenciesRef.current = dependencies;
     }
@@ -262,6 +266,18 @@ function useDuplicateBlockRemove(clientId, blockNames) {
         prevInnerBlocksRef.current = innerBlocks;
     }, [innerBlocks, blockNames, removeBlock, createNotice]);
 }
+//iframeにスタイルをわたすReactコンポーネントを作る
+function useStyleIframe(StyleComp, attributes) {
+    const iframeDocument = useMemo(() => {
+        const iframeInstance = document.getElementsByName("editor-canvas")[0];
+        return (iframeInstance?.contentDocument || iframeInstance?.contentWindow?.document);
+    }, []);
+    if (!iframeDocument)
+        return null;
+    // createPortal を使い、StyleSheetManager ごと iframe の head 内（またはダミー要素）へ飛ばします
+    // これにより、元の DOM ツリー（Editコンポーネント内）には一切の div が残りません
+    return createPortal(jsx(StyleSheetManager, { target: iframeDocument.head, children: jsx(StyleComp, { attributes: attributes }) }), iframeDocument.head);
+}
 
-export { useBlockAttributeChanges, useDeepCompareEffect, useDuplicateBlockRemove, useElementBackgroundColor, useElementStyleObject, useElementWidth, useFontawesomeIframe, useIsIframeMobile, useIsMobile };
+export { useBlockAttributeChanges, useDeepCompareEffect, useDuplicateBlockRemove, useElementBackgroundColor, useElementStyleObject, useElementWidth, useFontawesomeIframe, useIsIframeMobile, useIsMobile, useStyleIframe };
 //# sourceMappingURL=customHooks.js.map

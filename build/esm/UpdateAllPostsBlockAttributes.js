@@ -1,4 +1,5 @@
-import { useState, useRef, createElement, Fragment } from '@wordpress/element';
+import { jsxs, Fragment, jsx } from 'react/jsx-runtime';
+import { useState, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { ProgressBar, Button } from '@wordpress/components';
 import { parse, serialize } from '@wordpress/blocks';
@@ -90,26 +91,19 @@ function UpdateAllPostsBlockAttributes({ postType, blockName, newAttributes, onP
             console.error("Error updating block attributes:", error);
         }
     };
-    return (createElement(Fragment, null,
-        createElement(ProgressBar, { value: progress, className: "markdown_copy_progress" }),
-        createElement("p", null,
-            progress,
-            "%"),
-        createElement("div", { style: { width: "fit-content", margin: "20px auto 0" } },
-            createElement(Button, { variant: "primary", onClick: () => {
-                    onProcessStart(); //親コンポーネントでスタート処理
-                    updatePostBlockAttributes();
-                }, disabled: progress > 0 && progress < 100 }, __("Start Process", "markdown-block")),
-            createElement(Button, { variant: "secondary", onClick: () => {
-                    if (progress === 0 || cancelRef.current) {
-                        onProcessEnd(); // 処理が始まる前ならすぐに終了処理を実行
-                    }
-                    else {
-                        // キャンセルフラグを更新（refならすぐに反映される）
-                        cancelRef.current = true;
-                        onProcessCancel(); //親コンポーネントでキャンセル処理
-                    }
-                }, style: { marginLeft: "10px" } }, __("Cancel", "markdown-block")))));
+    return (jsxs(Fragment, { children: [jsx(ProgressBar, { value: progress, className: "markdown_copy_progress" }), jsxs("p", { children: [progress, "%"] }), jsxs("div", { style: { width: "fit-content", margin: "20px auto 0" }, children: [jsx(Button, { variant: "primary", onClick: () => {
+                            onProcessStart(); //親コンポーネントでスタート処理
+                            updatePostBlockAttributes();
+                        }, disabled: progress > 0 && progress < 100, children: __("Start Process", "markdown-block") }), jsx(Button, { variant: "secondary", onClick: () => {
+                            if (progress === 0 || cancelRef.current) {
+                                onProcessEnd(); // 処理が始まる前ならすぐに終了処理を実行
+                            }
+                            else {
+                                // キャンセルフラグを更新（refならすぐに反映される）
+                                cancelRef.current = true;
+                                onProcessCancel(); //親コンポーネントでキャンセル処理
+                            }
+                        }, style: { marginLeft: "10px" }, children: __("Cancel", "markdown-block") })] })] }));
 }
 
 export { UpdateAllPostsBlockAttributes as default };

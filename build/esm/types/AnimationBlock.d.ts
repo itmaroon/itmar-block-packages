@@ -18,5 +18,5 @@ interface AnimationBlockProps {
     };
     onChange: (newAttributes: Partial<AnimationBlockProps["attributes"]>) => void;
 }
-export default function AnimationBlock(props: AnimationBlockProps): JSX.Element;
+export default function AnimationBlock(props: AnimationBlockProps): import("react/jsx-runtime").JSX.Element;
 export {};

@@ -2,9 +2,10 @@
 
 Object.defineProperty(exports, '__esModule', { value: true });
 
-var element = require('@wordpress/element');
+var jsxRuntime = require('react/jsx-runtime');
 var i18n = require('@wordpress/i18n');
 var components = require('@wordpress/components');
+var element = require('@wordpress/element');
 
 const useDraggingMove = (isMovable, blockRef, // ReactのRef型を指定
 position, onPositionChange) => {
@@ -99,13 +100,7 @@ function DraggableBox({ attributes, onPositionChange, }) {
     const resetPos = () => {
         onPositionChange({ x: "0px", y: "0px" });
     };
-    return (element.createElement(element.Fragment, null,
-        element.createElement(components.PanelBody, { title: i18n.__("Position Setting", "block-collections"), initialOpen: true },
-            element.createElement(components.PanelRow, { className: "distance_row" },
-                element.createElement(components.__experimentalUnitControl, { dragDirection: "e", onChange: (value) => chagePosition(value, "x"), label: i18n.__("Vertical", "block-collections"), value: position?.x || 0 }),
-                element.createElement(components.__experimentalUnitControl, { dragDirection: "e", onChange: (value) => chagePosition(value, "y"), label: i18n.__("Horizen", "block-collections"), value: position?.y || 0 })),
-            element.createElement(components.PanelRow, { className: "reset_row" },
-                element.createElement(components.Button, { variant: "secondary", onClick: () => resetPos() }, i18n.__("Reset", "block-collections"))))));
+    return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: jsxRuntime.jsxs(components.PanelBody, { title: i18n.__("Position Setting", "block-collections"), initialOpen: true, children: [jsxRuntime.jsxs(components.PanelRow, { className: "distance_row", children: [jsxRuntime.jsx(components.__experimentalUnitControl, { dragDirection: "e", onChange: (value) => chagePosition(value, "x"), label: i18n.__("Vertical", "block-collections"), value: position?.x || 0 }), jsxRuntime.jsx(components.__experimentalUnitControl, { dragDirection: "e", onChange: (value) => chagePosition(value, "y"), label: i18n.__("Horizen", "block-collections"), value: position?.y || 0 })] }), jsxRuntime.jsx(components.PanelRow, { className: "reset_row", children: jsxRuntime.jsx(components.Button, { variant: "secondary", onClick: () => resetPos(), children: i18n.__("Reset", "block-collections") }) })] }) }));
 }
 
 exports.default = DraggableBox;

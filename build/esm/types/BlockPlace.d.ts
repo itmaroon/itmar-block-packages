@@ -30,7 +30,7 @@ interface BlockPlaceProps {
     onPositionChange: (val: string) => void;
     onGridChange: (attr: Partial<GridAttributes>) => void;
 }
-export default function BlockPlace(props: BlockPlaceProps): JSX.Element;
+export default function BlockPlace(props: BlockPlaceProps): import("react/jsx-runtime").JSX.Element;
 interface BlockWidthProps {
     attributes: any;
     isMobile: boolean;
@@ -38,12 +38,12 @@ interface BlockWidthProps {
     onWidthChange: (key: string, widthVal: string | number) => void;
     onFreeWidthChange: (key: string, freeVal: string | number) => void;
 }
-export declare function BlockWidth(props: BlockWidthProps): JSX.Element;
+export declare function BlockWidth(props: BlockWidthProps): import("react/jsx-runtime").JSX.Element;
 interface BlockHeightProps {
     attributes: any;
     isMobile: boolean;
     onHeightChange: (val: string) => void;
     onFreeHeightChange: (freeVal: string | number) => void;
 }
-export declare function BlockHeight(props: BlockHeightProps): JSX.Element;
+export declare function BlockHeight(props: BlockHeightProps): import("react/jsx-runtime").JSX.Element;
 export {};

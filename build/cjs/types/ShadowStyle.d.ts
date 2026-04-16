@@ -29,5 +29,5 @@ interface ShadowStyleProps {
     shadowStyle: ShadowState;
     onChange: (elm: ShadowResult, state: ShadowState) => void;
 }
-declare const ShadowStyle: ({ shadowStyle, onChange }: ShadowStyleProps) => JSX.Element;
+declare const ShadowStyle: ({ shadowStyle, onChange }: ShadowStyleProps) => import("react/jsx-runtime").JSX.Element;
 export default ShadowStyle;
