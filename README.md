@@ -17,6 +17,10 @@ TypeScript で利用する場合、以下のバージョン以上を推奨しま
 typescript: ^5.0.0 以上
 
 ## 更新履歴
+
+= 3.1.1 =
+ログ表示の微修正
+
 = 3.1.0 =
 useStyleIframeとstyleComponentApplyを新設
 

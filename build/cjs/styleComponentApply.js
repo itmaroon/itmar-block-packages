@@ -23,7 +23,6 @@ const styleComponentApply = (StyleComp, blockSelector) => {
             // 1. スタイルタグを <head> または要素の直前に注入
             const styleContainer = document.createElement("div");
             styleContainer.innerHTML = styleTags;
-            console.log(styleTags);
             document.head.appendChild(styleContainer.firstChild);
             // 2. クラス名を適用する対象を探す
             // save.tsx で <div className="itmar-wrap"> のように目印をつけておくと確実です
