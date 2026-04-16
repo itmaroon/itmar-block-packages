@@ -17,6 +17,9 @@ TypeScript で利用する場合、以下のバージョン以上を推奨しま
 typescript: ^5.0.0 以上
 
 ## 更新履歴
+= 3.1.0 =
+useStyleIframeとstyleComponentApplyを新設
+
 = 3.0.4 =
 ShadowStyleで発生していた無限ループを解消
 ShadowStateをインターフェースとしてエクスポート
