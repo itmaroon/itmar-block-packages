@@ -18,6 +18,9 @@ typescript: ^5.0.0 以上
 
 ## 更新履歴
 
+= 3.1.2 =
+styleComponentApplyでstyle要素が重複して登録されるのを避けるようにした。
+
 = 3.1.1 =
 ログ表示の微修正
 
