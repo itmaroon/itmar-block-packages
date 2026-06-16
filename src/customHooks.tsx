@@ -433,13 +433,6 @@ export function useStyleIframe<T>(
     };
   }, []);
 
-  console.log("iframe", document.getElementsByName("editor-canvas")[0]);
-  console.log("iframeHead", iframeHead);
-  console.log(
-    "styled in iframe",
-    iframeHead?.querySelectorAll("style[data-styled]").length,
-  );
-
   if (!iframeHead) return null;
 
   return createPortal(

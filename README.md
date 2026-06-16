@@ -18,6 +18,9 @@ typescript: ^5.0.0 以上
 
 ## 更新履歴
 
+= 3.1.5 =
+useStyleIframeをuseEffectで読み込むように改修した。
+
 = 3.1.2 =
 styleComponentApplyでstyle要素が重複して登録されるのを避けるようにした。
 
