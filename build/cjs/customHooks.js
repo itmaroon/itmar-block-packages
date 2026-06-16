@@ -270,15 +270,39 @@ function useDuplicateBlockRemove(clientId, blockNames) {
 }
 //iframeにスタイルをわたすReactコンポーネントを作る
 function useStyleIframe(StyleComp, attributes) {
-    const iframeDocument = element.useMemo(() => {
-        const iframeInstance = document.getElementsByName("editor-canvas")[0];
-        return (iframeInstance?.contentDocument || iframeInstance?.contentWindow?.document);
+    const [iframeHead, setIframeHead] = element.useState(null);
+    element.useEffect(() => {
+        let disposed = false;
+        let timerId;
+        const findIframeHead = () => {
+            const iframe = document.getElementsByName("editor-canvas")[0];
+            const doc = iframe?.contentDocument || iframe?.contentWindow?.document || null;
+            if (doc?.head && !disposed) {
+                setIframeHead(doc.head);
+                return true;
+            }
+            return false;
+        };
+        if (!findIframeHead()) {
+            timerId = window.setInterval(() => {
+                if (findIframeHead() && timerId) {
+                    window.clearInterval(timerId);
+                }
+            }, 100);
+        }
+        return () => {
+            disposed = true;
+            if (timerId) {
+                window.clearInterval(timerId);
+            }
+        };
     }, []);
-    if (!iframeDocument)
+    console.log("iframe", document.getElementsByName("editor-canvas")[0]);
+    console.log("iframeHead", iframeHead);
+    console.log("styled in iframe", iframeHead?.querySelectorAll("style[data-styled]").length);
+    if (!iframeHead)
         return null;
-    // createPortal を使い、StyleSheetManager ごと iframe の head 内（またはダミー要素）へ飛ばします
-    // これにより、元の DOM ツリー（Editコンポーネント内）には一切の div が残りません
-    return reactDom.createPortal(jsxRuntime.jsx(styledComponents.StyleSheetManager, { target: iframeDocument.head, children: jsxRuntime.jsx(StyleComp, { attributes: attributes }) }), iframeDocument.head);
+    return reactDom.createPortal(jsxRuntime.jsx(styledComponents.StyleSheetManager, { target: iframeHead, children: jsxRuntime.jsx(StyleComp, { attributes: attributes }) }), iframeHead);
 }
 
 exports.useBlockAttributeChanges = useBlockAttributeChanges;

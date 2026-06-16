@@ -23,7 +23,6 @@ const styleComponentApply = (StyleComp, blockSelector) => {
             const className = classMatch ? classMatch[1] : "";
             // ----------------------------------
             if (className) {
-                console.log(`${className} : ${injectedClasses.has(className)}`);
                 // 3. 【重要】このクラス名がまだ注入されていなければ実行
                 if (!injectedClasses.has(className)) {
                     // 1. スタイルタグを <head> または要素の直前に注入
@@ -39,7 +38,8 @@ const styleComponentApply = (StyleComp, blockSelector) => {
                 // 2. クラス名を適用する対象を探す
                 // save.tsx で <div className="itmar-wrap"> のように目印をつけておくと確実です
                 const target = el.querySelector(".itmar-wrap") || el;
-                target.classList.add(...className.split(" "));
+                const classNames = className.trim().split(/\s+/).filter(Boolean);
+                target.classList.add(...classNames);
             }
         }
         catch (e) {

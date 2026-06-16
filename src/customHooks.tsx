@@ -395,23 +395,57 @@ export function useStyleIframe<T>(
   StyleComp: React.ComponentType<{ attributes: T; children?: React.ReactNode }>,
   attributes: T,
 ) {
-  const iframeDocument = useMemo(() => {
-    const iframeInstance = document.getElementsByName("editor-canvas")[0] as
-      | HTMLIFrameElement
-      | undefined;
-    return (
-      iframeInstance?.contentDocument || iframeInstance?.contentWindow?.document
-    );
+  const [iframeHead, setIframeHead] = useState<HTMLHeadElement | null>(null);
+
+  useEffect(() => {
+    let disposed = false;
+    let timerId: number | undefined;
+
+    const findIframeHead = () => {
+      const iframe = document.getElementsByName("editor-canvas")[0] as
+        | HTMLIFrameElement
+        | undefined;
+
+      const doc =
+        iframe?.contentDocument || iframe?.contentWindow?.document || null;
+
+      if (doc?.head && !disposed) {
+        setIframeHead(doc.head);
+        return true;
+      }
+
+      return false;
+    };
+
+    if (!findIframeHead()) {
+      timerId = window.setInterval(() => {
+        if (findIframeHead() && timerId) {
+          window.clearInterval(timerId);
+        }
+      }, 100);
+    }
+
+    return () => {
+      disposed = true;
+      if (timerId) {
+        window.clearInterval(timerId);
+      }
+    };
   }, []);
 
-  if (!iframeDocument) return null;
+  console.log("iframe", document.getElementsByName("editor-canvas")[0]);
+  console.log("iframeHead", iframeHead);
+  console.log(
+    "styled in iframe",
+    iframeHead?.querySelectorAll("style[data-styled]").length,
+  );
 
-  // createPortal を使い、StyleSheetManager ごと iframe の head 内（またはダミー要素）へ飛ばします
-  // これにより、元の DOM ツリー（Editコンポーネント内）には一切の div が残りません
+  if (!iframeHead) return null;
+
   return createPortal(
-    <StyleSheetManager target={iframeDocument.head}>
+    <StyleSheetManager target={iframeHead}>
       <StyleComp attributes={attributes} />
     </StyleSheetManager>,
-    iframeDocument.head, // 描画先を head にすることで、div が出ても画面には影響しません
+    iframeHead,
   );
 }

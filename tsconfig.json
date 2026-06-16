@@ -17,7 +17,7 @@
     "noImplicitAny": false,// ここを false にすると、引数の型省略が許されるようになります
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "types": [],
+    "types": ["jquery"],
     "forceConsistentCasingInFileNames": true,
     "paths": {
       "react": ["./node_modules/react"],
