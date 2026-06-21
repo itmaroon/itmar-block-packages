@@ -1,5 +1,18 @@
 import Swiper from "swiper";
-import type { SwiperOptions } from "swiper/types";
+import {
+  Navigation,
+  Pagination,
+  Scrollbar,
+  EffectCards,
+  EffectCoverflow,
+  EffectCreative,
+  EffectCube,
+  EffectFade,
+  EffectFlip,
+  Parallax,
+  Thumbs,
+} from "swiper/modules";
+import type { SwiperOptions, SwiperModule } from "swiper/types";
 
 //Swiper初期化関数
 // jQueryの $.data() 相当をざっくり再現（文字列→boolean/number/JSON を変換）
@@ -159,6 +172,30 @@ export function slideBlockSwiperInit(
   const swiper_info = getData(el, "swiper-info") as SwiperInfo;
   const parallax_obj = getData(el, "parallax-option");
 
+  const moduleArray: SwiperModule[] = [];
+
+  //モジュールのマッピング
+  const effectModule = {
+    fade_single_view: EffectFade,
+    coverflow: EffectCoverflow,
+    coverflow_2: EffectCoverflow,
+    cube: EffectCube,
+    flip: EffectFlip,
+    cards: EffectCards,
+    parallax: Parallax,
+    thumbs: Thumbs,
+  };
+
+  //エフェクトのセット
+  if (swiper_info.effect) {
+    if (effectModule[swiper_info.effect]) {
+      moduleArray.push(effectModule[swiper_info.effect]);
+    }
+  }
+
+  //モジュールを追加
+  moduleArray.push(effectModule["parallax"], effectModule["thumbs"]);
+
   if (!swiper_info || typeof swiper_info !== "object") {
     throw new Error(
       "data-swiper-info が見つからないか、JSONとして解釈できません。",
@@ -287,17 +324,21 @@ export function slideBlockSwiperInit(
 
   // ナビゲーション等の設定
   if (swiper_info.navigation?.disp) {
+    moduleArray.push(Navigation);
     swiperOptions.navigation = {
       nextEl: `.${swiper_id}-next`,
       prevEl: `.${swiper_id}-prev`,
+      addIcons: false,
     };
   }
 
   if (swiper_info.pagination?.disp) {
+    moduleArray.push(Pagination);
     swiperOptions.pagination = { el: `.${swiper_id}-pagination` };
   }
 
   if (swiper_info.scrollbar?.disp) {
+    moduleArray.push(Scrollbar);
     swiperOptions.scrollbar = { el: `.${swiper_id}-scrollbar` };
   }
 
@@ -308,7 +349,7 @@ export function slideBlockSwiperInit(
   }
 
   // ここが $swiperElement[0] -> el に変わる
-  const instance = new Swiper(el, swiperOptions);
+  const instance = new Swiper(el, { ...swiperOptions, modules: moduleArray });
 
   const swiperObj: SwiperObject = {
     instance,
