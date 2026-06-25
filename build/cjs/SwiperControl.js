@@ -1,6 +1,7 @@
 'use strict';
 
 var Swiper = require('swiper');
+var modules = require('swiper/modules');
 
 // 2. 外部変数の宣言（管理用のSetとMap）
 const linkedPairs = new Set();
@@ -111,6 +112,26 @@ function slideBlockSwiperInit(swiperElement) {
     const is_thumbnail = !!getData(el, "thumb-flg");
     const swiper_info = getData(el, "swiper-info");
     const parallax_obj = getData(el, "parallax-option");
+    const moduleArray = [];
+    //モジュールのマッピング
+    const effectModule = {
+        fade_single_view: modules.EffectFade,
+        coverflow: modules.EffectCoverflow,
+        coverflow_2: modules.EffectCoverflow,
+        cube: modules.EffectCube,
+        flip: modules.EffectFlip,
+        cards: modules.EffectCards,
+        parallax: modules.Parallax,
+        thumbs: modules.Thumbs,
+    };
+    //エフェクトのセット
+    if (swiper_info.effect) {
+        if (effectModule[swiper_info.effect]) {
+            moduleArray.push(effectModule[swiper_info.effect]);
+        }
+    }
+    //モジュールを追加
+    moduleArray.push(effectModule["parallax"], effectModule["thumbs"]);
     if (!swiper_info || typeof swiper_info !== "object") {
         throw new Error("data-swiper-info が見つからないか、JSONとして解釈できません。");
     }
@@ -231,15 +252,19 @@ function slideBlockSwiperInit(swiperElement) {
     }
     // ナビゲーション等の設定
     if (swiper_info.navigation?.disp) {
+        moduleArray.push(modules.Navigation);
         swiperOptions.navigation = {
             nextEl: `.${swiper_id}-next`,
             prevEl: `.${swiper_id}-prev`,
+            addIcons: false,
         };
     }
     if (swiper_info.pagination?.disp) {
+        moduleArray.push(modules.Pagination);
         swiperOptions.pagination = { el: `.${swiper_id}-pagination` };
     }
     if (swiper_info.scrollbar?.disp) {
+        moduleArray.push(modules.Scrollbar);
         swiperOptions.scrollbar = { el: `.${swiper_id}-scrollbar` };
     }
     // エフェクトの適用
@@ -248,7 +273,7 @@ function slideBlockSwiperInit(swiperElement) {
         swiperOptions = { ...swiperOptions, ...effectOption[currentEffect] };
     }
     // ここが $swiperElement[0] -> el に変わる
-    const instance = new Swiper(el, swiperOptions);
+    const instance = new Swiper(el, { ...swiperOptions, modules: moduleArray });
     const swiperObj = {
         instance,
         swiper_id,
