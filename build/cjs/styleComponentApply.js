@@ -57,12 +57,6 @@ const styleComponentApply = (StyleComp, blockSelector, options = {}) => {
                 // save.tsx で <div className="itmar-wrap"> のように目印をつけておくと確実です
                 const target = options.getTarget?.(el) ||
                     resolveTarget(el, options.selector ?? ".itmar-wrap", options.target ?? "auto");
-<<<<<<< HEAD
-=======
-                if (blockSelector === ".wp-block-itmar-input-figure-block") {
-                    console.log(target);
-                }
->>>>>>> 8a670461acf61d495965a22ff99aa12c586656b1
                 if (!target)
                     return;
                 const classNames = className.trim().split(/\s+/).filter(Boolean);
