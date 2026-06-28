@@ -2,9 +2,13 @@ import {
   useRef,
   useEffect,
   useState,
+  useCallback,
   useMemo,
   RefObject,
 } from "@wordpress/element";
+
+import { type ComponentType, type ReactNode } from "react";
+import type React from "react";
 import { useSelect, useDispatch } from "@wordpress/data";
 import isEqual from "lodash/isEqual";
 import { StyleSheetManager } from "styled-components";
@@ -137,34 +141,66 @@ export function useElementBackgroundColor(
 }
 
 //ブロックのスタイルを取得し、コールバック関数を返すカスタムフック
+function camelToKebab(prop: string) {
+  if (prop.startsWith("--")) {
+    return prop;
+  }
+
+  return prop.replace(/[A-Z]/g, (match) => `-${match.toLowerCase()}`);
+}
+
 export function useElementStyleObject(
   blockRef: RefObject<HTMLElement>,
-  style: React.CSSProperties,
+  style: React.CSSProperties = {},
 ) {
   const [styleObject, setStyleObject] = useState("");
 
+  const styleSignature = JSON.stringify(style ?? {});
+
   useEffect(() => {
-    if (blockRef.current && style) {
-      //レンダリング結果に基づくスタイルの取得
-      const computedStyles = getComputedStyle(blockRef.current);
-      // styleオブジェクトのキーに基づいてnewStyleObjectを生成
-      const newStyleObject = Object.keys(style).reduce<Record<string, any>>(
+    const element = blockRef.current;
+
+    if (!element || !styleSignature || styleSignature === "{}") {
+      return;
+    }
+
+    let cancelled = false;
+
+    const frameId = window.requestAnimationFrame(() => {
+      if (cancelled || !blockRef.current) {
+        return;
+      }
+
+      const computedStyles = window.getComputedStyle(blockRef.current);
+      const styleKeys = Object.keys(JSON.parse(styleSignature));
+
+      const newStyleObject = styleKeys.reduce<Record<string, string>>(
         (acc, key) => {
-          // key を keyof typeof computedStyles とみなす、あるいは単純に文字列としてアクセスを許可する
-          const styleKey = key as keyof typeof computedStyles;
-          if (computedStyles[styleKey]) {
-            // computedStylesにキーが存在するか確認
-            acc[key] = computedStyles[styleKey];
+          const cssPropertyName = camelToKebab(key);
+
+          const value = computedStyles.getPropertyValue(cssPropertyName);
+
+          if (value) {
+            acc[key] = value.trim();
           }
+
           return acc;
         },
         {},
       );
 
-      setStyleObject(JSON.stringify(newStyleObject));
-    }
-  }, [blockRef, style]);
-  // styleObjectをオブジェクトとして返す
+      const nextStyleObject = JSON.stringify(newStyleObject);
+
+      setStyleObject((prev) => {
+        return prev === nextStyleObject ? prev : nextStyleObject;
+      });
+    });
+
+    return () => {
+      cancelled = true;
+      window.cancelAnimationFrame(frameId);
+    };
+  }, [blockRef, styleSignature]);
   return styleObject;
 }
 
@@ -394,6 +430,7 @@ export function useDuplicateBlockRemove(
 export function useStyleIframe<T>(
   StyleComp: React.ComponentType<{ attributes: T; children?: React.ReactNode }>,
   attributes: T,
+  styleName = "",
 ) {
   const [iframeHead, setIframeHead] = useState<HTMLHeadElement | null>(null);
 

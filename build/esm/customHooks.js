@@ -90,26 +90,45 @@ function useElementBackgroundColor(blockRef, style) {
     return baseColor;
 }
 //ブロックのスタイルを取得し、コールバック関数を返すカスタムフック
-function useElementStyleObject(blockRef, style) {
+function camelToKebab(prop) {
+    if (prop.startsWith("--")) {
+        return prop;
+    }
+    return prop.replace(/[A-Z]/g, (match) => `-${match.toLowerCase()}`);
+}
+function useElementStyleObject(blockRef, style = {}) {
     const [styleObject, setStyleObject] = useState("");
+    const styleSignature = JSON.stringify(style ?? {});
     useEffect(() => {
-        if (blockRef.current && style) {
-            //レンダリング結果に基づくスタイルの取得
-            const computedStyles = getComputedStyle(blockRef.current);
-            // styleオブジェクトのキーに基づいてnewStyleObjectを生成
-            const newStyleObject = Object.keys(style).reduce((acc, key) => {
-                // key を keyof typeof computedStyles とみなす、あるいは単純に文字列としてアクセスを許可する
-                const styleKey = key;
-                if (computedStyles[styleKey]) {
-                    // computedStylesにキーが存在するか確認
-                    acc[key] = computedStyles[styleKey];
+        const element = blockRef.current;
+        if (!element || !styleSignature || styleSignature === "{}") {
+            return;
+        }
+        let cancelled = false;
+        const frameId = window.requestAnimationFrame(() => {
+            if (cancelled || !blockRef.current) {
+                return;
+            }
+            const computedStyles = window.getComputedStyle(blockRef.current);
+            const styleKeys = Object.keys(JSON.parse(styleSignature));
+            const newStyleObject = styleKeys.reduce((acc, key) => {
+                const cssPropertyName = camelToKebab(key);
+                const value = computedStyles.getPropertyValue(cssPropertyName);
+                if (value) {
+                    acc[key] = value.trim();
                 }
                 return acc;
             }, {});
-            setStyleObject(JSON.stringify(newStyleObject));
-        }
-    }, [blockRef, style]);
-    // styleObjectをオブジェクトとして返す
+            const nextStyleObject = JSON.stringify(newStyleObject);
+            setStyleObject((prev) => {
+                return prev === nextStyleObject ? prev : nextStyleObject;
+            });
+        });
+        return () => {
+            cancelled = true;
+            window.cancelAnimationFrame(frameId);
+        };
+    }, [blockRef, styleSignature]);
     return styleObject;
 }
 //たくさんの要素をもつオブジェクトや配列の内容の変化で発火するuseEffect
@@ -267,7 +286,7 @@ function useDuplicateBlockRemove(clientId, blockNames) {
     }, [innerBlocks, blockNames, removeBlock, createNotice]);
 }
 //iframeにスタイルをわたすReactコンポーネントを作る
-function useStyleIframe(StyleComp, attributes) {
+function useStyleIframe(StyleComp, attributes, styleName = "") {
     const [iframeHead, setIframeHead] = useState(null);
     useEffect(() => {
         let disposed = false;
