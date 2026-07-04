@@ -18,6 +18,9 @@ typescript: ^5.0.0 以上
 
 ## 更新履歴
 
+= 3.2.0 =
+styleDataApplyを新設し、フロントエンドでのスタイル付与をstyled-componetsを使用しないようにした。
+
 = 3.1.5 =
 useStyleIframeをuseEffectで読み込むように改修した。
 
