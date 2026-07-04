@@ -12,6 +12,18 @@ type StyleComponentApplyOptions = {
   getTarget?: (el: Element) => Element | null;
 };
 
+type StyleDataApplyOptions<T> = StyleComponentApplyOptions & {
+  attributeName?: string;
+  classPrefix?: string;
+  observe?: boolean;
+  decorateTarget?: (target: Element, attributes: T) => void;
+};
+
+type StyleDataApplyController = {
+  refresh: (root?: ParentNode) => void;
+  disconnect: () => void;
+};
+
 const resolveTarget = (
   el: Element,
   selector: string = ".itmar-wrap",
@@ -56,10 +68,17 @@ export const styleComponentApply = <T,>(
 
       //styleタグの生成
       const sheet = new ServerStyleSheet();
-      const html = renderToString(
-        sheet.collectStyles(<StyleComp attributes={attributes} />),
-      );
-      const styleTags = sheet.getStyleTags();
+      let html = "";
+      let styleTags = "";
+
+      try {
+        html = renderToString(
+          sheet.collectStyles(<StyleComp attributes={attributes} />),
+        );
+        styleTags = sheet.getStyleTags();
+      } finally {
+        sheet.seal();
+      }
 
       // 正規表現でクラス名を抽出
       const classMatch = html.match(/class="([^"]+)"/);
@@ -100,4 +119,144 @@ export const styleComponentApply = <T,>(
       console.error("Style injection failed:", e);
     }
   });
+};
+
+const stableSerialize = (value: unknown): string => {
+  if (value === null || typeof value !== "object") {
+    return JSON.stringify(value) ?? "null";
+  }
+
+  if (Array.isArray(value)) {
+    return `[${value.map(stableSerialize).join(",")}]`;
+  }
+
+  const record = value as Record<string, unknown>;
+  const keys = Object.keys(record).sort();
+
+  return `{${keys
+    .map((key) => `${JSON.stringify(key)}:${stableSerialize(record[key])}`)
+    .join(",")}}`;
+};
+
+const hashString = (value: string): string => {
+  let hash = 0x811c9dc5;
+
+  for (let index = 0; index < value.length; index += 1) {
+    hash ^= value.charCodeAt(index);
+    hash = Math.imul(hash, 0x01000193);
+  }
+
+  return (hash >>> 0).toString(36);
+};
+
+/**
+ * React/styled-componentsを使わず、保存済み属性からスコープ付きCSSを適用する。
+ * 戻り値のrefreshはAjax等で追加されたブロックにも再適用できる。
+ */
+export const styleDataApply = <T,>(
+  createCss: (attributes: T, scopeSelector: string) => string,
+  blockSelector: string,
+  options: StyleDataApplyOptions<T> = {},
+): StyleDataApplyController => {
+  const processedElements = new WeakSet<Element>();
+  const attributeName = options.attributeName ?? "data-attributes";
+  const classPrefix = options.classPrefix ?? "itmar-style-";
+
+  const applyToElement = (el: Element) => {
+    if (processedElements.has(el)) return;
+
+    const attrData = el.getAttribute(attributeName);
+    if (!attrData) return;
+
+    try {
+      const attributes = JSON.parse(attrData) as T;
+      const styleKey = hashString(
+        `${blockSelector}:${classPrefix}:${stableSerialize(attributes)}`,
+      );
+      const scopeClass = `${classPrefix}${styleKey}`;
+      const scopeSelector = `.${scopeClass}`;
+      const cssText = createCss(attributes, scopeSelector).trim();
+
+      const target =
+        options.getTarget?.(el) ??
+        resolveTarget(
+          el,
+          options.selector ?? ".itmar-wrap",
+          options.target ?? "auto",
+        );
+
+      if (!target) return;
+
+      target.classList.add(scopeClass);
+      options.decorateTarget?.(target, attributes);
+
+      const existingStyle = document.head.querySelector(
+        `style[data-itmar-style="${styleKey}"]`,
+      );
+
+      if (cssText && !existingStyle) {
+        const styleElement = document.createElement("style");
+        styleElement.dataset.itmarStyle = styleKey;
+        styleElement.textContent = cssText;
+        document.head.appendChild(styleElement);
+      }
+
+      processedElements.add(el);
+    } catch (error) {
+      console.error("Style data injection failed:", error, el);
+    }
+  };
+
+  const refresh = (root: ParentNode = document) => {
+    if (root instanceof Element && root.matches(blockSelector)) {
+      applyToElement(root);
+    }
+
+    root.querySelectorAll(blockSelector).forEach(applyToElement);
+  };
+
+  const observer =
+    options.observe === false
+      ? null
+      : new MutationObserver((mutations) => {
+          mutations.forEach((mutation) => {
+            mutation.addedNodes.forEach((node) => {
+              if (node instanceof Element) refresh(node);
+            });
+          });
+        });
+
+  refresh();
+  observer?.observe(document.documentElement, {
+    childList: true,
+    subtree: true,
+  });
+
+  return {
+    refresh,
+    disconnect: () => observer?.disconnect(),
+  };
+};
+//純粋CSS生成関数
+export const cssValueToString = (value: unknown): string => {
+  if (value == null || value === false) return "";
+
+  if (Array.isArray(value)) {
+    return value.map(cssValueToString).join("");
+  }
+
+  if (typeof value === "object") {
+    return Object.entries(value)
+      .filter(([, cssValue]) => cssValue != null)
+      .map(([property, cssValue]) => {
+        const cssProperty = property.replace(
+          /[A-Z]/g,
+          (char) => `-${char.toLowerCase()}`,
+        );
+        return `${cssProperty}:${cssValue};`;
+      })
+      .join("");
+  }
+
+  return String(value);
 };

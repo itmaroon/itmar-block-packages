@@ -158,4 +158,8 @@ export {
 } from "./pickupStore";
 
 //フロントエンドにstyle_conponentが生成したスタイルを送る
-export { styleComponentApply } from "./styleComponentApply";
+export {
+  styleComponentApply,
+  styleDataApply,
+  cssValueToString,
+} from "./styleComponentApply";

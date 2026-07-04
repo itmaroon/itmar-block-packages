@@ -29,4 +29,4 @@ export { useRebuildChangeField } from "./BrockInserter";
 export { default as MasonryControl } from "./MasonryControl";
 export { slideBlockSwiperInit } from "./SwiperControl";
 export { ensureCtx, registerPickup, getCtx, subscribe, setState, } from "./pickupStore";
-export { styleComponentApply } from "./styleComponentApply";
+export { styleComponentApply, styleDataApply, cssValueToString, } from "./styleComponentApply";

@@ -26,7 +26,7 @@ export { useRebuildChangeField } from './BrockInserter.js';
 export { default as MasonryControl } from './MasonryControl.js';
 export { slideBlockSwiperInit } from './SwiperControl.js';
 export { ensureCtx, getCtx, registerPickup, setState, subscribe } from './pickupStore.js';
-export { styleComponentApply } from './styleComponentApply.js';
+export { cssValueToString, styleComponentApply, styleDataApply } from './styleComponentApply.js';
 
 // itmaroon-block-packages/src/index.ts
 // 初期値を null で作成
