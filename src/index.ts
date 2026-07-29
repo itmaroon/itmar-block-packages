@@ -60,6 +60,7 @@ export { default as ShadowStyle, ShadowElm, ShadowState } from "./ShadowStyle";
 
 //疑似要素を設定するコントロール
 export { default as PseudoElm, Arrow } from "./PseudoElm";
+export type { ArrowDirection } from "./PseudoElm";
 
 //メディアライブラリから複数の画像を選択するコントロール
 export {
@@ -88,6 +89,7 @@ export { default as TypographyControls } from "./TypographyControls";
 
 //アイコンの表示を設定するコントロール
 export { default as IconSelectControl } from "./IconSelectControl";
+export type { IconStyle } from "./IconSelectControl";
 
 //ブロックをlazy Loadさせるためのラッパーモジュール
 export { default as BlockEditWrapper } from "./BlockEditWrapper";

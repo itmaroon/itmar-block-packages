@@ -1,10 +1,9 @@
-import { createElement, Fragment } from "@wordpress/element";
 import { __ } from "@wordpress/i18n";
 import { css } from "styled-components";
 import { RadioControl } from "@wordpress/components";
 
 // 1. 許可される方向を型として定義
-type ArrowDirection = "upper" | "left" | "right" | "under" | "down";
+export type ArrowDirection = "upper" | "left" | "right" | "under" | "down";
 
 // 2. Props の型定義
 interface PseudoElmProps {

@@ -54,7 +54,7 @@ const family_option = [
 ];
 
 // 1. アイコンスタイルの型定義
-interface IconStyle {
+export interface IconStyle {
   icon_type: "awesome" | "image" | "avatar" | string;
   icon_url?: string;
   icon_name?: string;

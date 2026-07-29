@@ -1,4 +1,4 @@
-interface IconStyle {
+export interface IconStyle {
     icon_type: "awesome" | "image" | "avatar" | string;
     icon_url?: string;
     icon_name?: string;

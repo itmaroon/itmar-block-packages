@@ -98,6 +98,17 @@ const ChoiceControl = (props) => {
      */
     function buildComparableKeySet(dataObj) {
         const keySet = new Set();
+        const addNestedKeys = (obj, prefix) => {
+            if (!obj || typeof obj !== "object" || Array.isArray(obj))
+                return;
+            for (const [key, val] of Object.entries(obj)) {
+                const fieldKey = `${prefix}.${key}`;
+                keySet.add(fieldKey);
+                if (val && typeof val === "object" && !Array.isArray(val)) {
+                    addNestedKeys(val, fieldKey);
+                }
+            }
+        };
         if (!dataObj || typeof dataObj !== "object")
             return keySet;
         for (const [key, val] of Object.entries(dataObj)) {
@@ -105,8 +116,14 @@ const ChoiceControl = (props) => {
                 val &&
                 typeof val === "object" &&
                 !Array.isArray(val)) {
-                for (const childKey of Object.keys(val)) {
-                    keySet.add(`${key}_${childKey}`);
+                for (const [childKey, childVal] of Object.entries(val)) {
+                    const baseKey = `${key}_${childKey}`;
+                    keySet.add(baseKey);
+                    if (childVal &&
+                        typeof childVal === "object" &&
+                        !Array.isArray(childVal)) {
+                        addNestedKeys(childVal, baseKey);
+                    }
                 }
                 continue;
             }

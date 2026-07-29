@@ -1,4 +1,4 @@
-type ArrowDirection = "upper" | "left" | "right" | "under" | "down";
+export type ArrowDirection = "upper" | "left" | "right" | "under" | "down";
 interface PseudoElmProps {
     direction: ArrowDirection;
     onChange: (value: ArrowDirection) => void;

@@ -198,6 +198,19 @@ const ChoiceControl = (props: ChoiceControlProps) => {
   function buildComparableKeySet(dataObj: any) {
     const keySet = new Set<string>();
 
+    const addNestedKeys = (obj: any, prefix: string) => {
+      if (!obj || typeof obj !== "object" || Array.isArray(obj)) return;
+
+      for (const [key, val] of Object.entries(obj)) {
+        const fieldKey = `${prefix}.${key}`;
+        keySet.add(fieldKey);
+
+        if (val && typeof val === "object" && !Array.isArray(val)) {
+          addNestedKeys(val, fieldKey);
+        }
+      }
+    };
+
     if (!dataObj || typeof dataObj !== "object") return keySet;
 
     for (const [key, val] of Object.entries(dataObj)) {
@@ -207,8 +220,17 @@ const ChoiceControl = (props: ChoiceControlProps) => {
         typeof val === "object" &&
         !Array.isArray(val)
       ) {
-        for (const childKey of Object.keys(val)) {
-          keySet.add(`${key}_${childKey}`);
+        for (const [childKey, childVal] of Object.entries(val)) {
+          const baseKey = `${key}_${childKey}`;
+          keySet.add(baseKey);
+
+          if (
+            childVal &&
+            typeof childVal === "object" &&
+            !Array.isArray(childVal)
+          ) {
+            addNestedKeys(childVal, baseKey);
+          }
         }
         continue;
       }
@@ -274,6 +296,7 @@ const ChoiceControl = (props: ChoiceControlProps) => {
           { value: "core/image", label: "core/image" },
           { value: "itmar/slide-mv", label: "itmar/slide-mv" },
         ];
+
         return (
           <div className="itmar_custom_field_set" key={fieldName}>
             <ToggleControl

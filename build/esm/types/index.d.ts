@@ -7,6 +7,7 @@ export { fetchPagesOptions, fetchArchiveOptions, restFetchData, restTaxonomies, 
 export { space_prm, max_width_prm, width_prm, height_prm, align_prm, position_prm, radius_prm, convertToScss, borderProperty, radiusProperty, marginProperty, paddingProperty, } from "./cssPropertes";
 export { default as ShadowStyle, ShadowElm, ShadowState } from "./ShadowStyle";
 export { default as PseudoElm, Arrow } from "./PseudoElm";
+export type { ArrowDirection } from "./PseudoElm";
 export { SingleImageSelect, MultiImageSelect, getMediaType, getImageAspectRatio, getVideoAspectRatio, } from "./mediaUpload";
 export { default as DraggableBox, useDraggingMove } from "./DraggableBox";
 export { default as AnimationBlock, anime_comp } from "./AnimationBlock";
@@ -15,6 +16,7 @@ export { default as GridControls } from "./GridControls";
 export { default as ToggleElement } from "./ToggleElement";
 export { default as TypographyControls } from "./TypographyControls";
 export { default as IconSelectControl } from "./IconSelectControl";
+export type { IconStyle } from "./IconSelectControl";
 export { default as BlockEditWrapper } from "./BlockEditWrapper";
 export { hslToRgb16, rgb16ToHsl, HexToRGB } from "./hslToRgb";
 export { generateDateArray, generateMonthCalendar, PeriodCtrl, getPeriodQuery, getTodayYearMonth, getTodayYear, getTodayMonth, getMonthRangeYmd, normalizeDateYYYYMMDD, toYmdFromMonthAndDay, generateGridAreas, } from "./DateElm";

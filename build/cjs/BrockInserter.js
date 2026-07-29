@@ -90,27 +90,42 @@ const createBlockAttr = (selectedField, pluginOption) => {
     }
     return blockAttributes;
 };
+const normalizeDispAttributeArray = (items = [], length) => {
+    const next = [...items];
+    if (next.length < length) {
+        return [
+            ...next,
+            ...Array.from({ length: length - next.length }, () => ({})),
+        ];
+    }
+    return next.slice(0, length);
+};
+const normalizeBlockSnapshot = (value) => {
+    if (Array.isArray(value)) {
+        return value.map(normalizeBlockSnapshot);
+    }
+    if (!value || typeof value !== "object") {
+        return value;
+    }
+    const { clientId, isValid, originalContent, validationIssues, ...rest } = value;
+    return Object.fromEntries(Object.entries(rest).map(([key, entryValue]) => [
+        key,
+        normalizeBlockSnapshot(entryValue),
+    ]));
+};
+const getBlocksSnapshot = (blocks = []) => JSON.stringify(blocks.map((block) => normalizeBlockSnapshot(blockStore.serializeBlockTree(block))));
+//表示フィールド変更によるインナーブロックの再構成
 const useRebuildChangeField = (dispAttributeArray, // 外部から渡される配列
-selectedFields, pickupType, dispTaxonomies, sectionCount, domType, clientId, insertId, pluginOption) => {
+selectedFields, pickupType, dispTaxonomies, sectionCount, domType, clientId, insertId, pluginOption, onRebuildBlocks) => {
     // dispatch関数を取得
     const { replaceInnerBlocks } = data.useDispatch("core/block-editor");
     const pickupBlock = data.useSelect((select) => select("core/block-editor").getBlock(clientId), [clientId]);
+    const insertBlock = data.useSelect((select) => select("core/block-editor").getBlock(insertId), [insertId]);
     element.useEffect(() => {
         //dispAttributeArray の個数調整
-        const blocksLength = dispAttributeArray.length;
-        if (blocksLength < sectionCount) {
-            // dispAttributeArrayの長さが短い場合、{}を追加する
-            const diff = sectionCount - blocksLength;
-            for (let i = 0; i < diff; i++) {
-                dispAttributeArray.push({});
-            }
-        }
-        else {
-            // dispAttributeArrayの長さが長い場合、余分な要素を削除する
-            dispAttributeArray.splice(sectionCount);
-        }
+        const normalizedDispAttributeArray = normalizeDispAttributeArray(dispAttributeArray, sectionCount);
         // インナーブロックに差し込むブロック配列を生成
-        const blocksArray = dispAttributeArray.map((dispAttribute, unit_index) => {
+        const blocksArray = normalizedDispAttributeArray.map((dispAttribute, unit_index) => {
             // blocksAttributesArray属性で登録されたブロックのclassName一覧（sp_field_xxx を拾う）
             const allBlocks = Array.isArray(dispAttribute.innerBlocks)
                 ? blockStore.flattenBlocks(dispAttribute.innerBlocks) //階層になったブロックを平坦化
@@ -120,7 +135,8 @@ selectedFields, pickupType, dispTaxonomies, sectionCount, domType, clientId, ins
                 .filter(Boolean)
                 .map((cls) => {
                 // sp_field_◯◯ か tax_◯◯ のどちらかにマッチ
-                const match = cls.match(/sp_field_([\w-]+)|(tax_[\w-]+)/);
+                //const match = cls.match(/sp_field_([\w-]+)|(tax_[\w-]+)/);
+                const match = cls.match(/sp_field_([^\s]+)|(tax_[^\s]+)/);
                 if (!match)
                     return null;
                 // match[1] があれば sp_field_ のほう → プレフィックス除去
@@ -156,7 +172,8 @@ selectedFields, pickupType, dispTaxonomies, sectionCount, domType, clientId, ins
                     .map((block) => {
                     const className = block.attributes?.className || "";
                     // 1. まず sp_field_ のパターンを探す
-                    let match = className.match(/sp_field_([a-zA-Z0-9_]+)/);
+                    //let match = className.match(/sp_field_([a-zA-Z0-9_]+)/);
+                    let match = className.match(/sp_field_([^\s]+)/);
                     // 2. 見つからなければ tax_○○ をチェック
                     if (className.startsWith("tax_")) {
                         const name = className.slice("tax_".length); // "tax_category" → "category"
@@ -196,12 +213,29 @@ selectedFields, pickupType, dispTaxonomies, sectionCount, domType, clientId, ins
             return ret;
         });
         //挿入するブロックと自身のブロックが異なる場合（slide-mvにデータを入れる場合）
-        if (insertId !== clientId) {
+        if (insertId !== clientId && pickupBlock) {
             blocksArray.push(pickupBlock);
         }
+        const currentBlocks = insertBlock?.innerBlocks || [];
+        const currentSnapshot = getBlocksSnapshot(currentBlocks);
+        const nextSnapshot = getBlocksSnapshot(blocksArray);
+        if (currentSnapshot === nextSnapshot) {
+            return;
+        }
+        onRebuildBlocks?.(blocksArray);
         // 既存のインナーブロックを一括置換
         replaceInnerBlocks(insertId, blocksArray, false);
-    }, [selectedFields, pickupType, dispTaxonomies]);
+    }, [
+        selectedFields,
+        pickupType,
+        dispTaxonomies,
+        sectionCount,
+        domType,
+        clientId,
+        insertId,
+        pluginOption,
+        replaceInnerBlocks,
+    ]);
 };
 
 exports.useRebuildChangeField = useRebuildChangeField;

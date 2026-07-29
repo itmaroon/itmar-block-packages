@@ -18,6 +18,9 @@ typescript: ^5.0.0 以上
 
 ## 更新履歴
 
+= 3.2.1 =
+ArrowDirection,IconStyleのタイプをエクスポートした
+
 = 3.2.0 =
 styleDataApplyを新設し、フロントエンドでのスタイル付与をstyled-componetsを使用しないようにした。
 

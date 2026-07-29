@@ -3,4 +3,4 @@ selectedFields: {
     key: string;
     label: string;
     block: string;
-}[], pickupType: string, dispTaxonomies: string[], sectionCount: number, domType: string, clientId: string, insertId: string, pluginOption: string) => void;
+}[], pickupType: string, dispTaxonomies: string[], sectionCount: number, domType: string, clientId: string, insertId: string, pluginOption: string, onRebuildBlocks?: (blocks: any[]) => void) => void;
