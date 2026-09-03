@@ -5,7 +5,7 @@ var i18n = require('@wordpress/i18n');
 // ✅ Shopifyへの認証リダイレクト
 async function redirectCustomerAuthorize(shopId, clientId, userMail, callbackUri, // Shopify側の管理画面で登録したリダイレクト先
 redirectUri) {
-    const response = await sendRegistrationRequest("/wp-json/itmar-ec-relate/v1/customer/oauth-start", {
+    const response = await sendRegistrationRequest("/itmar-ec-relate/v1/customer/oauth-start", {
         shop_id: shopId,
         client_id: clientId,
         user_mail: userMail,
@@ -59,11 +59,15 @@ async function sendRegistrationRequest(urlOrPath, data = {}, mode = "auto") {
     else {
         isRest = mode === "rest";
     }
-    // 2. パスの補完 (/wp-json/ を省略した場合の対応)
+    // 2. RESTルートをWordPressの設置先に合わせて補完する。
+    // `/wp-json/...` を渡す旧実装も、サブディレクトリ環境で正しく動くようにする。
     let url = urlOrPath;
-    if (isRest && !url.startsWith("http") && !url.startsWith("/wp-json")) {
-        const root = window.wpApiSettings?.root || "/wp-json/";
-        url = root.replace(/\/+$/, "/") + url.replace(/^\/+/, "");
+    if (isRest && !/^https?:\/\//i.test(url)) {
+        const homeUrl = String(window.itmar_option?.home_url || "").replace(/\/+$/, "");
+        const root = window.wpApiSettings?.root ||
+            (homeUrl ? `${homeUrl}/wp-json/` : "/wp-json/");
+        const route = url.replace(/^\/?wp-json\/?/i, "").replace(/^\/+/, "");
+        url = root.replace(/\/+$/, "/") + route;
     }
     // 3. ノンス (Security Token) の抽出
     const nonce = data._wpnonce || data.nonce || window.wpApiSettings?.nonce;

@@ -9,7 +9,7 @@ export async function redirectCustomerAuthorize(
   redirectUri: string, // ログイン完了後に最終的に戻したい自社サイトのURL
 ): Promise<void> {
   const response = await sendRegistrationRequest(
-    "/wp-json/itmar-ec-relate/v1/customer/oauth-start",
+    "/itmar-ec-relate/v1/customer/oauth-start",
     {
       shop_id: shopId,
       client_id: clientId,
@@ -90,11 +90,19 @@ export async function sendRegistrationRequest<T = any>(
     isRest = mode === "rest";
   }
 
-  // 2. パスの補完 (/wp-json/ を省略した場合の対応)
+  // 2. RESTルートをWordPressの設置先に合わせて補完する。
+  // `/wp-json/...` を渡す旧実装も、サブディレクトリ環境で正しく動くようにする。
   let url = urlOrPath;
-  if (isRest && !url.startsWith("http") && !url.startsWith("/wp-json")) {
-    const root = (window as any).wpApiSettings?.root || "/wp-json/";
-    url = root.replace(/\/+$/, "/") + url.replace(/^\/+/, "");
+  if (isRest && !/^https?:\/\//i.test(url)) {
+    const homeUrl = String((window as any).itmar_option?.home_url || "").replace(
+      /\/+$/,
+      "",
+    );
+    const root =
+      (window as any).wpApiSettings?.root ||
+      (homeUrl ? `${homeUrl}/wp-json/` : "/wp-json/");
+    const route = url.replace(/^\/?wp-json\/?/i, "").replace(/^\/+/, "");
+    url = root.replace(/\/+$/, "/") + route;
   }
 
   // 3. ノンス (Security Token) の抽出
