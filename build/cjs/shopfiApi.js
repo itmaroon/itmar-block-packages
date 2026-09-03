@@ -2,89 +2,40 @@
 
 var i18n = require('@wordpress/i18n');
 
-function generateNonce(length = 32) {
-    const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-    let nonce = "";
-    for (let i = 0; i < length; i++) {
-        nonce += characters.charAt(Math.floor(Math.random() * characters.length));
-    }
-    return nonce;
-}
-function generateCodeVerifier(length = 128) {
-    const charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~";
-    let result = "";
-    for (let i = 0; i < length; i++) {
-        result += charset.charAt(Math.floor(Math.random() * charset.length));
-    }
-    return result;
-}
-async function generateCodeChallenge(codeVerifier) {
-    const encoder = new TextEncoder();
-    const data = encoder.encode(codeVerifier);
-    const digest = await crypto.subtle.digest("SHA-256", data);
-    // Uint8Array への変換と Base64 エンコード
-    const hashArray = new Uint8Array(digest);
-    // バイナリデータを文字列に変換
-    // ※スプレッド構文 (...) は大規模なデータでスタックオーバーフローの可能性があるため
-    // 小規模な PKCE 用途では問題ありませんが、型定義を明確にします。
-    const binaryString = String.fromCharCode(...Array.from(hashArray));
-    // Base64 を Base64URL 形式（Shopify / OAuth 2.0 仕様）に変換
-    return btoa(binaryString)
-        .replace(/\+/g, "-")
-        .replace(/\//g, "_")
-        .replace(/=+$/, "");
-}
 // ✅ Shopifyへの認証リダイレクト
 async function redirectCustomerAuthorize(shopId, clientId, userMail, callbackUri, // Shopify側の管理画面で登録したリダイレクト先
 redirectUri) {
-    //呼び出し元の戻り先
-    const statePayload = {
-        ts: Date.now(),
-        random: Math.random().toString(36).substring(2),
+    const response = await sendRegistrationRequest("/wp-json/itmar-ec-relate/v1/customer/oauth-start", {
+        shop_id: shopId,
+        client_id: clientId,
+        user_mail: userMail,
+        callback_uri: callbackUri,
         return_url: redirectUri,
-    };
-    //stateで渡しておく
-    const state = btoa(JSON.stringify(statePayload));
-    const nonce = generateNonce();
-    const codeVerifier = generateCodeVerifier();
-    const codeChallenge = await generateCodeChallenge(codeVerifier);
-    localStorage.setItem("shopify_code_verifier", codeVerifier);
-    localStorage.setItem("shopify_state", state);
-    localStorage.setItem("shopify_nonce", nonce);
-    localStorage.setItem("shopify_client_id", clientId);
-    localStorage.setItem("shopify_user_mail", userMail);
-    localStorage.setItem("shopify_shop_id", shopId);
-    localStorage.setItem("shopify_redirect_uri", callbackUri); //ログアウトの処理で使用する
-    const url = new URL(`https://shopify.com/authentication/${shopId}/oauth/authorize`);
-    url.searchParams.append("scope", "openid email customer-account-api:full");
-    url.searchParams.append("client_id", clientId);
-    url.searchParams.append("response_type", "code");
-    url.searchParams.append("redirect_uri", callbackUri);
-    url.searchParams.append("state", state);
-    url.searchParams.append("nonce", nonce);
-    url.searchParams.append("code_challenge", codeChallenge);
-    url.searchParams.append("code_challenge_method", "S256");
-    window.location.href = url.toString();
+        nonce: itmar_option.nonce,
+    }, "rest");
+    if (!response?.success || !response?.authorization_url) {
+        throw new Error("Shopify authentication could not be started.");
+    }
+    window.location.href = response.authorization_url;
 }
 /**
  * Shopifyの顧客トークンを検証し、ログイン状態を確認する
  */
 async function checkCustomerLoginState() {
-    const token = localStorage.getItem("shopify_customer_token");
-    if (!token)
+    const checkUrl = window.itmar_option?.ajaxUrl || window.ajaxurl;
+    if (!checkUrl)
         return false;
-    const checkUrl = "/wp-json/itmar-ec-relate/v1/shopify-login-check";
     const postData = {
-        nonce: itmar_option.nonce,
-        token: JSON.stringify({ token }),
+        action: "itmar_validate_customer",
+        _wpnonce: itmar_option.nonce,
     };
     // sendRegistrationAjax が内部で jQuery.ajax を返している（Promise互換）と想定
     try {
-        const response = await sendRegistrationRequest(checkUrl, postData, "rest");
+        const response = await sendRegistrationRequest(checkUrl, postData, "admin");
         // 成功時の処理
         console.log("Login check success:", response);
         // ここでサーバーからのレスポンス内容（成功/失敗）に応じて return するのが理想です
-        return response.success === true;
+        return response.success === true && response.data?.authenticated === true;
     }
     catch (error) {
         // 失敗時の処理
@@ -154,7 +105,8 @@ async function sendRegistrationRequest(urlOrPath, data = {}, mode = "auto") {
         if (tryJson) {
             try {
                 const j = await res.json();
-                msg += j.message ? `: ${j.message}` : "";
+                const detail = j.message || j.error;
+                msg += detail ? `: ${detail}` : "";
             }
             catch { }
         }
