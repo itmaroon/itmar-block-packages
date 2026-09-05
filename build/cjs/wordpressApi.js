@@ -406,12 +406,12 @@ const restTaxonomies = async (post_type) => {
     if (!post_type)
         return;
     const response = await apiFetch({
-        path: `/wp/v2/types/${post_type}?context=edit`,
+        path: `/wp/v2/types/${post_type}`,
     });
     const taxonomies = response.taxonomies;
     const taxonomyPromises = taxonomies.map(async (slug) => {
         const taxonomyResponse = await apiFetch({
-            path: `/wp/v2/taxonomies/${slug}?context=edit`,
+            path: `/wp/v2/taxonomies/${slug}`,
         });
         const terms = await apiFetch({
             path: `/wp/v2/${taxonomyResponse.rest_base}`,
