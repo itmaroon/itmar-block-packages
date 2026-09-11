@@ -60,10 +60,9 @@ export declare const normalizeDateYYYYMMDD: (value: string) => string;
  */
 export declare const toYmdFromMonthAndDay: (selectedMonth: string | undefined | null, dayValue: string | number | undefined | null) => string;
 /**
- * カレンダーの grid-template-areas 用の文字列を生成する
- * @param firstDayOfMonth 月の最初の日の曜日番号 (0:日, 1:月...)
- * @param totalDays 月の総日数 (28-31)
- * @param isMonday 月曜始まりにするかどうか
+ * grid-template-areas の生成は @wordpress 非依存の ./gridAreas へ移した。
+ * ビュースクリプトが `generateGridAreas` を参照する際に、このファイル
+ * （@wordpress/components 依存）を引き込まないようにするため。
+ * 後方互換のためここから再エクスポートする。
  */
-export declare const generateGridAreas: (firstDayOfMonth: number, totalDays: number, isMonday: boolean) => string;
-export {};
+export { generateGridAreas } from "./gridAreas";

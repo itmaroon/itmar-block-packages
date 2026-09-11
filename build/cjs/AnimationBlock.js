@@ -4,23 +4,8 @@ Object.defineProperty(exports, '__esModule', { value: true });
 
 var jsxRuntime = require('react/jsx-runtime');
 var i18n = require('@wordpress/i18n');
-var styledComponents = require('styled-components');
 var components = require('@wordpress/components');
 
-const anime_comp = (attributes) => {
-    return styledComponents.css `
-    &.fadeTrigger {
-      opacity: 0;
-    }
-    &.${attributes.pattern} {
-      animation-name: ${attributes.pattern};
-      animation-delay: ${attributes.delay}s;
-      animation-duration: ${attributes.duration}s;
-      animation-fill-mode: forwards;
-      opacity: 0;
-    }
-  `;
-};
 function AnimationBlock(props) {
     const { is_anime, anime_prm } = props.attributes;
     return (jsxRuntime.jsx(jsxRuntime.Fragment, { children: jsxRuntime.jsxs(components.PanelBody, { title: i18n.__("Animation Setting", "block-collections"), initialOpen: true, children: [jsxRuntime.jsx(components.ToggleControl, { label: i18n.__("Is Animation", "block-collections"), checked: is_anime, onChange: (newVal) => {
@@ -62,6 +47,5 @@ function AnimationBlock(props) {
                                 } }) })] }))] }) }));
 }
 
-exports.anime_comp = anime_comp;
 exports.default = AnimationBlock;
 //# sourceMappingURL=AnimationBlock.js.map

@@ -25,7 +25,9 @@ const commonPlugins = [nodeResolve({ extensions }), commonjs()];
 export default [
   // ESM（モダンなビルド環境用）
   {
-    input: "src/index.ts",
+    // front.ts はビュースクリプト専用の入口。エディタ用の依存を持たない
+    // モジュールだけを再エクスポートしている（src/front.ts の冒頭を参照）。
+    input: ["src/index.ts", "src/front.ts"],
     external: isExternal, // 関数を割り当てる
     output: {
       dir: "build/esm",
@@ -51,7 +53,9 @@ export default [
 
   // CJS（互換性・古いNode環境用）
   {
-    input: "src/index.ts",
+    // front.ts はビュースクリプト専用の入口。エディタ用の依存を持たない
+    // モジュールだけを再エクスポートしている（src/front.ts の冒頭を参照）。
+    input: ["src/index.ts", "src/front.ts"],
     external: isExternal, // 関数を割り当てる
     output: {
       dir: "build/cjs",

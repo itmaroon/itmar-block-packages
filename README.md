@@ -3,10 +3,50 @@ WordPressのカスタムブロックを作成するためのプラグインで�
 v3.0.0 より完全な TypeScript 対応となり、開発時の型補完と安全性が大幅に向上しました。
 
 # 使用方法
+
+## エディタ側（edit.tsx など）
 ```typescript
 import { 関数名又はコンポーネント名 } from "itmar-block-packages"
 ```
 名前付きインポートでお願いします。
+
+## フロントエンド側（view.ts / Style*.tsx）— v3.3.0 以降
+```typescript
+import { styleDataApply } from "itmar-block-packages/front"
+```
+
+**ビュースクリプトからは必ず `/front` を使ってください。**
+
+メインエントリ（`itmar-block-packages`）は `ShadowStyle`・`GridControls`・`TypographyControls` などのエディタ用コンポーネントを再エクスポートしています。これらは `@wordpress/block-editor` `@wordpress/components` `@wordpress/data` `@wordpress/element` `styled-components` に依存するため、**ビュースクリプトがメインエントリから1つでも import すると、`@wordpress/scripts` がそれらを `view.asset.php` の依存として書き出し、訪問者のブラウザにブロックエディタ一式が配信されます。**
+
+`/front` は、値として解決される外部依存を持たないモジュールだけを再エクスポートしています。
+
+| エントリ | 到達モジュール数 | 値としての外部依存 |
+|---|---|---|
+| `itmar-block-packages` | 34 | `@wordpress/block-editor` `@wordpress/components` `@wordpress/data` `@wordpress/element` `@wordpress/blocks` `@wordpress/icons` `react` `react-dom` `react-dom/server` `styled-components` `react-select` `lodash` ほか計21 |
+| `itmar-block-packages/front` | 14 | `@wordpress/i18n` `swiper` のみ |
+
+### `/front` が提供するもの
+
+- スタイル適用: `styleDataApply` `cssValueToString` `resolveTarget`
+- CSS生成ヘルパ: `radius_prm` `space_prm` `position_prm` `max_width_prm` `width_prm` `height_prm` `align_prm` `convertToScss` `borderProperty` `radiusProperty` `marginProperty` `paddingProperty`
+- アニメーション: `anime_comp`
+- 擬似要素: `Arrow` `arrowDirectionStyles`
+- 影: `ShadowElm`
+- 色変換: `hslToRgb16` `rgb16ToHsl` `HexToRGB`
+- カレンダー: `generateGridAreas`
+- バリデーション: `isValidUrlWithUrlApi`
+- 初期化: `MasonryControl` `slideBlockSwiperInit`
+- 通信: `fetchZipToAddress` `checkCustomerLoginState` `redirectCustomerAuthorize` `sendRegistrationRequest`
+- データ共有: `ensureCtx` `registerPickup` `getCtx` `subscribe` `setState`
+
+### `/front` に追加するときの決まり
+
+追加するモジュールは `@wordpress/*` `react` `react-dom` `styled-components` を**値として** import していないことを確認してください。型だけの参照（`import type`）はビルド時に消えるので問題ありません。
+
+エディタ用のUIと純粋なロジックが同じファイルに同居している場合は、ロジック側を別ファイルへ切り出してから追加します（`animationCss.ts` `pseudoCss.ts` `shadowCss.ts` `gridAreas.ts` がその例です）。
+
+なお `JapaneseHolidays` は `getPeriodQuery` を `DateElm.tsx`（`@wordpress/components` 依存）から取り込んでいるため、`/front` には含めていません。
 
 ## 必要条件
 このパッケージは WordPress ブロック開発のビルド環境（`@wordpress/scripts`）での利用を前提としています。  
@@ -17,6 +57,17 @@ TypeScript で利用する場合、以下のバージョン以上を推奨しま
 typescript: ^5.0.0 以上
 
 ## 更新履歴
+
+= 3.3.0 =
+- **フロントエンド専用エントリ `itmar-block-packages/front` を新設。** ビュースクリプトがメインエントリから import すると、エディタ用パッケージ（`@wordpress/block-editor` `@wordpress/components` `@wordpress/data` `@wordpress/element` `styled-components` `react-dom` ほか）が `view.asset.php` の依存として書き出され、訪問者のブラウザへ配信されていた。`/front` の依存は `@wordpress/i18n` と `swiper` のみ
+- `styleDataApply` `cssValueToString` を `styleDataApply.ts` へ分離。従来は未使用の `styleComponentApply`（`styled-components` と `react-dom/server` に依存）と同じファイルに同居しており、styled-components から脱却するための関数が styled-components を引き込んでいた
+- エディタUIと同居していた純粋なCSS生成ロジックを独立モジュールへ切り出し
+  - `anime_comp` → `animationCss.ts`（`AnimationBlock.tsx` から分離。`styled-components` の `css` タグ付きテンプレートをやめ素の文字列を返すよう変更。`cssValueToString()` を通した結果は従来と同じ）
+  - `Arrow` `arrowDirectionStyles` → `pseudoCss.ts`（`PseudoElm.tsx` から分離。同上）
+  - `ShadowElm` → `shadowCss.ts`（`ShadowStyle.tsx` から分離。エラー時の `dispatch("core/notices")` を `onError` コールバックへ委譲し、CSS算出と編集画面への通知を分離）
+  - `generateGridAreas` → `gridAreas.ts`（`DateElm.tsx` から分離）
+- `cssPropertes.ts` の `CSSProperties` を `import type` に変更し、`react` がバンドルへ混入しないよう修正
+- 上記の移動元ファイルは後方互換のため再エクスポートを維持。既存のエディタ側コードは変更不要
 
 = 3.2.4 =
 - `restTaxonomies` が公開画面でも利用できるよう、投稿タイプとタクソノミーの取得を編集用RESTコンテキストに依存しない方式へ修正

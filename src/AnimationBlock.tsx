@@ -1,5 +1,4 @@
 import { __ } from "@wordpress/i18n";
-import { css } from "styled-components";
 
 import {
   PanelBody,
@@ -8,28 +7,13 @@ import {
   RangeControl,
 } from "@wordpress/components";
 
-// 1. まず属性の型を定義します（将来的に別ファイルに切り出すと便利です）
-interface AnimeAttributes {
-  pattern?: string;
-  delay?: number | string;
-  duration?: number | string;
-  [key: string]: any; // 他の属性が含まれていてもエラーにならないようにする「インデックスシグネチャ」
-}
-
-export const anime_comp = (attributes: AnimeAttributes) => {
-  return css`
-    &.fadeTrigger {
-      opacity: 0;
-    }
-    &.${attributes.pattern} {
-      animation-name: ${attributes.pattern};
-      animation-delay: ${attributes.delay}s;
-      animation-duration: ${attributes.duration}s;
-      animation-fill-mode: forwards;
-      opacity: 0;
-    }
-  `;
-};
+/**
+ * アニメーションCSSの生成は styled-components 非依存の ./animationCss へ移した。
+ * ビュースクリプトが `anime_comp` を参照する際に、このファイル（@wordpress/components
+ * 依存）を引き込まないようにするため。後方互換のためここから再エクスポートする。
+ */
+export { anime_comp } from "./animationCss";
+export type { AnimeAttributes } from "./animationCss";
 
 // 1. attributesの中身（anime_prm）の型を定義
 interface AnimePrm {

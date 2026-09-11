@@ -1,30 +1,13 @@
-type CornerDirection = "top_left" | "top_right" | "bottom_left" | "bottom_right" | "right_bottom" | "top";
-export interface ShadowState {
-    shadowType: "nomal" | "newmor" | "claymor" | "glassmor";
-    spread: number;
-    lateral: number;
-    longitude: number;
-    nomalBlur: number;
-    shadowColor: string;
-    blur: number;
-    intensity: number;
-    distance: number;
-    newDirection: CornerDirection;
-    clayDirection: CornerDirection;
-    embos: "swell" | "dent";
-    opacity: number;
-    depth: number;
-    bdBlur: number;
-    expand: number;
-    glassblur: number;
-    glassopa: number;
-    hasOutline: boolean;
-    baseColor: string;
-}
-interface ShadowResult {
-    style: React.CSSProperties;
-}
-export declare const ShadowElm: (shadowState: ShadowState) => ShadowResult | null;
+import { ShadowElm } from "./shadowCss";
+import type { ShadowState, ShadowResult, CornerDirection, ShadowErrorReason } from "./shadowCss";
+/**
+ * 影のスタイル算出は @wordpress 非依存の ./shadowCss へ移した。
+ * ビュースクリプトが `ShadowElm` を参照する際に、このファイル
+ * （@wordpress/block-editor 依存）を引き込まないようにするため。
+ * 後方互換のためここから再エクスポートする。
+ */
+export { ShadowElm };
+export type { ShadowState, ShadowResult, CornerDirection, ShadowErrorReason };
 interface ShadowStyleProps {
     shadowStyle: ShadowState;
     onChange: (elm: ShadowResult, state: ShadowState) => void;

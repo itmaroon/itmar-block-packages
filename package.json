@@ -1,7 +1,7 @@
 {
   "name": "itmar-block-packages",
-  "version": "3.2.4",
-  "description": "Common React components for WordPress custom blocks, now fully TypeScript-ready.",
+  "version": "3.3.0",
+  "description": "Common React components for WordPress custom blocks, with a dependency-free entry point for front-end view scripts.",
   "main": "build/cjs/index.js",
   "module": "build/esm/index.js",
   "types": "build/esm/types/index.d.ts",
@@ -10,6 +10,18 @@
       "types": "./build/esm/types/index.d.ts",
       "import": "./build/esm/index.js",
       "require": "./build/cjs/index.js"
+    },
+    "./front": {
+      "types": "./build/esm/types/front.d.ts",
+      "import": "./build/esm/front.js",
+      "require": "./build/cjs/front.js"
+    }
+  },
+  "typesVersions": {
+    "*": {
+      "front": [
+        "./build/esm/types/front.d.ts"
+      ]
     }
   },
   "sideEffects": false,

@@ -1,4 +1,5 @@
-import { CSSProperties } from "react";
+// 型のみの参照。値として react を読み込むとビュースクリプトに react が混入する。
+import type { CSSProperties } from "react";
 
 // sideの最初の文字を大文字にする関数
 const capitalizeFirstLetter = (string: string) => {

@@ -1,22 +1,7 @@
 import { jsx, Fragment, jsxs } from 'react/jsx-runtime';
 import { __ } from '@wordpress/i18n';
-import { css } from 'styled-components';
 import { PanelBody, ToggleControl, RadioControl, RangeControl } from '@wordpress/components';
 
-const anime_comp = (attributes) => {
-    return css `
-    &.fadeTrigger {
-      opacity: 0;
-    }
-    &.${attributes.pattern} {
-      animation-name: ${attributes.pattern};
-      animation-delay: ${attributes.delay}s;
-      animation-duration: ${attributes.duration}s;
-      animation-fill-mode: forwards;
-      opacity: 0;
-    }
-  `;
-};
 function AnimationBlock(props) {
     const { is_anime, anime_prm } = props.attributes;
     return (jsx(Fragment, { children: jsxs(PanelBody, { title: __("Animation Setting", "block-collections"), initialOpen: true, children: [jsx(ToggleControl, { label: __("Is Animation", "block-collections"), checked: is_anime, onChange: (newVal) => {
@@ -58,5 +43,5 @@ function AnimationBlock(props) {
                                 } }) })] }))] }) }));
 }
 
-export { anime_comp, AnimationBlock as default };
+export { AnimationBlock as default };
 //# sourceMappingURL=AnimationBlock.js.map

@@ -4,162 +4,31 @@ import { PanelColorSettings } from '@wordpress/block-editor';
 import { PanelBody, RadioControl, RangeControl, PanelRow, ToggleControl } from '@wordpress/components';
 import { useState, useEffect } from '@wordpress/element';
 import { dispatch } from '@wordpress/data';
-import { rgb16ToHsl, hslToRgb16, HexToRGB } from './hslToRgb.js';
+import { ShadowElm } from './shadowCss.js';
 
-/**
- * 方向と距離に基づいて、各頂点の数値を算出する
- */
-const dirctionDigit = (direction, distance) => {
-    // 初期値（デフォルト）を設定しておくことで、switch 漏れを防ぐ
-    let destTopLeft = 0;
-    let destTopRight = 0;
-    let destBottomLeft = 0;
-    let destBottomRight = 0;
-    switch (direction) {
-        case "top_left":
-            destTopLeft = distance;
-            destTopRight = distance;
-            destBottomLeft = distance * -1;
-            destBottomRight = distance * -1;
-            break;
-        case "top_right":
-            destTopLeft = distance * -1;
-            destTopRight = distance;
-            destBottomLeft = distance;
-            destBottomRight = distance * -1;
-            break;
-        case "bottom_left":
-            destTopLeft = distance;
-            destTopRight = distance * -1;
-            destBottomLeft = distance * -1;
-            destBottomRight = distance;
-            break;
-        case "bottom_right":
-            destTopLeft = distance * -1;
-            destTopRight = distance * -1;
-            destBottomLeft = distance;
-            destBottomRight = distance;
-            break;
-        case "right_bottom":
-            destTopLeft = distance;
-            destTopRight = distance * -1;
-            destBottomLeft = distance * -1;
-            destBottomRight = distance;
-            break;
-        case "top":
-            destTopLeft = 0;
-            destTopRight = 0;
-            destBottomLeft = distance * -1;
-            destBottomRight = distance;
-            break;
+/** 影を算出できなかったときに編集画面へ通知する。算出ロジック側は純粋に保つ。 */
+const notifyShadowError = (reason) => {
+    let message;
+    if (reason === "gradient-newmor") {
+        message = __("Neumorphism cannot be set when the background color is a gradient.", "itmar_guest_contact_block");
     }
-    return {
-        topLeft: destTopLeft,
-        topRight: destTopRight,
-        bottomLeft: destBottomLeft,
-        bottomRight: destBottomRight,
-    };
-};
-// グラデーションの色値は通常'linear-gradient'または'radial-gradient'で始まるので、
-// これらのキーワードを探すことでグラデーションかどうかを判断します。
-function isGradient(colorValue) {
-    // 1. 値が存在しない、または文字列でない場合は false
-    if (typeof colorValue !== "string") {
-        return false;
+    else if (reason === "gradient-claymor") {
+        message = __("claymorphism cannot be set when the background color is a gradient.", "itmar_guest_contact_block");
     }
-    return (colorValue.includes("linear-gradient") ||
-        colorValue.includes("radial-gradient"));
-}
-const ShadowElm = (shadowState) => {
-    //let baseColor;
-    const { shadowType, spread, lateral, longitude, nomalBlur, shadowColor, blur, intensity, distance, newDirection, clayDirection, embos, opacity, depth, bdBlur, expand, glassblur, glassopa, hasOutline, baseColor, } = shadowState;
-    //ノーマル
-    if (shadowType === "nomal") {
-        //boxshadowの生成
-        const ShadowStyle = embos === "dent"
-            ? {
-                style: {
-                    boxShadow: `${lateral}px ${longitude}px ${nomalBlur}px ${spread}px transparent, inset ${lateral}px ${longitude}px ${nomalBlur}px ${spread}px ${shadowColor}`,
-                },
-            }
-            : {
-                style: {
-                    boxShadow: `${lateral}px ${longitude}px ${nomalBlur}px ${spread}px ${shadowColor}, inset ${lateral}px ${longitude}px ${nomalBlur}px ${spread}px transparent`,
-                },
-            };
-        //Shadowのスタイルを返す
-        return ShadowStyle;
+    else {
+        message = __("Failed to interpret the base color.", "itmar_guest_contact_block");
     }
-    //ニューモフィズム
-    // --- ニューモフィズム ---
-    else if (shadowType === "newmor") {
-        if (isGradient(baseColor)) {
-            dispatch("core/notices").createNotice("error", __("Neumorphism cannot be set when the background color is a gradient.", "itmar_guest_contact_block"), { type: "snackbar", isDismissible: true });
-            return null;
-        }
-        const hslValue = rgb16ToHsl(baseColor);
-        if (!hslValue)
-            return null; // カラー変換失敗時のガード
-        const lightVal = Math.min(hslValue.lightness + intensity, 100);
-        const darkVal = Math.max(hslValue.lightness - intensity, 0);
-        const lightValue = hslToRgb16(hslValue.hue, hslValue.saturation, lightVal);
-        const darkValue = hslToRgb16(hslValue.hue, hslValue.saturation, darkVal);
-        const dircObj = dirctionDigit(newDirection, distance);
-        const baseBoxShadow = embos === "swell"
-            ? `${dircObj.topLeft}px ${dircObj.topRight}px ${blur}px ${darkValue}, ${dircObj.bottomLeft}px ${dircObj.bottomRight}px ${blur}px ${lightValue}, inset ${dircObj.topLeft}px ${dircObj.topRight}px ${blur}px transparent, inset ${dircObj.bottomLeft}px ${dircObj.bottomRight}px ${blur}px transparent`
-            : `${dircObj.topLeft}px ${dircObj.topRight}px ${blur}px transparent, ${dircObj.bottomLeft}px ${dircObj.bottomRight}px ${blur}px transparent, inset ${dircObj.topLeft}px ${dircObj.topRight}px ${blur}px ${darkValue}, inset ${dircObj.bottomLeft}px ${dircObj.bottomRight}px ${blur}px ${lightValue}`;
-        return {
-            style: {
-                border: "none",
-                background: baseColor,
-                boxShadow: baseBoxShadow,
-            },
-        };
-    }
-    // --- クレイモーフィズム ---
-    else if (shadowType === "claymor") {
-        if (isGradient(baseColor)) {
-            dispatch("core/notices").createNotice("error", __("claymorphism cannot be set when the background color is a gradient.", "itmar_guest_contact_block"), { type: "snackbar", isDismissible: true });
-            return null;
-        }
-        const rgbValue = HexToRGB(baseColor);
-        if (!rgbValue)
-            return null;
-        const outsetObj = dirctionDigit(clayDirection, expand);
-        const insetObj = dirctionDigit(clayDirection, depth);
-        return {
-            style: {
-                background: `rgba(255, 255, 255, ${opacity})`,
-                backdropFilter: `blur(${bdBlur}px)`,
-                border: "none",
-                boxShadow: `${outsetObj.topLeft}px ${outsetObj.bottomRight}px ${expand * 2}px 0px rgba(${rgbValue.red}, ${rgbValue.green}, ${rgbValue.blue}, 0.5), inset ${insetObj.topRight}px ${insetObj.bottomLeft}px 16px 0px rgba(${rgbValue.red}, ${rgbValue.green}, ${rgbValue.blue}, 0.6), inset 0px 11px 28px 0px rgb(255, 255, 255)`,
-            },
-        };
-    }
-    // --- グラスモーフィズム ---
-    else if (shadowType === "glassmor") {
-        const glassBoxShadow = embos === "swell"
-            ? `0 8px 12px 0 rgba( 31, 38, 135, 0.37 ), inset 0 8px 12px 0 transparent`
-            : `0 8px 12px 0 transparent, inset 0 8px 12px 0 rgba( 31, 38, 135, 0.37 )`;
-        return {
-            style: {
-                backgroundColor: `rgba(255, 255, 255, ${glassopa})`,
-                ...(hasOutline ? { border: `1px solid rgba(255, 255, 255, 0.4)` } : {}),
-                borderRightColor: `rgba(255, 255, 255, 0.2)`,
-                borderBottomColor: `rgba(255, 255, 255, 0.2)`,
-                backdropFilter: `blur(${glassblur}px)`,
-                boxShadow: glassBoxShadow,
-            },
-        };
-    }
-    return null;
+    dispatch("core/notices").createNotice("error", message, {
+        type: "snackbar",
+        isDismissible: true,
+    });
 };
 const ShadowStyle = ({ shadowStyle, onChange }) => {
     const [shadowState, setShadowState] = useState(shadowStyle);
     const { shadowType, spread, lateral, longitude, nomalBlur, shadowColor, blur, intensity, distance, newDirection, clayDirection, embos, opacity, depth, bdBlur, expand, glassblur, glassopa, hasOutline, } = shadowState;
     //シャドーのスタイル変更と背景色変更に伴う親コンポーネントの変更
     useEffect(() => {
-        const shadowElm = ShadowElm(shadowState);
+        const shadowElm = ShadowElm(shadowState, notifyShadowError);
         if (shadowElm)
             onChange(shadowElm, shadowState);
     }, [shadowState]);
