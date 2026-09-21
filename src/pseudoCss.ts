@@ -40,8 +40,8 @@ export const Arrow = ({ direction = "down" }: ArrowProps = {}): string => `
     display: block;
     width: 15%;
     height: 15%;
-    border-top: 3px solid var(--wp--preset--color--accent-2);
-    border-right: 3px solid var(--wp--preset--color--accent-2);
+    border-top: 3px solid var(--itmar-accent-2);
+    border-right: 3px solid var(--itmar-accent-2);
     top: 50%;
     left: 50%;
     ${arrowDirectionStyles(direction)}

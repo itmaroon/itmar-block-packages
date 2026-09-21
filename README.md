@@ -57,6 +57,8 @@ TypeScript で利用する場合、以下のバージョン以上を推奨しま
 typescript: ^5.0.0 以上
 
 ## 更新履歴
+= 3.3.1 =
+pseudoの色指定をvar(--itmar-accent-2) に変更
 
 = 3.3.0 =
 - **フロントエンド専用エントリ `itmar-block-packages/front` を新設。** ビュースクリプトがメインエントリから import すると、エディタ用パッケージ（`@wordpress/block-editor` `@wordpress/components` `@wordpress/data` `@wordpress/element` `styled-components` `react-dom` ほか）が `view.asset.php` の依存として書き出され、訪問者のブラウザへ配信されていた。`/front` の依存は `@wordpress/i18n` と `swiper` のみ
