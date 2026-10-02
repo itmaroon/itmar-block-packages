@@ -57,6 +57,9 @@ TypeScript で利用する場合、以下のバージョン以上を推奨しま
 typescript: ^5.0.0 以上
 
 ## 更新履歴
+= 3.3.2 =
+SwiperControlのスライドの動きの方向をデスクトップとモバイルで別に設定できるようにした
+
 = 3.3.1 =
 pseudoの色指定をvar(--itmar-accent-2) に変更
 

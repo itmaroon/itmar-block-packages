@@ -146,11 +146,18 @@ function slideBlockSwiperInit(swiperElement) {
             },
         }
         : {};
+    /*
+     * 送り方向。枚数や間隔と同じく、基準をモバイルにして 768px 以上で上書きする。
+     * Swiper はブレークポイントでの direction 変更に対応している（11系で確認）。
+     * モバイル側が未設定のときはデスクトップと同じ向きにする。
+     */
+    const desktopDirection = swiper_info.singleDirection;
+    const mobileDirection = swiper_info.mobileDirection ?? swiper_info.singleDirection;
     // 各エフェクトごとの詳細設定
     const effectOption = {
         none: {
             centeredSlides: swiper_info.isActiveCenter,
-            direction: swiper_info.singleDirection,
+            direction: mobileDirection,
             speed: swiper_info.slideSpeed,
             slidesPerView: swiper_info.mobilePerView,
             spaceBetween: swiper_info.mobileBetween,
@@ -158,15 +165,21 @@ function slideBlockSwiperInit(swiperElement) {
                 768: {
                     slidesPerView: swiper_info.defaultPerView,
                     spaceBetween: swiper_info.defaultBetween,
+                    direction: desktopDirection,
                 },
             },
         },
         slide_single_view: {
-            direction: swiper_info.singleDirection,
+            direction: mobileDirection,
             loopAdditionalSlides: 1,
             speed: swiper_info.slideSpeed,
             allowTouchMove: false,
             ...parallax_option,
+            breakpoints: {
+                768: {
+                    direction: desktopDirection,
+                },
+            },
         },
         fade_single_view: {
             speed: swiper_info.slideSpeed,

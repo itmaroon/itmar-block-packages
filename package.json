@@ -1,6 +1,6 @@
 {
   "name": "itmar-block-packages",
-  "version": "3.3.1",
+  "version": "3.3.2",
   "description": "Common React components for WordPress custom blocks, with a dependency-free entry point for front-end view scripts.",
   "main": "build/cjs/index.js",
   "module": "build/esm/index.js",
