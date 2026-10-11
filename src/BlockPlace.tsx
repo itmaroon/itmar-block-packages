@@ -892,6 +892,18 @@ interface BlockHeightProps {
   onHeightChange: (val: string) => void;
   onFreeHeightChange: (freeVal: string | number) => void;
 }
+// 高さの単位。svh/dvh/lvh は、スマホのツールバーの出入りに対応する単位（vh は、環境によって、見える範囲とずれる）
+const HEIGHT_UNITS = [
+  { value: "px", label: "px", default: 0 },
+  { value: "%", label: "%", default: 100 },
+  { value: "em", label: "em", default: 10 },
+  { value: "rem", label: "rem", default: 10 },
+  { value: "vh", label: "vh", default: 100 },
+  { value: "svh", label: "svh", default: 100 },
+  { value: "dvh", label: "dvh", default: 100 },
+  { value: "lvh", label: "lvh", default: 100 },
+];
+
 export function BlockHeight(props: BlockHeightProps) {
   const { attributes, isMobile } = props;
   const { default_val, mobile_val } = attributes;
@@ -953,6 +965,7 @@ export function BlockHeight(props: BlockHeightProps) {
           dragDirection="e"
           onChange={(newValue) => props.onFreeHeightChange(newValue ?? "")}
           value={sel_pos.free_height}
+          units={HEIGHT_UNITS}
         />
       )}
     </>
