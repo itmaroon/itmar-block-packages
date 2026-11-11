@@ -130,12 +130,15 @@ export const max_width_prm = (width: WidthType, free_val?: string): string => {
   return ret_width_prm;
 };
 
+// wideSize / contentSize は、親の幅より広くならないようにする（min(…, 100%)）。
+// 固定の幅のままだと、画面の幅がそれより狭いとき（スマホの横向き、タブレット、小さなノートPC）に、
+// ページが横にはみ出し、Android のブラウザは、画面の基準を広げて、粘着や背景の位置がずれる。
 export const width_prm = (width: WidthType, free_val?: string): string => {
   const ret_width_prm =
     width === "wideSize"
-      ? " width: var(--wp--style--global--wide-size);"
+      ? " width: min(var(--wp--style--global--wide-size), 100%);"
       : width === "contentSize"
-        ? " width: var(--wp--style--global--content-size);"
+        ? " width: min(var(--wp--style--global--content-size), 100%);"
         : width === "free"
           ? ` width: ${free_val}; `
           : width === "full"

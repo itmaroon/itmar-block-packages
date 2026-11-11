@@ -17,6 +17,36 @@ const lower = jsx(Icon, { icon: justifyRight, className: "rotate-icon" });
 const vert_between = jsx(Icon, { icon: justifyStretch, className: "rotate-icon" });
 //上下均等に伸ばすアイコン
 const vert_around = jsx(Icon, { icon: justifySpaceBetween, className: "rotate-icon" });
+/*
+ * 位置の値の入力。通常は単位つきの数値。右端の「fx」を押すと、calc() / min() / max() / clamp() などの式を入力できる。
+ * 画面幅で変わる位置（中央寄せのメニューの端に合わせる、など）は単位だけでは指定できないため。
+ * 式の入力は、確定（フォーカスを外す・Enter）するまで反映しない。入力途中の不完全な式でCSSを壊さないため。
+ */
+const isCssExpression = (value) => /[()]/.test(value ?? "");
+function PositionValueControl({ value, onChange, }) {
+    const [exprMode, setExprMode] = useState(isCssExpression(value));
+    const [draft, setDraft] = useState(value);
+    useEffect(() => {
+        setDraft(value);
+        if (isCssExpression(value))
+            setExprMode(true);
+    }, [value]);
+    const commit = () => {
+        const v = draft.trim();
+        if (v && v !== value)
+            onChange(v);
+    };
+    return (jsxs("div", { style: { display: "flex", gap: "4px", alignItems: "flex-end", flex: 1 }, children: [jsx("div", { style: { flex: 1 }, children: exprMode ? (jsx(TextControl, { __nextHasNoMarginBottom: true, hideLabelFromVision: true, label: __("Position expression", "block-collections"), value: draft, placeholder: "calc((100vw - 1200px) / 2 + 24px)", onChange: (v) => setDraft(v), onBlur: commit, onKeyDown: (ev) => {
+                        if (ev.key === "Enter")
+                            commit();
+                    } })) : (jsx(__experimentalUnitControl, { dragDirection: "e", value: value, onChange: onChange })) }), jsx(Button, { variant: "secondary", size: "small", isPressed: exprMode, label: __("Enter a CSS expression such as calc()", "block-collections"), showTooltip: true, onClick: () => {
+                    if (exprMode && isCssExpression(value)) {
+                        //式から単位つきの値へ戻すときは、式を捨てて既定値にする
+                        onChange("3em");
+                    }
+                    setExprMode(!exprMode);
+                }, children: "fx" })] }));
+}
 function BlockPlace(props) {
     const { attributes, clientId, blockRef, isMobile, isSubmenu, isParallax } = props;
     const { positionType, isPosCenter, default_val, mobile_val } = attributes;
@@ -130,7 +160,9 @@ function BlockPlace(props) {
                                 props.onFlexItemChange(flexObj);
                             } })] })), jsx(BlockHeight, { attributes: attributes, isMobile: isMobile, onHeightChange: (heightVal) => props.onHeightChange(heightVal), onFreeHeightChange: (freeVal) => props.onFreeHeightChange(freeVal) }), sel_pos.direction === "grid" && (jsxs(Fragment, { children: [isMobile ? (jsx("p", { children: __("Grid Info settings(Mobile)", "block-collections") })) : (jsx("p", { children: __("Grid Info settings(DeskTop)", "block-collections") })), jsx(Button, { variant: "primary", onClick: openGridModal, children: __("Open Setting Modal", "block-collections") }), isGridModalOpen && (jsx(Modal, { title: "Grid Info settings", onRequestClose: closeGridModal, children: jsx(GridControls, { attributes: sel_pos.grid_info, clientId: clientId, onChange: (newValue) => {
                                     props.onGridChange(newValue);
-                                } }) }))] })), jsx("div", { className: "itmar_title_type", children: jsx(RadioControl, { label: __("Position Type", "block-collections"), selected: positionType, options: [
+                                } }) }))] })), jsx("div", { className: "itmar_title_type", children: jsx(RadioControl, { label: isMobile
+                            ? __("Position Type(Mobile)", "block-collections")
+                            : __("Position Type(DeskTop)", "block-collections"), selected: positionType, options: [
                             { label: __("Static", "block-collections"), value: "staic" },
                             {
                                 label: __("Relative", "block-collections"),
@@ -157,13 +189,12 @@ function BlockPlace(props) {
                                                     vertBase: newValue,
                                                 };
                                                 props.onPosValueChange(newValObj);
-                                            } }), jsx(__experimentalUnitControl, { dragDirection: "e", onChange: (newValue) => {
-                                                const newValObj = {
+                                            } }), jsx(PositionValueControl, { value: sel_pos.posValue?.vertValue || "3em", onChange: (newValue) => {
+                                                props.onPosValueChange({
                                                     ...(sel_pos.posValue || {}),
                                                     vertValue: newValue,
-                                                };
-                                                props.onPosValueChange(newValObj);
-                                            }, value: sel_pos.posValue?.vertValue || "3em" })] })), !isParallax && (jsx(ToggleControl, { label: __("Is Center", "block-collections"), checked: sel_pos.posValue?.isVertCenter, onChange: (newValue) => {
+                                                });
+                                            } })] })), !isParallax && (jsx(ToggleControl, { label: __("Is Center", "block-collections"), checked: sel_pos.posValue?.isVertCenter, onChange: (newValue) => {
                                         const newValObj = {
                                             ...(sel_pos.posValue || {}),
                                             isVertCenter: newValue,
@@ -178,13 +209,12 @@ function BlockPlace(props) {
                                                     horBase: newValue,
                                                 };
                                                 props.onPosValueChange(newValObj);
-                                            } }), jsx(__experimentalUnitControl, { dragDirection: "e", onChange: (newValue) => {
-                                                const newValObj = {
+                                            } }), jsx(PositionValueControl, { value: sel_pos.posValue?.horValue || "3em", onChange: (newValue) => {
+                                                props.onPosValueChange({
                                                     ...(sel_pos.posValue || {}),
                                                     horValue: newValue,
-                                                };
-                                                props.onPosValueChange(newValObj);
-                                            }, value: sel_pos.posValue?.horValue || "3em" })] })), !isParallax && (jsx(ToggleControl, { label: __("Is Center", "block-collections"), checked: sel_pos.posValue?.isHorCenter, onChange: (newValue) => {
+                                                });
+                                            } })] })), !isParallax && (jsx(ToggleControl, { label: __("Is Center", "block-collections"), checked: sel_pos.posValue?.isHorCenter, onChange: (newValue) => {
                                         const newValObj = {
                                             ...(sel_pos.posValue || {}),
                                             isHorCenter: newValue,

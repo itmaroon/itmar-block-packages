@@ -36,6 +36,10 @@ function AnimationBlock(props) {
                                         label: __("Enter Visible", "block-collections"),
                                         value: "visible",
                                     },
+                                    {
+                                        label: __("Slide Shown", "block-collections"),
+                                        value: "slide",
+                                    },
                                 ], onChange: (changeOption) => {
                                     props.onChange({
                                         anime_prm: { ...anime_prm, trigger: changeOption },

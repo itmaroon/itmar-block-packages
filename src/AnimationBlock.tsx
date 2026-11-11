@@ -114,6 +114,10 @@ export default function AnimationBlock(props: AnimationBlockProps) {
                     label: __("Enter Visible", "block-collections"),
                     value: "visible",
                   },
+                  {
+                    label: __("Slide Shown", "block-collections"),
+                    value: "slide",
+                  },
                 ]}
                 onChange={(changeOption) => {
                   props.onChange({

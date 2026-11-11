@@ -1,5 +1,5 @@
 import Swiper from 'swiper';
-import { Thumbs, Parallax, EffectCards, EffectFlip, EffectCube, EffectCoverflow, EffectFade, Navigation, Pagination, Scrollbar } from 'swiper/modules';
+import { Thumbs, Parallax, EffectCards, EffectFlip, EffectCube, EffectCoverflow, EffectFade, Autoplay, Navigation, Pagination, Scrollbar } from 'swiper/modules';
 
 // 2. 外部変数の宣言（管理用のSetとMap）
 const linkedPairs = new Set();
@@ -133,6 +133,9 @@ function slideBlockSwiperInit(swiperElement) {
     if (!swiper_info || typeof swiper_info !== "object") {
         throw new Error("data-swiper-info が見つからないか、JSONとして解釈できません。");
     }
+    // オートプレイは Swiper 11 ではモジュールの登録が必要（未登録だと autoplay の設定が無視される）
+    if (swiper_info.is_autoplay)
+        moduleArray.push(Autoplay);
     // パララックス設定
     const parallax_option = parallax_obj != null ? { parallax: true } : {};
     // オートプレイ設定

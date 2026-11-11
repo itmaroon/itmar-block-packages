@@ -1,5 +1,6 @@
 import Swiper from "swiper";
 import {
+  Autoplay,
   Navigation,
   Pagination,
   Scrollbar,
@@ -204,6 +205,9 @@ export function slideBlockSwiperInit(
       "data-swiper-info が見つからないか、JSONとして解釈できません。",
     );
   }
+
+  // オートプレイは Swiper 11 ではモジュールの登録が必要（未登録だと autoplay の設定が無視される）
+  if (swiper_info.is_autoplay) moduleArray.push(Autoplay);
 
   // パララックス設定
   const parallax_option: SwiperOptions =

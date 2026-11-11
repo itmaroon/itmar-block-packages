@@ -14,21 +14,31 @@ import { useSelect, dispatch } from "@wordpress/data";
 import { useState, useEffect, useRef } from "@wordpress/element";
 
 import { __ } from "@wordpress/i18n";
-import { justifyCenter, justifyLeft, justifyRight } from "@wordpress/icons";
+import {
+  justifyCenter,
+  justifyLeft,
+  justifyRight,
+  justifySpaceBetween,
+} from "@wordpress/icons";
 //上よせアイコン
 const upper = <Icon icon={justifyLeft} className="rotate-icon" />;
 //中央よせのアイコン
 const middle = <Icon icon={justifyCenter} className="rotate-icon" />;
 //下よせのアイコン
 const lower = <Icon icon={justifyRight} className="rotate-icon" />;
+//縦に引き伸ばすアイコン
+const vstretch = <Icon icon={justifySpaceBetween} className="rotate-icon" />;
 // アイコンと文字列キーのマッピングを作成
 const alignIconMap = {
   left: justifyLeft,
   center: justifyCenter,
   right: justifyRight,
+  // 横に引き伸ばす（保存される値は、縦と同じ "stretch"）
+  stretch: justifySpaceBetween,
   upper: upper,
   middle: middle,
   lower: lower,
+  vstretch: vstretch,
 };
 
 type AlignIconKey = keyof typeof alignIconMap;
@@ -240,7 +250,7 @@ const GridControls = ({
                       ? alignIconMap[setElm.elm.latAlign as AlignIconKey]
                       : alignIconMap["left"]
                   }
-                  controls={["left", "center", "right"].map((align) => ({
+                  controls={["left", "center", "right", "stretch"].map((align) => ({
                     icon: alignIconMap[align as AlignIconKey],
                     title: __(
                       align.charAt(0).toUpperCase() + align.slice(1),
@@ -254,12 +264,17 @@ const GridControls = ({
                 <ToolbarDropdownMenu
                   label={__("Vertical Alignment", "block-collections")}
                   icon={
-                    setElm.elm.vertAlign
-                      ? alignIconMap[setElm.elm.vertAlign as AlignIconKey]
-                      : alignIconMap["upper"]
+                    setElm.elm.vertAlign === "stretch"
+                      ? alignIconMap["vstretch"]
+                      : setElm.elm.vertAlign
+                        ? alignIconMap[setElm.elm.vertAlign as AlignIconKey]
+                        : alignIconMap["upper"]
                   }
-                  controls={["upper", "middle", "lower"].map((align) => ({
-                    icon: alignIconMap[align as AlignIconKey],
+                  controls={["upper", "middle", "lower", "stretch"].map((align) => ({
+                    icon:
+                      align === "stretch"
+                        ? alignIconMap["vstretch"]
+                        : alignIconMap[align as AlignIconKey],
                     title: __(
                       align.charAt(0).toUpperCase() + align.slice(1),
                       "block-collections",

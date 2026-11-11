@@ -181,6 +181,13 @@ function useBlockAttributeChanges(clientId, blockName, className, modFlg = false
     const [latestAttributes, setLatestAttributes] = element.useState(null);
     //const [idleFlg, setIdleFlg] = useState(null);
     const prevBlocksRef = element.useRef({});
+    /*
+     * 変更で「なくなった」属性の名前。JSON は undefined を落とすので、削除は別に覚えておかないと
+     * 他のブロックに伝わらない。例: カスタム色を選ぶと、コアのカラーピッカーはテーマ色のスラッグ
+     * （backgroundColor）を外す。それが伝わらないと、他のブロックに古いスラッグが残り、
+     * その色が元のブロックへ逆流して、入れた色が元に戻る。
+     */
+    const removedKeysRef = element.useRef([]);
     //属性変更関数を取得
     const { updateBlockAttributes } = data.useDispatch("core/block-editor");
     //インナーブロックを平坦化する関数
@@ -220,6 +227,9 @@ function useBlockAttributeChanges(clientId, blockName, className, modFlg = false
                     //   setIdleFlg(false);
                     // }
                     //呼び出し元に返すための更新後の属性オブジェクトを格納
+                    //前回あって、今回なくなった（undefined になった）属性
+                    removedKeysRef.current = Object.keys(filteredPrevAttributes).filter((key) => filteredPrevAttributes[key] !== undefined &&
+                        filteredCurrentAttributes[key] === undefined);
                     setLatestAttributes(JSON.stringify(filteredCurrentAttributes));
                 }
             }
@@ -236,8 +246,13 @@ function useBlockAttributeChanges(clientId, blockName, className, modFlg = false
             //   ...latestAttrObj,
             //   className: `auto_attr_change ${latestAttrObj.className}`,
             // };
+            const latestAttrObj = JSON.parse(latestAttributes);
+            //なくなった属性は undefined で伝える（JSON を通すと落ちるため、ここで足す）
+            removedKeysRef.current.forEach((key) => {
+                latestAttrObj[key] = undefined;
+            });
             targetBlocks.forEach((block) => {
-                updateBlockAttributes(block.clientId, JSON.parse(latestAttributes));
+                updateBlockAttributes(block.clientId, latestAttrObj);
             });
         }
     }, [latestAttributes]);

@@ -21,94 +21,151 @@ interface PositionString {
   y: string;
 }
 
+// "12.5px" "-3em" などを px の数値に直す（小数・負数・em/rem に対応。% など換算できない単位は 0 扱い）
+const toPx = (value: string | undefined, element: HTMLElement): number => {
+  const m = String(value ?? "").trim().match(/^(-?\d*\.?\d+)([%a-zA-Z]*)$/);
+  if (!m) return 0;
+  const num = parseFloat(m[1]);
+  const unit = m[2];
+  if (unit === "" || unit === "px") return num;
+  if (unit === "em" || unit === "rem") {
+    const base = unit === "em" ? element : document.documentElement;
+    return num * (parseFloat(getComputedStyle(base).fontSize) || 16);
+  }
+  return 0;
+};
+
+// この距離(px)以上動かして初めてドラッグとみなす。クリックや内側ブロックの選択を邪魔しないため
+const DRAG_THRESHOLD = 4;
+
 export const useDraggingMove = (
   isMovable: boolean,
   blockRef: RefObject<HTMLElement>, // ReactのRef型を指定
   position: PositionString,
   onPositionChange: (pos: PositionString) => void,
 ) => {
-  const elmposition = useRef<Vector2D>({ x: 0, y: 0 });
-  const isDragging = useRef(false);
-  const mousePosition = useRef<Vector2D>({ x: 0, y: 0 });
+  // 最新の値は ref で持つ。effect の依存に入れると再描画のたびにリスナーが張り替わり、
+  // ドラッグ中に transform が消えたり開始位置が巻き戻ったりする
+  const positionRef = useRef(position);
+  const onChangeRef = useRef(onPositionChange);
+  positionRef.current = position;
+  onChangeRef.current = onPositionChange;
 
   useEffect(() => {
     const element = blockRef.current;
     if (!element) return;
 
     if (!isMovable) {
-      if (element) {
-        element.classList.remove("itmar_isDraggable"); //移動カーソル表示クラス削除
+      element.classList.remove("itmar_isDraggable"); //移動カーソル表示クラス削除
+      return;
+    }
+    element.classList.add("itmar_isDraggable");
+
+    let pointerId: number | null = null;
+    let started = false; // しきい値を超えてドラッグが始まったか
+    let startPointer: Vector2D = { x: 0, y: 0 };
+    let startOffset: Vector2D = { x: 0, y: 0 };
+    let current: Vector2D = { x: 0, y: 0 };
+    let prevUserSelect = "";
+
+    const onPointerDown = (event: PointerEvent) => {
+      if (event.button !== 0 || !event.isPrimary) return;
+      // 入れ子の移動可能ブロックでは一番内側だけを動かす
+      const hit = (event.target as Element | null)?.closest(".itmar_isDraggable");
+      if (hit !== element) return;
+      // フォーム部品の操作（入力・選択）はドラッグにしない
+      if ((event.target as Element).closest("input, textarea, select")) return;
+
+      pointerId = event.pointerId;
+      started = false;
+      startPointer = { x: event.clientX, y: event.clientY };
+      startOffset = {
+        x: toPx(positionRef.current?.x, element),
+        y: toPx(positionRef.current?.y, element),
+      };
+      current = startOffset;
+    };
+
+    const onPointerMove = (event: PointerEvent) => {
+      if (pointerId === null || event.pointerId !== pointerId) return;
+      const dx = event.clientX - startPointer.x;
+      const dy = event.clientY - startPointer.y;
+      if (!started) {
+        if (Math.hypot(dx, dy) < DRAG_THRESHOLD) return;
+        started = true;
+        // 以後のイベントを、ポインターが要素の外に出ても受け取る（速く動かしても途切れない）
+        try {
+          element.setPointerCapture(event.pointerId);
+        } catch (e) {
+          /* 取得できなくても動作は続ける */
+        }
+        prevUserSelect = element.style.userSelect;
+        element.style.userSelect = "none"; // ドラッグ中に文字が選択されないように
       }
-      return; // 移動許可がある場合のみ、後続のロジックを実行
-    }
-    //positionの変化に合わせて現在位置を変更
-    const pos_value_x = position.x.match(/(-?\d+)([%a-zA-Z]+)/);
-    const pos_value_y = position.y.match(/(-?\d+)([%a-zA-Z]+)/);
-    if (pos_value_x && pos_value_y) {
-      elmposition.current = {
-        x: parseInt(pos_value_x[1], 10),
-        y: parseInt(pos_value_y[1], 10),
-      };
-    }
-
-    //イベントハンドラ
-    const handleMouseDown = (event: MouseEvent) => {
-      // 移動カーソル表示クラス名を追加します。
-      element.classList.add("itmar_isDraggable");
-      //ドラッグの開始フラグオン
-      isDragging.current = true;
-      //ドラッグ開始の絶対位置
-      mousePosition.current = { x: event.clientX, y: event.clientY };
-    };
-
-    const handleMouseMove = (event: MouseEvent) => {
-      if (!isDragging.current) return; //ドラッグ中でなければ処理を中止
-      const dx = event.clientX - mousePosition.current.x;
-      const dy = event.clientY - mousePosition.current.y;
-      //ドラッグ後の位置を保存
-      const newPosition = {
-        x: elmposition.current.x + dx,
-        y: elmposition.current.y + dy,
-      };
-      elmposition.current = newPosition;
-      mousePosition.current = { x: event.clientX, y: event.clientY }; //マウス位置の保存
+      event.preventDefault();
+      current = { x: startOffset.x + dx, y: startOffset.y + dy };
       //ドラッグによるブロックの一時的移動
-      element.style.transform = `translate(${elmposition.current.x}px, ${elmposition.current.y}px)`;
+      element.style.transform = `translate(${current.x}px, ${current.y}px)`;
     };
 
-    const handleMouseUp = () => {
-      if (!isDragging.current) return;
-      isDragging.current = false;
-      element.style.transform = ""; // null ではなく空文字が推奨
-      //呼出しもとに要素の位置を返す
-      onPositionChange({
-        x: `${elmposition.current.x}px`,
-        y: `${elmposition.current.y}px`,
-      });
-    };
-    const handleMouseLeave = () => {
-      isDragging.current = false;
-    };
-
-    if (element) {
-      // クラス名を追加します。
-      element.classList.add("itmar_isDraggable");
-    }
-    // イベントハンドラを追加します。
-    element.addEventListener("mousedown", handleMouseDown);
-    element.addEventListener("mousemove", handleMouseMove);
-    element.addEventListener("mouseup", handleMouseUp);
-    element.addEventListener("mouseleave", handleMouseLeave);
-
-    // イベントリスナーを削除するクリーンアップ関数を返します。
-    return () => {
-      element.removeEventListener("mousedown", handleMouseDown);
-      element.removeEventListener("mousemove", handleMouseMove);
-      element.removeEventListener("mouseup", handleMouseUp);
-      element.removeEventListener("mouseleave", handleMouseLeave);
+    const finish = (event: PointerEvent, commit: boolean) => {
+      if (pointerId === null || event.pointerId !== pointerId) return;
+      pointerId = null;
+      if (!started) return;
+      started = false;
+      try {
+        element.releasePointerCapture(event.pointerId);
+      } catch (e) {
+        /* すでに解放済み */
+      }
+      element.style.userSelect = prevUserSelect;
       element.style.transform = "";
+      if (commit) {
+        //呼出しもとに要素の位置を返す
+        onChangeRef.current({
+          x: `${Math.round(current.x)}px`,
+          y: `${Math.round(current.y)}px`,
+        });
+      }
     };
-  }, [isMovable, blockRef, position, onPositionChange]); // 依存配列に isMovable を含めます
+    const onPointerUp = (event: PointerEvent) => finish(event, true);
+    const onPointerCancel = (event: PointerEvent) => finish(event, false);
+
+    // ドラッグ直後に発火する click は止める（内側ブロックを誤って選択・操作しない）
+    const onClickCapture = (event: MouseEvent) => {
+      if (suppressClick) {
+        suppressClick = false;
+        event.stopPropagation();
+        event.preventDefault();
+      }
+    };
+    let suppressClick = false;
+    const markSuppress = () => {
+      suppressClick = true;
+      setTimeout(() => (suppressClick = false), 0);
+    };
+    const onUpMark = (event: PointerEvent) => {
+      if (started && event.pointerId === pointerId) markSuppress();
+    };
+
+    element.addEventListener("pointerdown", onPointerDown);
+    element.addEventListener("pointermove", onPointerMove);
+    element.addEventListener("pointerup", onUpMark, true); // finish より先に started を見る
+    element.addEventListener("pointerup", onPointerUp);
+    element.addEventListener("pointercancel", onPointerCancel);
+    element.addEventListener("click", onClickCapture, true);
+
+    return () => {
+      element.removeEventListener("pointerdown", onPointerDown);
+      element.removeEventListener("pointermove", onPointerMove);
+      element.removeEventListener("pointerup", onUpMark, true);
+      element.removeEventListener("pointerup", onPointerUp);
+      element.removeEventListener("pointercancel", onPointerCancel);
+      element.removeEventListener("click", onClickCapture, true);
+      element.style.transform = "";
+      element.style.userSelect = prevUserSelect;
+    };
+  }, [isMovable, blockRef]);
 };
 
 interface DraggableBoxProps {
@@ -117,10 +174,13 @@ interface DraggableBoxProps {
     y: string;
   };
   onPositionChange: (newPos: { x: string; y: string }) => void;
+  /** ラベルの末尾に付ける表記。例: "(Mobile)" / "(DeskTop)" */
+  labelSuffix?: string;
 }
 export default function DraggableBox({
   attributes,
   onPositionChange,
+  labelSuffix = "",
 }: DraggableBoxProps) {
   const position = attributes;
 
@@ -146,13 +206,13 @@ export default function DraggableBox({
           <UnitControl
             dragDirection="e"
             onChange={(value) => chagePosition(value, "x")}
-            label={__("Vertical", "block-collections")}
+            label={`${__("Horizen", "block-collections")}${labelSuffix}`}
             value={position?.x || 0}
           />
           <UnitControl
             dragDirection="e"
             onChange={(value) => chagePosition(value, "y")}
-            label={__("Horizen", "block-collections")}
+            label={`${__("Vertical", "block-collections")}${labelSuffix}`}
             value={position?.y || 0}
           />
         </PanelRow>

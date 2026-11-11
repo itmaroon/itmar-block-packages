@@ -135,6 +135,9 @@ function slideBlockSwiperInit(swiperElement) {
     if (!swiper_info || typeof swiper_info !== "object") {
         throw new Error("data-swiper-info が見つからないか、JSONとして解釈できません。");
     }
+    // オートプレイは Swiper 11 ではモジュールの登録が必要（未登録だと autoplay の設定が無視される）
+    if (swiper_info.is_autoplay)
+        moduleArray.push(modules.Autoplay);
     // パララックス設定
     const parallax_option = parallax_obj != null ? { parallax: true } : {};
     // オートプレイ設定

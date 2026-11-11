@@ -3,7 +3,7 @@ import { Icon, PanelRow, __experimentalNumberControl, __experimentalUnitControl,
 import { useSelect, dispatch } from '@wordpress/data';
 import { useState, useRef, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { justifyLeft, justifyCenter, justifyRight } from '@wordpress/icons';
+import { justifyLeft, justifyCenter, justifyRight, justifySpaceBetween } from '@wordpress/icons';
 
 //上よせアイコン
 const upper = jsx(Icon, { icon: justifyLeft, className: "rotate-icon" });
@@ -11,14 +11,19 @@ const upper = jsx(Icon, { icon: justifyLeft, className: "rotate-icon" });
 const middle = jsx(Icon, { icon: justifyCenter, className: "rotate-icon" });
 //下よせのアイコン
 const lower = jsx(Icon, { icon: justifyRight, className: "rotate-icon" });
+//縦に引き伸ばすアイコン
+const vstretch = jsx(Icon, { icon: justifySpaceBetween, className: "rotate-icon" });
 // アイコンと文字列キーのマッピングを作成
 const alignIconMap = {
     left: justifyLeft,
     center: justifyCenter,
     right: justifyRight,
+    // 横に引き伸ばす（保存される値は、縦と同じ "stretch"）
+    stretch: justifySpaceBetween,
     upper: upper,
     middle: middle,
     lower: lower,
+    vstretch: vstretch,
 };
 const units = [
     { value: "px", label: "px" },
@@ -129,15 +134,19 @@ const GridControls = ({ attributes, clientId, onChange, }) => {
                         }
                         : undefined, onClick: () => detectCellPosition(r, c), children: setElm && (jsxs(StopPropagationWrapper, { children: [jsx(ToolbarDropdownMenu, { label: __("Lateral Alignment", "block-collections"), icon: setElm.elm.latAlign
                                     ? alignIconMap[setElm.elm.latAlign]
-                                    : alignIconMap["left"], controls: ["left", "center", "right"].map((align) => ({
+                                    : alignIconMap["left"], controls: ["left", "center", "right", "stretch"].map((align) => ({
                                     icon: alignIconMap[align],
                                     title: __(align.charAt(0).toUpperCase() + align.slice(1), "block-collections"),
                                     isActive: setElm.elm.latAlign === align,
                                     onClick: () => updateAlignment(setElm.index, align, "latAlign"),
-                                })) }), jsx(ToolbarDropdownMenu, { label: __("Vertical Alignment", "block-collections"), icon: setElm.elm.vertAlign
-                                    ? alignIconMap[setElm.elm.vertAlign]
-                                    : alignIconMap["upper"], controls: ["upper", "middle", "lower"].map((align) => ({
-                                    icon: alignIconMap[align],
+                                })) }), jsx(ToolbarDropdownMenu, { label: __("Vertical Alignment", "block-collections"), icon: setElm.elm.vertAlign === "stretch"
+                                    ? alignIconMap["vstretch"]
+                                    : setElm.elm.vertAlign
+                                        ? alignIconMap[setElm.elm.vertAlign]
+                                        : alignIconMap["upper"], controls: ["upper", "middle", "lower", "stretch"].map((align) => ({
+                                    icon: align === "stretch"
+                                        ? alignIconMap["vstretch"]
+                                        : alignIconMap[align],
                                     title: __(align.charAt(0).toUpperCase() + align.slice(1), "block-collections"),
                                     isActive: setElm.elm.vertAlign === align,
                                     onClick: () => updateAlignment(setElm.index, align, "vertAlign"),

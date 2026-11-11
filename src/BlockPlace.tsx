@@ -77,6 +77,72 @@ interface BlockPlaceProps {
   onGridChange: (attr: Partial<GridAttributes>) => void;
 }
 
+/*
+ * 位置の値の入力。通常は単位つきの数値。右端の「fx」を押すと、calc() / min() / max() / clamp() などの式を入力できる。
+ * 画面幅で変わる位置（中央寄せのメニューの端に合わせる、など）は単位だけでは指定できないため。
+ * 式の入力は、確定（フォーカスを外す・Enter）するまで反映しない。入力途中の不完全な式でCSSを壊さないため。
+ */
+const isCssExpression = (value?: string): boolean => /[()]/.test(value ?? "");
+
+function PositionValueControl({
+  value,
+  onChange,
+}: {
+  value: string;
+  onChange: (newValue: string) => void;
+}) {
+  const [exprMode, setExprMode] = useState<boolean>(isCssExpression(value));
+  const [draft, setDraft] = useState<string>(value);
+  useEffect(() => {
+    setDraft(value);
+    if (isCssExpression(value)) setExprMode(true);
+  }, [value]);
+
+  const commit = () => {
+    const v = draft.trim();
+    if (v && v !== value) onChange(v);
+  };
+
+  return (
+    <div style={{ display: "flex", gap: "4px", alignItems: "flex-end", flex: 1 }}>
+      <div style={{ flex: 1 }}>
+        {exprMode ? (
+          <TextControl
+            __nextHasNoMarginBottom
+            hideLabelFromVision
+            label={__("Position expression", "block-collections")}
+            value={draft}
+            placeholder="calc((100vw - 1200px) / 2 + 24px)"
+            onChange={(v: string) => setDraft(v)}
+            onBlur={commit}
+            onKeyDown={(ev: React.KeyboardEvent) => {
+              if (ev.key === "Enter") commit();
+            }}
+          />
+        ) : (
+          <UnitControl dragDirection="e" value={value} onChange={onChange} />
+        )}
+      </div>
+      <Button
+        variant="secondary"
+        size="small"
+        isPressed={exprMode}
+        label={__("Enter a CSS expression such as calc()", "block-collections")}
+        showTooltip
+        onClick={() => {
+          if (exprMode && isCssExpression(value)) {
+            //式から単位つきの値へ戻すときは、式を捨てて既定値にする
+            onChange("3em");
+          }
+          setExprMode(!exprMode);
+        }}
+      >
+        fx
+      </Button>
+    </div>
+  );
+}
+
 export default function BlockPlace(props: BlockPlaceProps) {
   const { attributes, clientId, blockRef, isMobile, isSubmenu, isParallax } =
     props;
@@ -577,7 +643,11 @@ export default function BlockPlace(props: BlockPlaceProps) {
         )}
         <div className="itmar_title_type">
           <RadioControl
-            label={__("Position Type", "block-collections")}
+            label={
+              isMobile
+                ? __("Position Type(Mobile)", "block-collections")
+                : __("Position Type(DeskTop)", "block-collections")
+            }
             selected={positionType}
             options={[
               { label: __("Static", "block-collections"), value: "staic" },
@@ -638,16 +708,14 @@ export default function BlockPlace(props: BlockPlaceProps) {
                       props.onPosValueChange(newValObj);
                     }}
                   />
-                  <UnitControl
-                    dragDirection="e"
+                  <PositionValueControl
+                    value={sel_pos.posValue?.vertValue || "3em"}
                     onChange={(newValue) => {
-                      const newValObj = {
+                      props.onPosValueChange({
                         ...(sel_pos.posValue || {}),
                         vertValue: newValue,
-                      };
-                      props.onPosValueChange(newValObj);
+                      });
                     }}
-                    value={sel_pos.posValue?.vertValue || "3em"}
                   />
                 </PanelRow>
               )}
@@ -686,16 +754,14 @@ export default function BlockPlace(props: BlockPlaceProps) {
                       props.onPosValueChange(newValObj);
                     }}
                   />
-                  <UnitControl
-                    dragDirection="e"
+                  <PositionValueControl
+                    value={sel_pos.posValue?.horValue || "3em"}
                     onChange={(newValue) => {
-                      const newValObj = {
+                      props.onPosValueChange({
                         ...(sel_pos.posValue || {}),
                         horValue: newValue,
-                      };
-                      props.onPosValueChange(newValObj);
+                      });
                     }}
-                    value={sel_pos.posValue?.horValue || "3em"}
                   />
                 </PanelRow>
               )}

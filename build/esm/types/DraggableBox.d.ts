@@ -14,6 +14,8 @@ interface DraggableBoxProps {
         x: string;
         y: string;
     }) => void;
+    /** ラベルの末尾に付ける表記。例: "(Mobile)" / "(DeskTop)" */
+    labelSuffix?: string;
 }
-export default function DraggableBox({ attributes, onPositionChange, }: DraggableBoxProps): import("react/jsx-runtime").JSX.Element;
+export default function DraggableBox({ attributes, onPositionChange, labelSuffix, }: DraggableBoxProps): import("react/jsx-runtime").JSX.Element;
 export {};

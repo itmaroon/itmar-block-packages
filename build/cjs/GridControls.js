@@ -15,14 +15,19 @@ const upper = jsxRuntime.jsx(components.Icon, { icon: icons.justifyLeft, classNa
 const middle = jsxRuntime.jsx(components.Icon, { icon: icons.justifyCenter, className: "rotate-icon" });
 //下よせのアイコン
 const lower = jsxRuntime.jsx(components.Icon, { icon: icons.justifyRight, className: "rotate-icon" });
+//縦に引き伸ばすアイコン
+const vstretch = jsxRuntime.jsx(components.Icon, { icon: icons.justifySpaceBetween, className: "rotate-icon" });
 // アイコンと文字列キーのマッピングを作成
 const alignIconMap = {
     left: icons.justifyLeft,
     center: icons.justifyCenter,
     right: icons.justifyRight,
+    // 横に引き伸ばす（保存される値は、縦と同じ "stretch"）
+    stretch: icons.justifySpaceBetween,
     upper: upper,
     middle: middle,
     lower: lower,
+    vstretch: vstretch,
 };
 const units = [
     { value: "px", label: "px" },
@@ -133,15 +138,19 @@ const GridControls = ({ attributes, clientId, onChange, }) => {
                         }
                         : undefined, onClick: () => detectCellPosition(r, c), children: setElm && (jsxRuntime.jsxs(StopPropagationWrapper, { children: [jsxRuntime.jsx(components.ToolbarDropdownMenu, { label: i18n.__("Lateral Alignment", "block-collections"), icon: setElm.elm.latAlign
                                     ? alignIconMap[setElm.elm.latAlign]
-                                    : alignIconMap["left"], controls: ["left", "center", "right"].map((align) => ({
+                                    : alignIconMap["left"], controls: ["left", "center", "right", "stretch"].map((align) => ({
                                     icon: alignIconMap[align],
                                     title: i18n.__(align.charAt(0).toUpperCase() + align.slice(1), "block-collections"),
                                     isActive: setElm.elm.latAlign === align,
                                     onClick: () => updateAlignment(setElm.index, align, "latAlign"),
-                                })) }), jsxRuntime.jsx(components.ToolbarDropdownMenu, { label: i18n.__("Vertical Alignment", "block-collections"), icon: setElm.elm.vertAlign
-                                    ? alignIconMap[setElm.elm.vertAlign]
-                                    : alignIconMap["upper"], controls: ["upper", "middle", "lower"].map((align) => ({
-                                    icon: alignIconMap[align],
+                                })) }), jsxRuntime.jsx(components.ToolbarDropdownMenu, { label: i18n.__("Vertical Alignment", "block-collections"), icon: setElm.elm.vertAlign === "stretch"
+                                    ? alignIconMap["vstretch"]
+                                    : setElm.elm.vertAlign
+                                        ? alignIconMap[setElm.elm.vertAlign]
+                                        : alignIconMap["upper"], controls: ["upper", "middle", "lower", "stretch"].map((align) => ({
+                                    icon: align === "stretch"
+                                        ? alignIconMap["vstretch"]
+                                        : alignIconMap[align],
                                     title: i18n.__(align.charAt(0).toUpperCase() + align.slice(1), "block-collections"),
                                     isActive: setElm.elm.vertAlign === align,
                                     onClick: () => updateAlignment(setElm.index, align, "vertAlign"),
