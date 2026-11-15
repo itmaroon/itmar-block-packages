@@ -295,6 +295,7 @@ const ChoiceControl = (props: ChoiceControlProps) => {
           { value: "core/paragraph", label: "core/paragraph" },
           { value: "core/image", label: "core/image" },
           { value: "itmar/slide-mv", label: "itmar/slide-mv" },
+          { value: "core/video", label: "core/video" },
         ];
 
         return (

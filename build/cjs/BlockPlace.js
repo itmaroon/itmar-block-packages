@@ -262,5 +262,6 @@ function BlockHeight(props) {
 
 exports.BlockHeight = BlockHeight;
 exports.BlockWidth = BlockWidth;
+exports.PositionValueControl = PositionValueControl;
 exports.default = BlockPlace;
 //# sourceMappingURL=BlockPlace.js.map

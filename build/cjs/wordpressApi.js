@@ -171,6 +171,7 @@ const ChoiceControl = (props) => {
                     { value: "core/paragraph", label: "core/paragraph" },
                     { value: "core/image", label: "core/image" },
                     { value: "itmar/slide-mv", label: "itmar/slide-mv" },
+                    { value: "core/video", label: "core/video" },
                 ];
                 return (jsxRuntime.jsxs("div", { className: "itmar_custom_field_set", children: [jsxRuntime.jsx(components.ToggleControl, { className: "field_choice", label: fieldLabel, checked: choiceItems.some((choiceField) => choiceField === fieldName), onChange: (checked) => {
                                 const newItems = handleChoiceChange(checked, fieldName, choiceItems);

@@ -39,6 +39,14 @@ export {
   FieldChoiceControl,
 } from "./wordpressApi";
 
+//アーカイブのリンクの絞り込み（タクソノミーとターム）
+export {
+  ArchiveTermSelect,
+  archiveTermQuery,
+  archiveBaseUrl,
+} from "./ArchiveTermSelect";
+export type { ArchiveTerm } from "./ArchiveTermSelect";
+
 //styled-componet用のcssプロパティ生成関数
 export {
   space_prm,
@@ -78,7 +86,12 @@ export { default as DraggableBox, useDraggingMove } from "./DraggableBox";
 export { default as AnimationBlock, anime_comp } from "./AnimationBlock";
 
 //ブロックの配置を設定するコントロール
-export { default as BlockPlace, BlockWidth, BlockHeight } from "./BlockPlace";
+export {
+  default as BlockPlace,
+  BlockWidth,
+  BlockHeight,
+  PositionValueControl,
+} from "./BlockPlace";
 export { default as GridControls } from "./GridControls";
 
 //DOM要素の表示を反転させるコントロール

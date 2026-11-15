@@ -4,6 +4,8 @@ export interface BookingActionContextType {
 export declare const BookingActionContext: any;
 export { useIsIframeMobile, useElementBackgroundColor, useElementStyleObject, useElementWidth, useIsMobile, useDeepCompareEffect, useFontawesomeIframe, useBlockAttributeChanges, useDuplicateBlockRemove, useStyleIframe, } from "./customHooks";
 export { fetchPagesOptions, fetchArchiveOptions, restFetchData, restTaxonomies, restFieldes, termToDispObj, PageSelectControl, ArchiveSelectControl, PostSelectControl, TermChoiceControl, FieldChoiceControl, } from "./wordpressApi";
+export { ArchiveTermSelect, archiveTermQuery, archiveBaseUrl, } from "./ArchiveTermSelect";
+export type { ArchiveTerm } from "./ArchiveTermSelect";
 export { space_prm, max_width_prm, width_prm, height_prm, align_prm, position_prm, radius_prm, convertToScss, borderProperty, radiusProperty, marginProperty, paddingProperty, } from "./cssPropertes";
 export { default as ShadowStyle, ShadowElm, ShadowState } from "./ShadowStyle";
 export { default as PseudoElm, Arrow } from "./PseudoElm";
@@ -11,7 +13,7 @@ export type { ArrowDirection } from "./PseudoElm";
 export { SingleImageSelect, MultiImageSelect, getMediaType, getImageAspectRatio, getVideoAspectRatio, } from "./mediaUpload";
 export { default as DraggableBox, useDraggingMove } from "./DraggableBox";
 export { default as AnimationBlock, anime_comp } from "./AnimationBlock";
-export { default as BlockPlace, BlockWidth, BlockHeight } from "./BlockPlace";
+export { default as BlockPlace, BlockWidth, BlockHeight, PositionValueControl, } from "./BlockPlace";
 export { default as GridControls } from "./GridControls";
 export { default as ToggleElement } from "./ToggleElement";
 export { default as TypographyControls } from "./TypographyControls";

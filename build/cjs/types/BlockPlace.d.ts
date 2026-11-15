@@ -30,6 +30,10 @@ interface BlockPlaceProps {
     onPositionChange: (val: string) => void;
     onGridChange: (attr: Partial<GridAttributes>) => void;
 }
+export declare function PositionValueControl({ value, onChange, }: {
+    value: string;
+    onChange: (newValue: string) => void;
+}): import("react/jsx-runtime").JSX.Element;
 export default function BlockPlace(props: BlockPlaceProps): import("react/jsx-runtime").JSX.Element;
 interface BlockWidthProps {
     attributes: any;

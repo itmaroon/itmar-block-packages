@@ -84,7 +84,7 @@ interface BlockPlaceProps {
  */
 const isCssExpression = (value?: string): boolean => /[()]/.test(value ?? "");
 
-function PositionValueControl({
+export function PositionValueControl({
   value,
   onChange,
 }: {
